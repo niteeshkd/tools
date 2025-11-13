@@ -1,0 +1,15 @@
+[package]
+name = "sev_snp_report"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.70"
+base64 = "0.21.0"
+crypto = "0.4.0"
+serde = "1.0.159"
+serde_json = "1.0.95"
+#sev = "1.1.0"
+sev = { git = "https://github.com/virtee/sev.git" }

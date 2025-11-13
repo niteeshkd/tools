@@ -1,0 +1,103 @@
+master_node:
+  - hostname: small12-agent0
+    hostIP: 100.64.12.33
+    arch: amd64
+    MAC: "52:54:0C:0D:02:21"
+    uuid: 00000000-0000-0000-0000-52540c0d0221
+    fabricIP: 0.0.0.0
+    FPMac: "00:00:00:00:00:00"
+    FPextIP: 0.0.0.0
+    edgeIP: 0.0.0.1
+    ipmi: 0.0.0.0
+    gateway: 100.64.0.1
+    netmask: 255.255.0.0
+    nameserver: 9.0.130.50
+    demeter_hypervisor: 100.64.0.112
+    order: 1
+    uefi: true
+    master: true
+    edge: false
+control_node:
+  - hostname: small12-agent1
+    hostIP: 100.64.12.34
+    arch: amd64
+    MAC: "52:54:0C:0D:02:22"
+    uuid: 00000000-0000-0000-0000-52540c0d0222
+    fabricIP: 0.0.0.0
+    FPMac: "00:00:00:00:00:00"
+    FPextIP: 0.0.0.0
+    edgeIP: 0.0.0.1
+    ipmi: 0.0.0.0
+    gateway: 100.64.0.1
+    netmask: 255.255.0.0
+    nameserver: 9.0.130.50
+    demeter_hypervisor: 100.64.0.112
+    order: 2
+    uefi: true
+    control: true
+    edge: false
+regionid: 1
+hwtype: 5
+environment_type: virtual
+proto_boot_net: fabric_exit
+services:
+    keylime:
+        ASSET_DB_IP: "100.64.12.1"
+        ASSET_DB_ID: "3"
+        ASSET_DB_PORT: "16379"
+        REGISTRAR_PROVIDER_REGISTRAR_IP: "127.0.0.1"
+        REGISTRAR_REGISTRAR_IP: "100.64.12.1"
+        CLOUD_VERIFIER_CLOUDVERIFIER_IP: "100.64.12.1"
+        CLOUD_VERIFIER_REVOCATION_NOTIFIER_IP: "100.64.12.1"
+        WEBAPP_WEBAPP_IP: "100.64.12.1"
+        TENANT_TPM_CERT_STORE: "/var/lib/keylime/tpm_cert_store/"
+        TENANT_TPM_POLICY: "{}"
+        TENANT_VTPM_POLICY: "{}"
+        CLOUD_AGENT_CLOUDAGENT_IP: "100.64.12.34"
+        CLOUD_AGENT_AGENT_UUID: "00000000-0000-0000-0000-52540c0d0222"
+        CLOUD_AGENT_REQUIRE_EK_CERT: "True"
+        CLOUD_AGENT_EK_HANDLE: "generate"
+        CLOUD_AGENT_TPM_OWNERPASSWORD: "temp4now"
+        GENERAL_CA_IMPLEMENTATION: "openssl"
+        CA_CFSSL_IP: "100.64.12.1"
+        CA_CERT_CRL_DIST: "http://100.64.255.11:3808/crl"
+        CA_CERT_ORGANIZATION: "IBM"
+        CA_CERT_LOCALITY: "YKT"
+        CA_CERT_STATE: "NY"
+        CA_CERT_CA_NAME: "feykimeluckers"
+        CA_CERT_ORG_UNIT: "k5l"
+        CLOUD_VERIFIER_TLS_DIR: "generate"
+        ENABLE_SEEDER: "0"
+        DEPLOYER_IP: "100.64.12.1"
+        DEPLOY_AGENT: "0"
+        DEPLOY_MB: "0"
+        DEPLOY_IMA: "0"
+        DEPLOY_AUTORUN: "0"
+        DEPLOY_PARALLELISM: "5"
+        MASTER_NODE_LIST: "allnodes"
+        CONTAINER_TAG: "6.4.0_20220726T183842Z_deadf96"
+        CONTAINER_REGISTRY: "100.64.0.255:5000/attestation"
+        LOGGER_ROOT_LEVEL: "DEBUG"
+        HANDLER_CONSOLEHANDLER_LEVEL: "DEBUG"
+        LOGGER_KEYLIME_LEVEL: "DEBUG"
+        CLOUD_VERIFIER_LOG_DESTINATION: "none"
+        REGISTRAR_LOG_DESTINATION: "none"
+        CLUSTER: "small12"
+        NAME: "keylime"
+        EXECUTABLE_ALREADY_PRESENT: "0"
+        SERVICE_ENABLED: "1"
+        ASSET_DB_PW: "temp4now"
+        CLOUD_AGENT_CLOUDAGENT_PORT: "9002"
+        REGISTRAR_DATABASE_URL: " "
+        REGISTRAR_PORT: "8890"
+        REGISTRAR_TLS_PORT: "8891"
+        CLOUD_VERIFIER_DATABASE_URL: " "
+        CLOUD_VERIFIER_PORT: "8881"
+        REGISTRAR_DATABASE_SHARED: "1"
+        CLOUD_VERIFIER_DATABASE_SHARED: "1"
+        CONTAINER_TEST: "0"
+        CLOUD_VERIFIER_CLOUDVERIFIER_NAME: "small12-svr0"
+        REGISTRAR_REGISTRAR_NAME: "small12-svr0"
+        DEPLOYER_NAME: "small12-svr0"
+        DOCKER_LOG_DRIVER: "syslog"
+        DOCKER_LOG_OPTS: "syslog-address:tcp://100.64.0.255:514,tag:container_name/small12-{{.Name}}-{{.ID}},syslog-facility:daemon"

@@ -1,0 +1,325 @@
+# ##############################################
+# WARNING -- this is a generated file          #
+# ##############################################
+[NODE: COMMON]
+LIBVIRT_HOST_LIST  = 100.64.0.112
+# cluster name.
+# application options.
+# tunneling options.
+
+[NODE: COMMON]
+CLUSTER                                           = small12
+OPTIONS_APPLICATIONS                    = base,collectd,docker,keylime
+#OPTIONS_APPLICATIONS                     = base,collectd,docker,haproxy,keylime
+SSH_TUNNEL_PROXY_USER                             = none
+SSH_TUNNEL_PROXY_HOST                             = none
+SSH_TUNNEL                                        = 0
+
+# docker: the squid proxy is an insecure registry
+[APPLICATION: DOCKER]
+INSECURE-REGISTRIES                              = 172.31.0.16:8080,172.31.0.16:5000,100.64.250.11:8080,9.41.33.175,100.64.0.14:5000,100.64.0.255:5000
+EXECUTABLE_ALREADY_PRESENT                       = 1
+LOG-DRIVER                                       = syslog
+LOG-OPTS                                         = syslog-address:tcp://100.64.0.255:514,tag:container_name/REPLACE_CLUSTER-{{.Name}}-{{.ID}},syslog-facility:daemon
+LOG-DRIVER-REGEX                                 = .*
+#CGROUP_DRIVER = systemd
+
+# kubernetes is optional on keylime configurations.
+# Enable in application_options if you need it.
+[APPLICATION: KUBERNETES]
+PRIMARY_API_IP                  = auto
+SECONDARY_API_IP                = 127.0.0.1
+POD_NET_MODEL                   = flannel
+POD_NETWORK                     = 10.244.0.0/16
+POD_IF                          = eth0
+POD_MTU                         = 1400
+COMPUTE_ON_MASTER               = 0
+DISABLE_APPARMOR                = 0
+API_PORT                        = 6443
+SERVICE_NODE_PORT_RANGE         = 1-9000
+SERVICE_IP_RANGE                = 172.16.0.0/16
+CLUSTER_CIDR                    = 172.24.0.0/13
+DEPLOY_ETCD_OPERATOR            = 1
+DEPLOY_KATA                     = 0
+CRI_SOCKET                      = /var/run/dockershim.sock
+PREPARE_ONLY                    = 0
+WAIT_COMPLETION                 = 0
+GENERATE_TOKENS                 = 1
+INTERFACE                       = public
+
+# collectd: collect runtime information
+[APPLICATION: COLLECTD]
+EXECUTABLE_ALREADY_PRESENT                       = 0
+TRANSMISSION                                     = multicast
+UNICAST_IP                                       = 100.64.0.255
+
+# haproxy: run load balancer
+#[APPLICATION: HAPROXY]
+#LIST                                    = small12-svr0
+#VIRTUAL_IP                              = 0.0.0.0
+#INTERFACE                               = public
+#BACKENDS                                = 18890:8890:source:small12-svr[0-0]
+#BACKENDS                               += ;18891:8891:source:small12-svr[0-0]
+#BACKENDS                               += ;18881:8881:source:small12-svr[0-0]
+
+[APPLICATION: KEYLIME]
+
+# redis - NB we are running on a nonstandard port to avoid entanglement
+# with the standard redis service on every VM image HIB ever built.
+
+ASSET_DB_IP                                      = small12-svr0
+ASSET_DB_ID                                      = 3
+ASSET_DB_PORT                                    = 16379
+
+# server addresses: registrar
+
+REGISTRAR_PROVIDER_REGISTRAR_IP                  = 127.0.0.1
+REGISTRAR_REGISTRAR_IP                 = small12-svr0
+#REGISTRAR_REGISTRAR_IP                  = small12-svr[0-0]
+#REGISTRAR_REGISTRAR_VIP                 = small12-svr0
+#REGISTRAR_REGISTRAR_VPORT               = 18890
+#REGISTRAR_REGISTRAR_TLS_VPORT           = 18891
+
+# server addresses: verifier
+
+CLOUD_VERIFIER_CLOUDVERIFIER_IP        = small12-svr0
+#CLOUD_VERIFIER_CLOUDVERIFIER_IP         = small12-svr[0-0]
+
+# disabled virtual IP for verifier, because we don't want to use haproxy
+# this is a bug we don't yet know how to solve -- haproxy should be usable for the verifier.
+##CLOUD_VERIFIER_CLOUDVERIFIER_VIP        = small12-svr0
+##CLOUD_VERIFIER_CLOUDVERIFIER_VPORT      = 18881
+
+CLOUD_VERIFIER_REVOCATION_NOTIFIER_IP            = small12-svr0
+
+
+# server addresses: webapp
+
+WEBAPP_WEBAPP_IP                                 = small12-svr0
+
+# databases
+
+#CLOUD_VERIFIER_DATABASE_URL             = mysql+pymysql://root:temp4now@100.64.0.255:3306/small12?charset=utf8
+#CLOUD_VERIFIER_AUTO_MIGRATE_DB          = False
+#CLOUD_VERIFIER_DATABASE_POOL_SZ_OVFL    = 40,80
+
+#REGISTRAR_DATABASE_URL                  = mysql+pymysql://root:temp4now@100.64.0.255:3306/small12?charset=utf8
+#REGISTRAR_AUTO_MIGRATE_DB               = False
+#REGISTRAR_DATABASE_POOL_SZ_OVFL         = 40,80
+
+# certificates
+
+TENANT_TPM_CERT_STORE                            = /var/lib/keylime/tpm_cert_store/
+TENANT_TPM_POLICY                                = {}
+TENANT_VTPM_POLICY                               = {}
+
+# agent configuration
+
+CLOUD_AGENT_CLOUDAGENT_IP                        = auto
+CLOUD_AGENT_AGENT_UUID                           = auto
+CLOUD_AGENT_REQUIRE_EK_CERT                      = True
+CLOUD_AGENT_EK_HANDLE                            = generate
+CLOUD_AGENT_TPM_OWNERPASSWORD                    = temp4now
+
+# CA options
+
+GENERAL_CA_IMPLEMENTATION                        = openssl
+CA_CFSSL_IP                                      = small12-svr0
+CA_CERT_CRL_DIST                                 = http://100.64.255.11:3808/crl
+CA_CERT_ORGANIZATION                             = IBM
+CA_CERT_LOCALITY                                 = YKT
+CA_CERT_STATE                                    = NY
+CA_CERT_CA_NAME                                  = feykimeluckers
+CA_CERT_ORG_UNIT                                 = k5l
+CLOUD_VERIFIER_TLS_DIR                           = generate
+
+# IBM specific configuration
+
+#CLOUD_VERIFIER_MEASURED_BOOT_POLICY_NAME          = nextgen2-boot-only
+
+# KLC configuration
+
+ENABLE_SEEDER = 0
+DEPLOYER_IP                                      = small12-svr0
+DEPLOY_AGENT                                     = 0
+DEPLOY_MB                                        = 0
+DEPLOY_IMA                                       = 0
+DEPLOY_AUTORUN                                   = 0
+DEPLOY_PARALLELISM                               = 5
+INTERFACE                                        = public
+MASTER_NODE_LIST                                 = allnodes
+#AGENT_TYPE                                      = python
+
+# KLC tagging
+# 172.31.0.16:8080 is a squid proxy for k8s4g-docker-local
+
+CONTAINER_TAG                                     = 6.4.0_20220726T183842Z_deadf96
+#CONTAINER_REGISTRY                                = 100.64.250.11:8080/attestation
+CONTAINER_REGISTRY                                = 100.64.0.255:5000/attestation
+
+# logging verbosity.
+# this should be OFF for production, but ... we are not in production.
+LOGGER_ROOT_LEVEL                                = DEBUG
+HANDLER_CONSOLEHANDLER_LEVEL                     = DEBUG
+LOGGER_KEYLIME_LEVEL                             = DEBUG
+CLOUD_VERIFIER_LOG_DESTINATION                   = none
+REGISTRAR_LOG_DESTINATION                        = none
+
+
+# ############################################
+# common libvirt configuration
+# ############################################
+[NODE: COMMON]
+
+ROOTPASS                                    = temp4now
+USERNAME                                    = root
+CPU_ARCH                                    = amd64
+LIBVIRT_USERNAME                            = root
+LIBVIRT_PASSWORD                            = temp4now
+LIBVIRT_CONSOLE                             = vnc
+
+# #####################################################
+# boot disk image information: source location, libvirt pool to use etc.
+# #####################################################
+
+[NODE: COMMON]
+ROOTPASS                                    = temp4now
+USERNAME                                    = root
+
+BOOT_IMAGE_WGET_URL                         = http://100.64.0.255/repo/vmimages/cloud-init
+BOOT_IMAGE_RSYNC_URI                        = rsync://100.64.0.255:873/vmimages/cloud-init/
+BOOT_IMAGE_NAME                             = sdebuilder_kubernetes_ubuntu_focal_amd64-5.4.0-Thu_26_May_2022_01_36_41_PM_UTC.qcow2
+#BOOT_ARTIFACT_WGET_URL          	    = http://100.64.0.255/repo/vmimages/cloud-init/ibm_nvram.fd
+BOOT_ARTIFACT_PATH              	    = /tmp/
+
+BOOT_IMAGE_SIZE                             = 0G
+BOOT_DISK_LOCATION                          = default
+BOOT_IMAGE_LOCATION                         = default
+BOOT_DISK_SIZE                              = 100G
+BOOT_DISK_TYPE                              = snapshot
+DATA_DISKS_LOCATION                         = default
+DATA_DISKS_PROCESSING                       = recreate
+
+# ######################################
+# boot method settings: uefi, secureboot, swtpm
+# ######################################
+
+LIBVIRT_BOOT_FIRMWARE           = uefi
+LIBVIRT_TPM                     = swtpm_socket:2.0
+
+# secure boot stanzas
+LIBVIRT_MACHINE                 = q35
+LIBVIRT_UEFI_SECURE             = yes
+LIBVIRT_UEFI_FIRMWARE           = /usr/share/OVMF/OVMF_CODE.secboot.fd
+LIBVIRT_UEFI_NVRAM              = /usr/share/OVMF/OVMF_VARS.secboot.fd
+
+# #####################################################
+# network interface information
+# #####################################################
+
+
+INTERFACE_LIST                  = public
+PUBLIC_ETH                      = eth0
+INSTALL_INTERFACE               = public
+ACCESS_INTERFACE                = public
+
+LIBVIRT_NETWORK_MODEL           = e1000
+
+LIBVIRT_PUBLIC_NETWORK          = bridge=br0
+PUBLIC_NETMASK                  = 255.255.0.0
+PUBLIC_GATEWAY                  = 100.64.0.1
+PUBLIC_MTU                      = 1450
+
+DNS_SERVER                      = 9.0.130.50
+
+# ######################################
+# cloud_init files:
+# mzone file, undercloud file
+# artifactory credentials for debian and docker
+# ######################################
+
+CLOUDINIT_DISK_LOCATION         = /var/lib/libvirt/images
+CLOUDINIT_FILES                 = /root/mzone.yml____0644____%%demeter_config_dir%%/small12.yml,
+CLOUDINIT_FILES                 += /root/undercloud.yml____0644____%%demeter_config_dir%%/small12.yml,
+CLOUDINIT_FILES                 += /etc/apt/sources.list.d/keylime.list____0644____%%demeter_config_dir%%/apt/keylime.list,
+CLOUDINIT_FILES                 += /secrets.tar____0644____%%demeter_secrets_dir%%/secrets.tar,
+
+
+# ######################################
+# authorized keys set up by cloud-init: George
+# ######################################
+
+AUTHORIZED_KEYS                  = AAAAB3NzaC1yc2EAAAADAQABAAABAQDsnGV3FXQJjSXVVzNh17LwjA731S88wJ1DtGJIG70LrDuxSPY1kSE0K88Y/Bvagwz7vz6MTAPk9Bk3g3Hl4t2caxaH+xZxkDTKDlwLMC1jrBDATZ6N48a+K+d65tyMJDQdGvqgvCND4/0S+NT2gg20xxnE7TKiz9nQT0VEGLIfBX8tRFOom8cozgfg1/BmoYbDRUXNJ8FMb+yBpnMu7McvQ8O/qkb2mibUAYiIIVe15vpsWnSVJDNWUEummRBuRxb290pyRNW2vkFheysySDR/jvJ50MqV1cmjyguF1q/vN8hZwB/Bl60Az7nlyhiU8eejNl3VH6VbPTMRuNozhHPR
+AUTHORIZED_KEYS                 += ,AAAAB3NzaC1yc2EAAAADAQABAAABAQDAmXsEPKS/td5W6+9ba25cfijjT9tDFM4z07awgb68ubVIM/uQz4sJPufYqJtbHrjxeQb41sk8bEsoTtmpsIba2PXbjezjG6pLJcTX+jUg/tkrXqNt92hyX/Cxwk8dblwcvfUidewD/BfXqX9LNJNjKPAnCy3I+cWtlHZ2izDs2+gkC3JFYWcGOKiKChAc7bprcVbL87N/UEtmLiSeYuE0EQbhRrFVSqYxt5DDKhpjtADsHrHVSKcls7U/aKociNb14uEgHdl2V5Yw0i+KyerYPOJu1KtL4azqBU2lWgtzGMU6zTO/4K8qQWUMTDXo/BoncaESlWg4Xr5lcl5MF1Ej
+
+# ######################################
+# authorized keys set up by cloud-init: Maurizio
+# ######################################
+
+AUTHORIZED_KEYS                  += ,AAAAB3NzaC1yc2EAAAADAQABAAABAQC6Q9NMEJcfgDYcTcVmYn3BD0grRPYovY7R0DWNy4dGvIyjzJdvFQzt9B8uaCsCYmpvAiVCSpDGNelBJCEG7uIzS7aq6XiN0uJcuVBkDohXoApt8SsFzlhk1XmQCtZMLRo+J4MWEed+LJAdpO+tB7cGuXtEdlnEwpkm6xPr92bRmH86Rkh1QRNiGlZ0XG8aUGm7PPGkeldMAMmkfxtJKXOVUnI7Nqu9Lo7HF2r3TKQPYZHb+g3sRG2E7CHKj1WxwxLOlGdZumFvzeMGG2h1iJcX5AhwIcS00uZZcWYpG5KIsJBEwMzKENSHzfu+Io6vEsj/HLF2uHt5fQH+hFsMF5rT
+
+# ######################################
+# authorized keys set up by cloud-init: Marcio
+# ######################################
+
+AUTHORIZED_KEYS                  += ,AAAAB3NzaC1yc2EAAAABIwAAAQEAvEull+xwRXQ0OjvPhh9tqQafv/ICo7IxrSQdQ1gpvBspTrZxd9Bpno2LBPNRcypf9O4VY+BEyCByDcadUc4Sabv/+lnXtfJ+h8ntNFp/FTDqptT1PSniNVbYhXpstG+uoO0bcQgxXk+k8YqtXq5YHKznlGTu3KiHktQjYcwmJi9YK/bA4nZUHK+2kTQX2jZyXElLDb8DzhjNj+0jLkk+EMINsmMfBtNjP+G6byZr9LiD6FTIHd0kykW0tdhgBCjQ7DioBQNt/CGb6qMP53F2Q3KiltnP1I8AB/yCH0PXHIkjSjMmLgQBrccyQDDhNMkM2Im0R67H1Nk5La2+GKLEYw==
+
+# ######################################
+# authorized keys set up by cloud-init: Angelo
+# ######################################
+
+AUTHORIZED_KEYS                  += ,AAAAB3NzaC1yc2EAAAADAQABAAABgQCx5blwmK3ddw+sE0msIxXcdfs8aCMZnOaJ7Zd3ukJz4ztf/kmGC02v/+x5pj4Cecj9f4rUrtn8emo5bWM8gqoR0Tl2xXP8MCXFb8bZtDw3a++xWQWzHDtt4sOHmW/Kl2phdbzUvsimwUXIh3351mONl0JEcg6ppRG5MnI4bGazWPeQbbth6v7xc0ywSSrO4KLnKyoszW0tdciba9LqswaaHAUyp6ssynxRx+km5rHWZ6kfMZ+E94cyrjRvOyVz5I+C7sOxkyCMq9enqgGuSwZtIAfSllieyLmFhaKBVCisbbn4x9doBG/3rN6hVs6LguHccWXGce0DZfsMwsYraVubeYBvlELE6UMQw8bx3rgt7psINX2GnGBLMqmf/zn7ngC3eAaJVC5Qb+R78xq2a3xgJtIOXztDhRotXr3nxWRvviJH1+v/54H1a/0XO2G6Y4HC+qCujmE0H5obnTlA8tZ2Ia3/j4eHM4I9H/eKgWgCpkpG57KLiySlePcaTmNO5is=
+
+# ######################################
+# authorized keys set up by cloud-init: Mariusz
+# ######################################
+
+AUTHORIZED_KEYS                  += ,AAAAB3NzaC1yc2EAAAADAQABAAABAQC9mLRjgNLliVRSLY0157qa3pzdGarHNRMLIX1umuNSVt4ImklsrbmhvhlLDfTvialqLWS6sJ40PbO6xiCG4iCOVqWERJExicg+31uigcXV4kF2i7qnYFxz3vs7TSoz1Ybm1/P9gVZNIm5MGd6VKf73Oejm9brAe10p3VvcYq+9XGe1q35ZU4oyrlgHOnh7eJMYoiysbTTAHvvrQrahBKHHTywpmfHdhOQvHYAL9BQwBWWaah2tIfdckChl77sWojEi9hoasf6Hso3Oo3x0Lc8Vc2pHqaqKiXW45bCpceuDhUV94D8qAF24cvmM8ZvVOX1QgVZygen8htaSe4Ju3+vX
+
+# ######################################
+# authorized keys set up by cloud-init: Niteesh
+# ######################################
+
+AUTHORIZED_KEYS                  += ,AAAAB3NzaC1yc2EAAAADAQABAAACAQDEMhEqTNaLSm2qRA8LtC/EnQEwCV0YUKfjdbGD5m7SAaC7uvJ0kfRS98yqlmvrl1LQcSBtMJwTWgHJLPJXIGgELjTXD9lxPTkdJZhriAvO3MJMzAPjV7wjloWOG10rYg65thjSdB3ZZAyB3mP7kgqzXPdUkpjWn5weMnhaBpVRr7hkqZzT7Z9Hx3k4AEjdain5ncpdF/W5ldYJdFaQkq1V1FC+del3YdJQPlNpbNdjaB9YBdfDMCl76frDgg/kHuWuRwvP3Xa+u6LeS0xnfObVOKfppItqagK2/yNXXdC9rhQqC2rRKvP7rjnDb6zUc7va1QbLg/wrXUqTjKc1jRsbv+r+9lTnbY2pefcgeQcpklKFtbkYgBTHdNuLlpBSoyo+yQ3XyJ4gpzEZW6Qa5w8rPzHJN8JcmFCnycpLmchat3l+AHQli3+zqJ/ckH4LSlgRMyPXqBd8vHNk4ji+VhGBkoFeqC3PDTTrh4mnfMoF7YyoP/2A6/uNElvEcHcjLM9IJ+7RJ61BoFGKgAMNP0W41b3XuCd2Xq97c48Cd87pV21p2++rlpgpsEnH+Jhylk7wy3QmrQ/8hlNMnVKKCgx9d7Nd3DDNwFq5KdHekTy20Vo6FgWckc0Rw8iDS/eIIp6iRjy7fVs1JaF2l1PzArWSA7IpL2Y6cKX1EdjJucHmMw== 
+
+# ######################################
+# cloud_init commands:
+# set up debian authentication for artifactory repo
+# stop and disable redis
+# install the keylime container command package
+# pull and start the keylime containers
+# ######################################
+
+CLOUDINIT_CMD                   = if____hostname____-s____|____fgrep____-q____small12-svr0;____then____service____apache2____start;____fi;
+CLOUDINIT_CMD                   += (cd____/root/.ssh;tar____xf____/secrets.tar;rm____/secrets.tar;chown____-R____root.root____/root/.ssh);
+CLOUDINIT_CMD                   += echo____machine____na.artifactory.swg-devops.com____login____`cat____/root/.ssh/artifactory.login`____password____`cat____/root/.ssh/artifactory.token`____>____/etc/apt/auth.conf;
+CLOUDINIT_CMD                   += ________rawcurl____--netrc-file____/etc/apt/auth.conf____-o____/tmp/arty.gpg____"https://na.artifactory.swg-devops.com/artifactory/api/gpg/key/public"
+CLOUDINIT_CMD                   += ________apt-key____add____/tmp/arty.gpg;rm____-f____/tmp/arty.gpg;
+CLOUDINIT_CMD                   += service____redis____stop;systemctl____disable____redis.service;
+CLOUDINIT_CMD                   += service____kubelet____stop;systemctl____disable____kubelet.service;
+CLOUDINIT_CMD                   += service____pacemaker____stop;systemctl____disable____pacemaker.service;
+CLOUDINIT_CMD                   += service____kubebootstrap____stop;systemctl____disable____kubebootstrap.service;
+CLOUDINIT_CMD                   += apt-get____update ;
+CLOUDINIT_CMD                   += while____!____apt____install____-y____keylimecontainer-uc;____do____sleep____60;____apt-get____update;____done;
+CLOUDINIT_CMD                   += mkdir____-p____/var/lib/keylime_registrar;
+CLOUDINIT_CMD                   += mkdir____-p____/var/lib/keylime_verifier;
+CLOUDINIT_CMD                   += sed____-i____"s/____seeder+agent____/____agent____/"____/usr/bin/keylimecontainer-setup;
+CLOUDINIT_CMD                   += while____!____keylimecontainer-setup;____do____sleep____60;____done
+
+# #####################################################
+# node templates: using high speed hypervisor connections
+# #####################################################
+
+[nodetemplate: small12-svr]
+REPEATCOUNT                                 = 1
+LIBVIRT_RAM_MB                              = 24000
+LIBVIRT_CPUS                                = 10
+PUBLIC_NIP                                  = '100.64.%d.%d'%(12,_t_counter+1)
+PUBLIC_MAC                                  = '52:54:%02x:0d:02:%02x'%(12,_t_counter+1)
+
+[nodetemplate: small12-agent]
+REPEATCOUNT                                 = 2
+LIBVIRT_RAM_MB                              = 4096
+LIBVIRT_CPUS                                = 4
+PUBLIC_NIP                                  = '100.64.%d.%d'%(12+int((_t_counter+32)/254),1+((_t_counter+32)%254))
+PUBLIC_MAC                                  = '52:54:%02x:0d:02:%02x'%(12+int((_t_counter+32)/254),1+((_t_counter+32)%254))

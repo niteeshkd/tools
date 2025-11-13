@@ -1,0 +1,23 @@
+def f1(my_list) :
+  print("In f1, before changing the list ", id(my_list))
+  my_list = [8,9]
+  print("In f1, after changing the list ", id(my_list))
+
+def f2(my_list) :
+  print("In f2, before changing the list ", id(my_list))
+  my_list.reverse() 
+  print("In f2, after changing the list ", id(my_list))
+
+my_list1 = [1,2,3,4]
+my_list2 = [1,2,3,4]
+
+print("Before calling f1(), the my_list1: ", my_list1)
+print("Before calling f1(), the my_list1  id is : ", id(my_list1))
+f1(my_list1)
+print("After calling f1(), the my_list1: ", my_list1)
+print("After calling f1(), the my_list1  id is : ", id(my_list1))
+print("Before calling f2(), the my_list2: ", my_list2)
+print("Before calling f2(), the my_list2  id is : ", id(my_list2))
+f2(my_list2)
+print("After calling f2(), the my_list2: ", my_list2)
+print("After calling f2(), the my_list2  id is : ", id(my_list2))

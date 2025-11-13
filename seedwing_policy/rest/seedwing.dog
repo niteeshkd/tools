@@ -1,0 +1,15 @@
+pattern allow = {
+    components: list::all<component>
+}
+
+pattern component = {
+    licenses: list::any<valid-license>
+}
+
+pattern valid-license = {
+    license: {
+        id?: lang::or<allowed-licenses>
+    }
+}
+
+pattern allowed-licenses = ["Apache-2.0", "MIT", "CC0-1.0", "EPL-1.0", "UPL-1.0", "EPL-2.0", "BSD-2-Clause", "BSD-3-Clause"]

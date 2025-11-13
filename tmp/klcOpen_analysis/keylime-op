@@ -1,0 +1,1369 @@
+#!/usr/bin/env python3
+
+"""
+A tool suite for operating Keylime clusters
+"""
+
+import argparse
+import random
+import string
+import sys
+import time
+
+import json
+import os
+import redis
+import yaml
+import jsonschema
+from jsonschema import validate
+
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import Loader
+
+
+clusterfile = False
+    
+################################
+# attestation
+################################
+def parser_cmd_attestation(subparsers):
+    """
+    add parsing for command: attestation
+    """
+    parser_attestation = subparsers.add_parser(
+        "attestation", help="commands to control attestation"
+    )
+    # attestation
+    subparsers_attestation = parser_attestation.add_subparsers(
+        dest="command_attestation"
+    )
+    subparsers_attestation.add_parser(
+        "deactivate", help='turns attestation off, nodes end up in "inactive" state'
+    )
+    parser_attestation_activate = subparsers_attestation.add_parser(
+        "activate",
+        help="turns on attestation and MBA (Measured Boot Attestation)",
+    )
+    subparsers_attestation.add_parser("add", help="adds nodes to the system")
+    subparsers_attestation.add_parser("remove", help="removes nodes from the system")
+    parser_attestation_wait = subparsers_attestation.add_parser(
+        "wait", help="wait for attestation status"
+    )
+
+    # attestation - activate
+    parser_attestation_activate.add_argument(
+        "command_attestation_activate",
+        metavar="activation-list",
+        choices=["ident", "mb", "ima"],
+        nargs="+",
+        help="the kind(s) of attestation to be activated"
+    )
+
+    # attestation - wait
+    parser_attestation_wait.add_argument(
+        "--wait-pass",
+        dest="wait_pass",
+        default="verified",
+        help="overall system state that 'wait' operation waits for to declare success",
+    )
+    parser_attestation_wait.add_argument(
+        "--wait-fail",
+        dest="wait_fail",
+        default="failed",
+        help="overall system state that causes immediate failure of 'wait' operation",
+    )
+    parser_attestation_wait.add_argument(
+        "--wait-interval", dest="wait_interval", type=int, default=10
+    )
+    parser_attestation_wait.add_argument(
+        "--wait-maxcount", dest="wait_maxcount", type=int, default=60
+    )
+
+    # set command argument to required
+    for command in [subparsers_attestation]:
+        command.required = True
+        command.metavar = "command"
+
+
+def op_attestation(args, mzonedict, ucdict, nodefilters):
+    """
+    operations for command: attestation
+    """
+    if args.command_attestation == "activate":
+        mzone_activate(
+            mzonedict,
+            ucdict,
+            nodefilters,
+            "activate",
+            args.command_attestation_activate,
+        )
+    elif args.command_attestation == "deactivate":
+        mzone_activate(mzonedict, ucdict, nodefilters, "deactivate", [])
+    elif args.command_attestation in ["add", "remove"]:
+        mzone_addremovenodes(mzonedict, ucdict, nodefilters, args.command_attestation)
+    elif args.command_attestation == "wait":
+        ret = mzone_wait_status(
+            mzonedict,
+            ucdict,
+            nodefilters,
+            {
+                "success": args.wait_pass,
+                "failure": args.wait_fail,
+                "interval": args.wait_interval,
+                "maxcount": args.wait_maxcount,
+            },
+        )
+        if ret != 0:
+            sys.exit(f"## ERROR wait failed (error={ret})")
+
+
+################################
+# status
+################################
+def parser_cmd_status(subparsers):
+    """
+    add parsing for command: status
+    """
+    parser_status = subparsers.add_parser(
+        "status", help="commands to retrieve the status of attestation"
+    )
+    subparsers_status = parser_status.add_subparsers(dest="command_status")
+    subparsers_status.add_parser(
+        "summary", help="list node summary (number of nodes in respective states)"
+    )
+    subparsers_status.add_parser(
+        "anomalies", help="list individual node failures in addition to node summary"
+    )
+    subparsers_status.add_parser(
+        "concise", help="a single word describing cluster status"
+    )
+
+
+def op_status(args, mzonedict, ucdict, nodefilters):
+    """
+    operations for command: status
+    """
+    mzone_print_status(mzonedict, ucdict, nodefilters, args.command_status)
+
+
+################################
+# mba
+################################
+def parser_cmd_mba(subparsers):
+    """
+    add parsing for command: mba
+    """
+    parser_mba = subparsers.add_parser(
+        "mba", help="commands to control measured-boot attestation"
+    )
+    subparsers_mba = parser_mba.add_subparsers(dest="command_mba")
+    parser_mba_bundle = subparsers_mba.add_parser(
+        "bundle", help="commands related to MBA bundles (kernel, ramdisk, boot loader)"
+    )
+    parser_mba_bios = subparsers_mba.add_parser(
+        "bios", help="commands related to MBA bios"
+    )
+    parser_mba_sb = subparsers_mba.add_parser(
+        "sb", help="commands related to MBA secureboot"
+    )
+    # TODO 'all' to be removed?
+    parser_mba_all = subparsers_mba.add_parser(
+        "all", help="commands related to everything MBA"
+    )
+
+    parsers_with_refstate = []
+
+    # MBA - bundle
+    subparsers_mba_bundle = parser_mba_bundle.add_subparsers(dest="command_mba_bundle")
+    subparsers_mba_bundle.add_parser(
+        "clear", help="clear enforcement. Accept all kernels, ramdisks etc."
+    )
+    parsers_with_refstate.append(
+        subparsers_mba_bundle.add_parser(
+            "append", help="append a bundle refstate to the current enforced list"
+        )
+    )
+    parsers_with_refstate.append(
+        subparsers_mba_bundle.add_parser(
+            "remove", help="remove a bundle refstate from the current enforced list"
+        )
+    )
+    parsers_with_refstate.append(
+        subparsers_mba_bundle.add_parser("set", help="overwrite accepted refstate")
+    )
+    subparsers_mba_bundle.add_parser(
+        "list", help="print out accepted bundles for all nodes"
+    )
+
+    # MBA - bios
+    subparsers_mba_bios = parser_mba_bios.add_subparsers(dest="command_mba_bios")
+    subparsers_mba_bios.add_parser(
+        "clear", help="clear enforcement. Accept all kernels, ramdisks etc."
+    )
+    parsers_with_refstate.append(
+        subparsers_mba_bios.add_parser(
+            "append", help="append a new BIOS refstate to the current enforced list"
+        )
+    )
+    parsers_with_refstate.append(
+        subparsers_mba_bios.add_parser(
+            "remove", help="remove a BIOS refstate from the current enforced list"
+        )
+    )
+    parsers_with_refstate.append(
+        subparsers_mba_bios.add_parser("set", help="overwrite accepted refstate")
+    )
+    subparsers_mba_bios.add_parser(
+        "list", help="print out accepted BIOS firmware refstates for all nodes"
+    )
+    # refstate positional argument
+    for parser_ in parsers_with_refstate:
+        parser_.add_argument(
+            dest="refstate",
+            type=argparse.FileType("r"),
+            help="File containing attestation state(s)",
+        )
+
+    # MBA - secureboot
+    subparsers_mba_sb = parser_mba_sb.add_subparsers(dest="command_mba_secureboot")
+    subparsers_mba_sb.add_parser("allow", help="allow secure boot")
+    subparsers_mba_sb.add_parser("on", help="enforce secure boot")
+    subparsers_mba_sb.add_parser("off", help="disable secure boot")
+    subparsers_mba_sb.add_parser("clear", help="clear enforcement, accept either state")
+    subparsers_mba_sb.add_parser("list", help="list allowed states")
+
+    # MBA - all
+    # TODO to be removed?
+    subparsers_mba_all = parser_mba_all.add_subparsers(dest="command_mba_all")
+    subparsers_mba_all.add_parser(
+        "clear", help="perform clear on secureboot, bundle, and bios"
+    )
+
+    # set command arguments to required
+    for command in [
+        subparsers_mba,
+        subparsers_mba_all,
+        subparsers_mba_bios,
+        subparsers_mba_bundle,
+        subparsers_mba_sb,
+    ]:
+        command.required = True
+        command.metavar = "command"
+
+
+def op_mba(args, mzonedict, ucdict, nodefilters):
+    """
+    operations for command: mba
+    """
+    if args.command_mba == "bundle":
+        if args.command_mba_bundle in ["append", "remove", "set"]:
+            mzone_mba(
+                mzone_nodes(mzonedict, ucdict, nodefilters),
+                ucdict,
+                "hostos_boot_releases",
+                args.command_mba_bundle,
+                args.refstate,
+            )
+        elif args.command_mba_bundle in ["clear", "list"]:
+            mzone_mba(
+                mzone_nodes(mzonedict, ucdict, nodefilters),
+                ucdict,
+                "hostos_boot_releases",
+                args.command_mba_bundle,
+                None,
+            )
+
+    elif args.command_mba == "bios":
+        if args.command_mba_bios in ["append", "remove", "set"]:
+            mzone_mba(
+                mzone_nodes(mzonedict, ucdict, nodefilters),
+                ucdict,
+                "scrtm_and_bios",
+                args.command_mba_bios,
+                args.refstate,
+            )
+        elif args.command_mba_bios in ["clear", "list"]:
+            mzone_mba(
+                mzone_nodes(mzonedict, ucdict, nodefilters),
+                ucdict,
+                "scrtm_and_bios",
+                args.command_mba_bios,
+                None,
+            )
+
+    elif args.command_mba == "sb":
+        mzone_sbset(
+            mzonedict,
+            ucdict,
+            nodefilters,
+            f"mba-sb-{args.command_mba_secureboot}",
+        )
+
+    # TODO to be removed?
+    elif args.command_mba == "all":
+        if args.command_mba_all == "clear":
+            mzone_mba(
+                mzone_nodes(mzonedict, ucdict, nodefilters),
+                ucdict,
+                "hostos_boot_releases",
+                "clear",
+                None,
+            )
+            mzone_mba(
+                mzone_nodes(mzonedict, ucdict, nodefilters),
+                ucdict,
+                "scrtm_and_bios",
+                "clear",
+                None,
+            )
+            mzone_sbset(mzonedict, ucdict, nodefilters, "mba-sb-clear")
+
+
+# ################################
+# # ima
+# ################################
+def parser_cmd_ima(subparsers):
+    """
+    add parsing for command: ima
+    """
+    parser_ima = subparsers.add_parser(
+        "ima", help="commands to control IMA parameters (e.g. allowlist)"
+    )
+
+    subparsers_ima = parser_ima.add_subparsers(dest="command_ima")
+    parser_ima_allowlist = subparsers_ima.add_parser(
+        "allowlist", help="commands related to IMA allowlist"
+    )
+    parser_ima_excludelist = subparsers_ima.add_parser(
+        "excludelist", help="commands related to IMA excludelist"
+    )
+
+    # IMA - allowlist
+    subparsers_ima_allowlist = parser_ima_allowlist.add_subparsers(
+        dest="command_ima_allowlist"
+    )
+    subparsers_ima_allowlist.add_parser("clear", help="Remove all allowlists")
+    subparsers_ima_allowlist.add_parser("list", help="Print out IMA allow lists")
+    parser_ima_allowlist_set = subparsers_ima_allowlist.add_parser(
+        "set", help="Replace the existing IMA allow lists"
+    )
+    parser_ima_allowlist_append = subparsers_ima_allowlist.add_parser(
+        "append", help="Append a new IMA allow list."
+    )
+    # IMA - excludelist
+    subparsers_ima_excludelist = parser_ima_excludelist.add_subparsers(
+        dest="command_ima_excludelist"
+    )
+    subparsers_ima_excludelist.add_parser("clear", help="Clear the IMA exclude list")
+    subparsers_ima_excludelist.add_parser("list", help="Print out IMA exclude list")
+    parser_ima_excludelist_set = subparsers_ima_excludelist.add_parser(
+        "set", help="Replace the IMA exclude list"
+    )
+
+    for parser_ in [
+        parser_ima_allowlist_append,
+        parser_ima_allowlist_set,
+        parser_ima_excludelist_set,
+    ]:
+        parser_.add_argument(
+            dest="refstate", type=argparse.FileType("r"), help="IMA refstate file"
+        )
+
+    # set command arguments to required
+    for command in [
+        subparsers_ima,
+        subparsers_ima_allowlist,
+        subparsers_ima_excludelist,
+    ]:
+        command.required = True
+        command.metavar = "command"
+
+
+def op_ima(args, mzonedict, ucdict, nodefilters):
+    """
+    operations for command: ima
+    """
+    if args.command_ima == "allowlist":
+        if args.command_ima_allowlist in ["set", "append"]:
+            refstate = args.refstate
+        else:
+            refstate = None
+        mzone_ima(
+            mzone_nodes(mzonedict, ucdict, nodefilters),
+            ucdict,
+            args.command_ima,
+            args.command_ima_allowlist,
+            refstate,
+        )
+    elif args.command_ima == "excludelist":
+        if args.command_ima_excludelist == "set":
+            refstate = args.refstate
+        else:
+            refstate = None
+        mzone_ima(
+            mzone_nodes(mzonedict, ucdict, nodefilters),
+            ucdict,
+            args.command_ima,
+            args.command_ima_excludelist,
+            refstate,
+        )
+
+
+# ################################
+# # ek
+# ################################
+def parser_cmd_ek(subparsers):
+    """
+    add parsing for command: ek
+    """
+    parser_ek = subparsers.add_parser(
+        "ek", help="commands related to Keylime encryption key"
+    )
+
+    # EK
+    subparsers_ek = parser_ek.add_subparsers(dest="command_ek")
+    parser_ek_set = subparsers_ek.add_parser("set", help="set EK certificate")
+    parser_ek_set.add_argument(
+        dest="cert", type=argparse.FileType("r"), help="path of EK certificate file"
+    )
+
+    # set command argument to required
+    for command in [subparsers_ek]:
+        command.required = True
+        command.metavar = "command"
+
+
+def op_ek(args, mzonedict, ucdict, nodefilters):
+    """
+    operations for command: ek
+    """
+    mzone_ekset(mzonedict, ucdict, args.cert, nodefilters)
+
+
+# ################################
+# # autorun
+# ################################
+def parser_cmd_autorun(subparsers):
+    """
+    add parsing for command: autorun
+    """
+    parser_autorun = subparsers.add_parser(
+        "autorun", help="commands related to Keylime autorun script"
+    )
+    subparsers_autorun = parser_autorun.add_subparsers(dest="command_autorun")
+    parser_autorun_set = subparsers_autorun.add_parser(
+        "set", help="set autorun script file"
+    )
+    parser_autorun_set.add_argument(
+        dest="scriptfile", type=argparse.FileType("r"), help="the script file to be run"
+    )
+
+    # set command argument to required
+    for command in [subparsers_autorun]:
+        command.required = True
+        command.metavar = "command"
+
+
+def op_autorun(args, mzonedict, ucdict, nodefilters):
+    """
+    operations for command: autorun
+    """
+    mzone_set_autorun(mzonedict, ucdict, nodefilters, args.scriptfile)
+
+
+COMMANDS = {
+    "attestation": {"parser": parser_cmd_attestation, "op": op_attestation},
+    "status": {"parser": parser_cmd_status, "op": op_status},
+    "mba": {"parser": parser_cmd_mba, "op": op_mba},
+    "ima": {"parser": parser_cmd_ima, "op": op_ima},
+    "ek": {"parser": parser_cmd_ek, "op": op_ek},
+    "autorun": {"parser": parser_cmd_autorun, "op": op_autorun},
+}
+
+
+def parser_main():
+    """
+    return the main parser
+    """
+    parser = argparse.ArgumentParser(
+        description="tool suite for operating Keylime clusters"
+    )
+
+    # global arguments
+    parser.add_argument(
+        "-c",
+        "--cluster",
+        dest="cluster",
+        type=argparse.FileType("r"),
+        help="cluster file (an alternative of mzone and undercloud files)"
+    )
+    parser.add_argument(
+        "-m",
+        "--mzone",
+        dest="mzone",
+        type=argparse.FileType("r"),
+        help="mzone file (used with undercloud file)"
+    )
+    parser.add_argument(
+        "-u",
+        "--undercloud",
+        dest="undercloud",
+        type=argparse.FileType("r"),
+        help="undercloud file (used with mzone file)",
+    )
+    parser.add_argument(
+        "-n",
+        "--nodelist",
+        dest="nodelist",
+        default=None,
+        help="list of nodes (hostnames)",
+    )
+    parser.add_argument(
+        "-k",
+        "--nodekinds",
+        dest="nodekinds",
+        default=None,
+        help="node kinds: comma separated list of <compute|control|master|storage>_node in mzone file or <node> in cluster file",
+    )
+    parser.add_argument(
+        "--mzone_filter",
+        dest="mzone_filter",
+        default=None,
+        help="generic filter for mzone/cluster nodes, in the form 'keyword:valuestring'",
+    )
+
+    subparsers = parser.add_subparsers(dest="command")
+
+    for command_spec in COMMANDS.values():
+        command_spec["parser"](subparsers)
+
+    # set command argument to required
+    subparsers.required = True
+    subparsers.metavar = "command"
+
+    return parser
+
+
+def main():
+    """
+    the main function
+    """
+    parser = parser_main()
+
+    args = parser.parse_args()
+
+    # ensure that either cluster file or undercloud file is provided.
+    if not (args.cluster or args.undercloud):
+        print(f"cluster file or undercloud file is required")
+        sys.exit(1)
+    if args.cluster and args.undercloud:
+        print(f"either cluster file or undercloud file is required")
+        sys.exit(1)
+
+    global clusterfile
+    if args.undercloud:
+        # check whether mzone file is required
+        if args.command in ["attestation", "ek", "autorun", "mba", "ima"]:
+            if not args.mzone:
+                parser.error(f"mzone file is required for command: {args.command}")
+    else:
+        clusterfile = True
+
+    # package all filtering options into a dictionary
+    if args.nodelist == "all":
+        nodelist = None
+    elif args.nodelist is None:
+        nodelist = None
+    else:
+        nodelist = dict.fromkeys(args.nodelist.split(","))
+    if args.nodekinds:
+        nodekinds = args.nodekinds.split(",")
+    else:
+        if clusterfile:
+            nodekinds = ["nodes"]
+        else:
+            nodekinds = ["compute_node", "master_node", "control_node", "storage_node"]
+    nodefilters = {"nodekinds": nodekinds, "nodelist": nodelist, "mzone_filter": None}
+
+    # ensure that nodelist contains only one hostname while using "ek"
+    if args.command == "ek" and nodelist is not None and len(nodelist) != 1:
+        parser.error(f"nodelist is required to have one hostname for command: {args.command}")
+
+    # parse cluster / mzone and undercloud files
+    if clusterfile:
+        mzonedict = json_yaml_read(args.cluster)
+        if not mzonedict:
+            exit(1)
+
+        ucdict = dict()
+        kldict1 = { k.lower(): v for k,v in (mzonedict['services']['keylime']).items() }
+        kldict2 = { k.lower(): v for k,v in (mzonedict['services']['keylimecontainer']).items() }
+        ucdict.update(kldict1)
+        ucdict.update(kldict2)
+
+    else:
+        mzonedict = yaml_read(args.mzone)
+        ucdict = ucdict_get(args.undercloud)
+
+    # generic filter from undercloud or command line. Format is 'kw:value1,value2,...valueN'
+    if "mzone_filter" in ucdict:
+        keyword, values = ucdict["mzone_filter"].split(":")[:2]
+        nodefilters["mzone_filter"] = {"keyword": keyword, "values": values.split(",")}
+    if args.mzone_filter is not None:
+        keyword, values = args.mzone_filter.split(":")[:2]
+        nodefilters["mzone_filter"] = {"keyword": keyword, "values": values.split(",")}
+
+    if args.command in COMMANDS:
+        COMMANDS[args.command]["op"](args, mzonedict, ucdict, nodefilters)
+    else:
+        parser.print_help()
+        parser.error(f"Invalid command requested: {args.command}")
+
+    # TODO drop?
+    # elif args.command in ["save"]:
+    #     redis_save(ucdict)
+
+
+# TBD error handling
+def redis_connection(ucdict: dict):
+    """
+    create a redis connection based on keys in the undercloud keylime dictionary
+    """
+    redishost = ucdict.get("asset_db_ip", "127.0.0.1")
+    redisport = ucdict.get("asset_db_port", 6379)
+    redisid = ucdict.get("asset_db_id", 3)
+    pwd = ucdict.get("cloud_agent_tpm_ownerpassword", None)
+    asset_db_def = "/etc/redis/redis.auth"
+    if os.getenv("HOME"):
+        asset_db_def += ":" + str(os.getenv("HOME")) + "/.ssh/redis.auth"
+    asset_db_path = ucdict.get("asset_db_auth_path", asset_db_def)
+    for asset_db_auth in asset_db_path.split(":"):
+        if os.path.exists(asset_db_auth):
+            with open(asset_db_auth, encoding="utf-8") as auth_file:
+                pwd = auth_file.read().strip()
+                break
+
+    return redis.Redis(host=redishost, port=redisport, db=redisid, password=pwd)
+
+
+def redis_zadd(rconn, key, value, score):
+    """
+    add a value with score to a redis set
+    """
+    if int(redis.__version__[0]) < 3:
+        rconn.zadd(key, value, score)
+    else:
+        rconn.zadd(key, {value: score})
+
+
+# TBD decent error handling
+def yaml_read(_fd):
+    """
+    read a generic yaml file
+    """
+    if not _fd:
+        return None
+    try:
+        # replacing safe-load with the (much faster) CLoader
+        # _dict = yaml.safe_load(_fd)
+        return yaml.load(_fd, Loader=Loader)
+    except yaml.YAMLError as exc:
+        sys.exit(f"## ERROR: failed to parse file {_fd.name}: {str(exc)}")
+    return None
+
+def validate_json(json_data):
+    cluster_schema_file = os.getenv('CLUSTER_JSON_SCHEMA','./cluster_schema.json')
+    with open(cluster_schema_file, 'r') as file:
+        cluster_schema = json.load(file)
+    try:
+        validate(instance=json_data, schema=cluster_schema)
+    except jsonschema.exceptions.ValidationError as err:
+        print(err)
+        err = "Cluster data is invalid"
+        return False, err
+
+    message = "Cluster data is valid"
+    return True, message
+
+    
+def json_yaml_read(_fd):
+    """
+    First try to read the file as a json file. If it fails then read as an yaml file
+    """
+    if not _fd:
+        return None
+
+    cluster = _fd.read()
+    cluster_dict = dict()
+    valid_json = True
+
+    try:
+        cluster_dict = json.loads(cluster)
+    except:
+        valid_json = False
+    if not valid_json:    
+        try:
+            cluster_dict = yaml.safe_load(cluster)
+        except yaml.YAMLError as exc:
+            sys.exit(f"## ERROR: failed to parse file {_fd.name}: {str(exc)}")
+
+    is_valid, msg = validate_json(cluster_dict)
+    if is_valid:
+        return cluster_dict
+    else:
+        print(msg)
+        return None
+
+# TBD better error handling
+def ucdict_get(undercloudfile: str):
+    """
+    get the undercloud keylime dictionary
+    """
+    _ucdict = yaml_read(undercloudfile)
+    if _ucdict:
+        _kldict = _ucdict["services"]["keylime"]
+        return {k.lower(): v for k, v in _kldict.items()}
+    return {}
+
+
+def ucdict_details(ucdict: dict):
+    """
+    extract details from the undercloud dictionary
+    """
+    verifierip = "auto"
+    if "cloud_verifier_cloudverifier_ip" in ucdict:
+        verifierip = ucdict["cloud_verifier_cloudverifier_ip"]
+    cluster = ""
+    if "cluster" in ucdict:
+        cluster = ucdict["cluster"]
+    allnodes = "allnodes"
+    if "master_node_list" in ucdict:
+        allnodes = ucdict["master_node_list"]
+    # TODO ucfilter delenda est
+    # we want to remove all traces of using `attested_nodes` in the undercloud.
+    ucfilter = {}
+    if "attested_nodes" in ucdict:
+        ucfilter = dict.fromkeys(ucdict["attested_nodes"].split(","))
+    return cluster, verifierip, allnodes, ucfilter
+
+
+# ################################################
+# part 1: direct control of keylime
+# ################################################
+def mzone_enumerate_nodes(mzonedict: dict, nodefilters: dict, ucfilter: dict):
+    """
+    helper function: enumerate all nodes in an mzone file to act upon
+    - filter with uefi markers: nodes with uefi: marker in mzone file
+    - filter with nodefilter: supplied node list (-n)
+    - filter with ucfilter: attested_nodes list from undercloud
+    """
+    nodes = []
+
+    global clusterfile
+    if clusterfile:
+        ipname = "hostIP"
+    else:
+        # decide wether we use the hostIP or fabricIP of the hosts in the mzone
+        if "environment_type" in mzonedict and "virtual" in mzonedict["environment_type"]:
+            ipname = "hostIP"
+        else:
+            ipname = "fabricIP"
+
+    # list through all kinds of nodes (compute, master, control, storage)
+    for kind in nodefilters["nodekinds"]:
+        if kind in mzonedict:
+            fnodelist = nodefilters["nodelist"]
+            for host in mzonedict[kind]:
+                if fnodelist and (not host["hostname"] in fnodelist):
+                    continue
+                if ucfilter and (not host["hostname"] in ucfilter):
+                    continue
+                if nodefilters["mzone_filter"]:
+                    keyword = nodefilters["mzone_filter"]["keyword"]
+                    values = nodefilters["mzone_filter"]["values"]
+                    if keyword not in host:
+                        continue
+                    if not str(host[keyword]) in values:
+                        continue
+                nodes.append(
+                    {
+                        "uuid": host["uuid"],
+                        "ip": host[ipname],
+                        "hostname": host["hostname"],
+                    }
+                )
+    return nodes
+
+
+def mzone_nodes(mzonedict: dict, ucdict: dict, nodefilters: dict):
+    """
+    return all nodes in an mzone file, applying filters
+    """
+    _, _, _, ucfilter = ucdict_details(ucdict)
+    return mzone_enumerate_nodes(mzonedict, nodefilters, ucfilter)
+
+
+def mzone_addremovenodes(mzonedict: dict, ucdict: dict, nodefilters: dict, operation):
+    """
+    add or remove nodes to keylime. Nodes will not be considered without first being added
+    """
+    rconn = redis_connection(ucdict)
+    cluster, verifierip, allnodes, ucfilter = ucdict_details(ucdict)
+    for host in mzone_enumerate_nodes(mzonedict, nodefilters, ucfilter):
+        host_ip = host["ip"]
+        hostname = host["hostname"]
+        uuid = host["uuid"]
+        nodestring = f"{host_ip}/{hostname}/{uuid}/{verifierip}"
+        if operation == "add":
+            redis_zadd(rconn, f"{cluster}_nodes_{allnodes}", nodestring, 0.0)
+        elif operation == "remove":
+            rconn.zrem(f"{cluster}_nodes_{allnodes}", nodestring)
+
+
+def mzone_mba(
+    nodes: list,
+    ucdict: dict,
+    keybase: str,
+    operation: str,
+    refstate,
+):
+    """
+    MBA operations
+    """
+    content = "{}"
+    if refstate is not None:
+        content = refstate.read()
+    refstate_param = json.loads(content)
+
+    rconn = redis_connection(ucdict)
+    cluster, _, _, _ = ucdict_details(ucdict)
+    output = {}
+
+    def refstate_list(key):
+        refstate_text = ""
+        refstate_list_ = []
+        try:
+            refstate_text = rconn.get(key)
+            if refstate_text:
+                refstate_list_ = json.loads(refstate_text)
+        except redis.RedisError as exc:
+            print(f"## WARNING: Redis error: {exc}")
+        except TypeError as exc:
+            print(
+                f"## WARNING: Could not parse JSON from text: {refstate_text} ({exc})"
+            )
+        except json.JSONDecodeError as exc:
+            print(f"## WARNING: JSON decode error: {exc}")
+        return refstate_list_
+
+    for host in nodes:
+        key = f"{cluster}_{keybase}_{host['uuid']}"
+        refstate_list_ = refstate_list(key)
+
+        if operation == "clear":
+            rconn.delete(key)
+        elif operation == "append":
+            # dictionary: we are adding a single entry
+            # list: we are adding a number of entries
+            if isinstance(refstate_param, dict):
+                refstate_list_.append(refstate_param)
+            elif isinstance(refstate_param, list):
+                refstate_list_.extend(refstate_param)
+            rconn.set(key, json.dumps(refstate_list_))
+        elif operation == "remove":
+            refstate_list_.remove(refstate_param)
+            rconn.set(key, json.dumps(refstate_list_))
+        elif operation == "set":
+            assert isinstance(refstate_param, list)
+            rconn.set(key, json.dumps(refstate_param))
+        else:
+            output[host["hostname"]] = refstate_list_
+    if operation == "list":
+        print(json.dumps(output, indent=2))
+
+
+def mzone_ima(
+    nodes: list,
+    ucdict: dict,
+    modifier: str,
+    operation: str,
+    refstate,
+):
+    """
+    IMA operations
+    """
+    content = ""
+    if refstate is not None:
+        content = refstate.read()
+
+    rconn = redis_connection(ucdict)
+    cluster, _, _, _ = ucdict_details(ucdict)
+    output = {}
+
+    def op_excludelist(uuid, hostname):
+        try:
+            ex_key = f"{cluster}_excludelist_{uuid}"
+            if operation == "set":
+                rconn.set(ex_key, content)
+            elif operation == "clear":
+                rconn.delete(ex_key)
+            elif operation == "list":
+                ex_key_ = rconn.get(ex_key)
+                if ex_key_:
+                    output[hostname] = str(ex_key_, "utf-8")
+        except redis.RedisError as exc:
+            print(f"## WARNING: Redis error: {exc}")
+
+    def op_allowlist(uuid, hostname):
+        try:
+            imglist_key = f"{cluster}_imagelist_{uuid}"
+            imglist = rconn.lrange(imglist_key, 0, -1)
+            if operation in ["append", "set"]:
+                if operation == "set":
+                    for img in imglist:
+                        rconn.delete(img)
+                    rconn.delete(f"{cluster}_imagelist_{uuid}")
+                while True:
+                    randval = "".join(random.sample(string.ascii_letters, 10))
+                    if randval not in "".join(str(imglist)):
+                        break
+                new_key = f"{cluster}_allowlist_{uuid}_{randval}"
+                rconn.set(new_key, content)
+                rconn.lpush(imglist_key, str(new_key))
+            elif operation == "clear":
+                for img in imglist:
+                    rconn.delete(img)
+                rconn.delete(f"{cluster}_imagelist_{uuid}")
+            elif operation == "list":
+                output[hostname] = ""
+                for img in imglist:
+                    img_ = rconn.get(img)
+                    if img_:
+                        output[hostname] += str(img_, "utf-8")
+        except redis.RedisError as exc:
+            print(f"## WARNING: Redis error: {exc}")
+
+    for host in nodes:
+        uuid = host["uuid"]
+        # excludelist operations
+        if modifier == "excludelist":
+            op_excludelist(uuid, host["hostname"])
+        # allowlist operations
+        elif modifier == "allowlist":
+            op_allowlist(uuid, host["hostname"])
+
+    if operation == "list":
+        print(json.dumps(output, indent=2))
+
+
+# TBD: cloud_verifier_cloudverifier_ip should be "auto"
+# TBD: check that each node actually activates or fails
+def mzone_activate(
+    mzonedict: dict, ucdict: dict, nodefilters: dict, operation: str, components: list
+):
+    """
+    activate/deactivate an mzone. Supported components:
+    - "ident"    -- enables attestation only
+    - "mb"       -- enables attestation with MBA
+    - "ima"      -- enables attestation with IMA
+    """
+    rconn = redis_connection(ucdict)
+    cluster, verifierip, allnodes, ucfilter = ucdict_details(ucdict)
+
+    if operation == "deactivate":
+        key = "DELETE"
+    else:
+        assert operation == "activate"
+        key = "AGENT"
+
+    for host in mzone_enumerate_nodes(mzonedict, nodefilters, ucfilter):
+        nodestring = f"{host['ip']}/{host['hostname']}/{host['uuid']}/{verifierip}"
+        pubstring = f"{key}-{nodestring}"
+        print(pubstring)
+        try:
+            redis_zadd(rconn, f"{cluster}_nodes_{allnodes}", nodestring, 0.0)
+            # backward compatibility: "axctivate" == "mb"
+            if operation == "activate":
+                if "ident" in components:
+                    redis_zadd(
+                        rconn, f"{cluster}_nodes_agent_should_deploy", nodestring, 0.0
+                    )
+                if "mb" in components:
+                    redis_zadd(
+                        rconn, f"{cluster}_nodes_agent_should_deploy", nodestring, 0.0
+                    )
+                    redis_zadd(
+                        rconn, f"{cluster}_nodes_agent_should_mb", nodestring, 0.0
+                    )
+                if "ima" in components:
+                    redis_zadd(
+                        rconn, f"{cluster}_nodes_agent_should_deploy", nodestring, 0.0
+                    )
+                    redis_zadd(
+                        rconn, f"{cluster}_nodes_agent_should_ima", nodestring, 0.0
+                    )
+            else:
+                assert operation == "deactivate"
+                rconn.zrem(f"{cluster}_nodes_agent_should_deploy", nodestring)
+                rconn.zrem(f"{cluster}_nodes_agent_should_mb", nodestring)
+                rconn.zrem(f"{cluster}_nodes_agent_should_ima", nodestring)
+                rconn.zrem(f"{cluster}_nodes_agent_should_autorun", nodestring)
+        #            r.publish('%s_agents'%(cluster), pubstring+'\n')
+        except redis.RedisError as exc:
+            sys.exit(f"## ERROR: Redis error: {exc}")
+
+
+def mzone_ekset(mzonedict: dict, ucdict: dict, refstate, nodefilters: dict):
+    """
+    populate the EK of a node, used by identity attestation
+    """
+    rconn = redis_connection(ucdict)
+    cluster, _, _, ucfilter = ucdict_details(ucdict)
+    nodes = mzone_enumerate_nodes(mzonedict, nodefilters, ucfilter)
+    if nodes:
+        uuid = nodes[0]["uuid"]
+        try:
+            ek_cert = refstate.read()
+            rconn.set(f"{cluster}_pub_ek_cert_{uuid}", ek_cert)
+        except redis.RedisError as exc:
+            print(
+                f"## WARNING: Cannot populate EK for node {uuid} (Redis error: {exc})"
+            )
+    else:
+        print("hostname of the node with nodelist option is not found in the cluster/mzone file")
+
+
+def mzone_sbset(mzonedict: dict, ucdict: dict, nodefilters: dict, operation):
+    """
+    populate measured boot SB (secure boot) option.
+    Set one of three values (required, forbidden, allowed). Or else, clear the value.
+    """
+    rconn = redis_connection(ucdict)
+    cluster, _, _, ucfilter = ucdict_details(ucdict)
+    for host in mzone_enumerate_nodes(mzonedict, nodefilters, ucfilter):
+        uuid = host["uuid"]
+        try:
+            if operation in ["sb", "mba-sb-on"]:
+                rconn.set(f"{cluster}_secure_boot_on_{uuid}", "required")
+            elif operation in ["nosb", "mba-sb-off"]:
+                rconn.set(f"{cluster}_secure_boot_on_{uuid}", "forbidden")
+            elif operation in ["allowsb", "mba-sb-allow"]:
+                rconn.set(f"{cluster}_secure_boot_on_{uuid}", "allowed")
+            elif operation == "mba-sb-clear":
+                rconn.delete(f"{cluster}_secure_boot_on_{uuid}")
+        except redis.RedisError as exc:
+            print(
+                f"## WARNING: Cannot populate SB flag for node {uuid} (Redis error: {exc})"
+            )
+
+
+def mzone_set_autorun(mzonedict: dict, ucdict: dict, nodefilters: dict, script):
+    """
+    set an autorun script to run next time when attestation starts
+    """
+    rconn = redis_connection(ucdict)
+    cluster, verifierip, _, ucfilter = ucdict_details(ucdict)
+
+    script_as_string = ""
+
+    if script:
+        script_as_string = script.read()
+
+    for host in mzone_enumerate_nodes(mzonedict, nodefilters, ucfilter):
+        uuid = host["uuid"]
+        nodestring = f"{host['ip']}/{host['hostname']}/{uuid}/{verifierip}"
+
+        try:
+            if script_as_string == "":
+                print(f"Unsetting autorun script for {nodestring}")
+                rconn.delete(f"{cluster}_autorun_{uuid}")
+                rconn.zrem(f"{cluster}_nodes_agent_should_autorun", nodestring)
+            else:
+                print(f"Setting autorun script {script.name} for {nodestring}")
+                rconn.set(f"{cluster}_autorun_{uuid}", script_as_string)
+                redis_zadd(
+                    rconn, f"{cluster}_nodes_agent_should_autorun", nodestring, 0.0
+                )
+
+        except redis.RedisError as exc:
+            print(f"## WARNING: Redis error: {exc}")
+
+def mzone_print_status(
+    mzonedict: dict, ucdict: dict, nodefilters: dict, operation: str
+):
+    """
+    print mzone status, format output dictionary as JSON
+    """
+    status = mzone_get_status(mzonedict, ucdict, nodefilters)
+
+    # for concise output we only keep the concise output.
+    if operation == "concise":
+        del status["composite"]
+        del status["summary"]
+
+    # for summaries, we keep the concise and summary outputs
+    elif operation == "summary":
+        del status["composite"]
+
+    # for anomalies we only keep composite information about non-verified nodes
+    elif operation == "anomalies":
+        anomalies = {}
+        for node in status["composite"]:
+            if status["composite"][node]["status"] != "verified":
+                anomalies[node] = status["composite"][node]
+        status["anomalies"] = anomalies
+        del status["composite"]
+
+    print(json.dumps(status, indent=2))
+
+
+def mzone_wait_status(
+    mzonedict: dict, ucdict: dict, nodefilters: dict, wait_spec: dict
+):
+    """
+    wait for mzone to be in a specific status, until timeout
+    """
+    count = 0
+    while count < wait_spec["maxcount"]:
+        statusdict = mzone_get_status(mzonedict, ucdict, nodefilters)
+        status = statusdict["concise"]["status"]
+        for success_status in wait_spec["success"].split(","):
+            if status == success_status:
+                return 0
+        for failure_status in wait_spec["failure"].split(","):
+            if status == failure_status:
+                print(f"## ERROR: reached failure status: {failure_status}")
+                return 1
+        time.sleep(wait_spec["interval"])
+        count = count + 1
+
+    print(
+        f"## ERROR: wait timeout={wait_spec['interval'] * wait_spec['maxcount']} seconds"
+    )
+    return 2
+
+
+def mzone_observed_status(mzonedict: dict, ucdict: dict, nodefilters: dict):
+    """
+    collect the observed status of the nodes in the cluster
+    """
+    rconn = redis_connection(ucdict)
+    cluster, _, allnodes, _ = ucdict_details(ucdict)
+
+    zsetlist = [
+        allnodes,
+        "agent_registered",
+        "agent_transient",
+        "agent_verified",
+        "agent_failed",
+    ]
+
+    # observed values are those we actually care about
+    # (listed by redis_enumerate_nodes() subject to all filters)
+    # initialize all observed values to false
+    observed = {}
+    for host in redis_enumerate_nodes(rconn, mzonedict, ucdict, nodefilters):
+        observed[host["hostname"]] = {n: False for n in zsetlist}
+
+    # enumerate all zsets from redis and set corresponding observed values to true
+    for nodetype in zsetlist:
+        entrylist = rconn.zrange(f"{cluster}_nodes_{nodetype}", 0, -1)
+        nodelist = [str(entry).split("/")[1] for entry in entrylist]
+        for node in nodelist:
+            if node in observed:
+                observed[node][nodetype] = True
+
+    return observed
+
+
+def composite_status(mzonedict: dict, ucdict: dict, nodefilters: dict):
+    """
+    compose the composite status
+    """
+    rconn = redis_connection(ucdict)
+    cluster, verifierip, allnodes, _ = ucdict_details(ucdict)
+
+    observed = mzone_observed_status(mzonedict, ucdict, nodefilters)
+
+    now_ = time.time()
+    composite_ = {}
+
+    def verification_age(hostkey):
+        try:
+            score = rconn.zscore(
+                    f"{cluster}_nodes_agent_verified",
+                    hostkey
+                )
+            if score:
+                return now_ - float(score)
+            return 0
+        except TypeError:
+            return 0
+
+    def update_composite(hostname, hostkey, oldest_):
+        for status_key, status_item in status_mapping(allnodes).items():
+            if set(status_item.items()).issubset(set(observed[hostname].items())):
+                composite_[hostname] = {"status": status_key}
+                # GA Fix 10/10/22: transitions from "verified" to "inactive"state can cause
+                # random failures in this code. These are safe to ignore,
+                # since if a node is no longer verified it does not have an age.
+                if status_key == "verified":
+                    composite_[hostname]['age'] = verification_age(hostkey)
+                    if composite_[hostname]['age'] > oldest_:
+                        oldest_ = composite_[hostname]['age']
+                break
+        lastevent = rconn.hget(
+            f"{cluster}_nodes_agent_lastevent",
+            hostkey
+        )
+        if lastevent:
+            composite_[hostname]["lastevent"] = lastevent.decode("utf-8")
+        return oldest_
+
+    oldest_ = 0
+    for host in redis_enumerate_nodes(rconn, mzonedict, ucdict, nodefilters):
+        composite_[host["hostname"]] = {"status": "N/A"}
+        oldest_ = update_composite(
+            host["hostname"],
+            f"{host['ip']}/{host['hostname']}/{host['uuid']}/{verifierip}",
+            oldest_
+        )
+
+    return composite_, oldest_
+
+
+def mzone_get_status(mzonedict: dict, ucdict: dict, nodefilters: dict):
+    """
+    return the status of all nodes in the cluster
+    """
+    # map observed boolean sets to composite status
+    composite_status_, oldest_attestation = composite_status(mzonedict, ucdict, nodefilters)
+    status = {"composite": composite_status_}
+
+    # calculate summary
+    status["summary"] = {}
+    for node in status["composite"]:
+        if status["composite"][node]["status"] in status["summary"]:
+            status["summary"][status["composite"][node]["status"]] += 1
+        else:
+            status["summary"][status["composite"][node]["status"]] = 1
+
+    # calculate concise status report
+    concise_status = "unknown"
+    if len(status["summary"]) == 1:
+        for key in status["summary"]:
+            concise_status = key
+    elif "failed" in status["summary"]:
+        concise_status = "failed"
+    elif "not-alive" in status["summary"]:
+        concise_status = "not-alive"
+
+    # for clusters with any attested nodes, append the age of the oldest attestation
+    if 'verified' in status['summary']:
+        status["concise"] = {"status": concise_status, "age": oldest_attestation}
+    else:
+        status["concise"] = {"status": concise_status}
+    return status
+
+
+def redis_enumerate_nodes(rconn, mzonedict: dict, ucdict: dict, nodefilters: dict):
+    """
+    enumerate all nodes from redis to act upon: enumerate nodes in all_nodes and:
+    - filter by mzone
+    - filter by supplied node list
+    - filter by attested node list
+    """
+
+    nodes = []
+
+    def mzone2filter(nodekinds, mzone_filter):
+        if not mzonedict:
+            return None
+        mzonefilter = []
+        for kind in nodekinds:
+            if kind in mzonedict:
+                for host in mzonedict[kind]:
+                    if mzone_filter:
+                        keyword = mzone_filter["keyword"]
+                        values = mzone_filter["values"]
+                        if keyword not in host:
+                            continue
+                        if not str(host[keyword]) in values:
+                            continue
+                    mzonefilter.append(host["uuid"])
+        return mzonefilter
+
+    cluster, _, allnodes, ucfilter = ucdict_details(ucdict)
+
+    # create an mzone filter dictionary
+    mzonefilter = mzone2filter(nodefilters["nodekinds"], nodefilters["mzone_filter"])
+
+    # enumerate nodes from allnodes and apply filters.
+    for node in rconn.zrange(f"{cluster}_nodes_{allnodes}", 0, -1):
+        host_ip, hostname, uuid, _ = node.decode("utf-8").split("/")
+        if mzonefilter is not None and uuid not in mzonefilter:
+            continue
+        if nodefilters["nodelist"] and hostname not in nodefilters["nodelist"]:
+            continue
+        if ucfilter and hostname not in ucfilter:
+            continue
+        nodes.append({"uuid": uuid, "ip": host_ip, "hostname": hostname})
+    return nodes
+
+
+def status_mapping(allnodes):
+    """
+    return the indicator map for keylime cluster states
+    """
+    return {
+        "{}": {allnodes: False},
+        "not-alive": {
+            allnodes: True,
+            "agent_registered": False,
+            "agent_transient": False,
+            "agent_verified": False,
+            "agent_failed": False,
+        },
+        "inactive": {
+            allnodes: True,
+            "agent_registered": True,
+            "agent_transient": False,
+            "agent_verified": False,
+            "agent_failed": False,
+        },
+        "transient": {
+            allnodes: True,
+            "agent_registered": False,
+            "agent_transient": True,
+            "agent_verified": False,
+            "agent_failed": False,
+        },
+        "verified": {
+            allnodes: True,
+            "agent_registered": False,
+            "agent_transient": False,
+            "agent_verified": True,
+            "agent_failed": False,
+        },
+        "failed": {
+            allnodes: True,
+            "agent_registered": False,
+            "agent_transient": False,
+            "agent_verified": False,
+            "agent_failed": True,
+        },
+    }
+
+
+def redis_save(ucdict: dict):
+    """
+    save Redis status
+    """
+    rconn = redis_connection(ucdict)
+    rconn.save()
+
+
+if __name__ == "__main__":
+    main()

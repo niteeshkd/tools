@@ -1,0 +1,545 @@
+
+./hack/deploy/keylime-agent.yaml:
+
+./hack/ci/ssh-config:
+<= ./hack/ci/travis_integration_test.sh
+<= ./hack/ci/travis_publish.sh
+<= ./hack/ci/.ssh-config.swp
+
+./hack/ci/travis_integration_test.sh:
+<= ./hack/ci/travis.sh
+
+./hack/ci/version.txt:
+
+./hack/ci/keys.tar.enc:
+<= ./.travis.yml
+
+./hack/ci/travis_unit_test.sh:
+<= ./hack/ci/travis.sh
+
+./hack/ci/travis.sh:
+<= ./hack/ci/ssh-config
+<= ./hack/ci/travis_integration_test.sh
+<= ./hack/ci/travis_deploy_key.pub
+<= ./hack/ci/.ssh-config.swp
+<= ./.travis.yml
+
+./hack/ci/build.yaml:
+
+./hack/ci/pipeline.yaml:
+
+./hack/ci/run-unit-tests.sh:
+
+./hack/ci/travis_deploy_key.pub:
+<= ./hack/ci/travis_integration_test.sh
+
+./hack/ci/travis_publish.sh:
+<= ./hack/ci/travis.sh
+
+./hack/ci/build-meta.yaml:
+
+./hack/ci/travis_build.sh:
+<= ./hack/ci/travis.sh
+<= ./hack/ci/build.yaml
+
+./hack/ci/travis_linting.sh:
+<= ./hack/ci/travis.sh
+
+./hack/ci/.ssh-config.swp:
+
+./Makefile:
+<= ./hack/ci/travis_integration_test.sh
+<= ./README.md
+
+./keylimesetup/ngkl_verifier.sh:
+<= ./keylimesetup/ngkl_start.sh
+
+./keylimesetup/ngkl_setup_tenant.sh:
+<= ./keylimesetup/ngkl_start.sh
+
+./keylimesetup/ngkl_build_config.py:
+<= ./keylimesetup/ngkl_registrar.sh
+<= ./keylimesetup/ngkl_agent.sh
+<= ./keylimesetup/ngkl_start.sh
+
+./keylimesetup/ngkl_assetdb.sh:
+<= ./keylimesetup/ngkl_start.sh
+
+./keylimesetup/ngkl_status_pollster.sh:
+<= ./keylimesetup/ngkl_deployer.sh
+
+./keylimesetup/ngkl_generate_certificates.sh:
+<= ./keylimesetup/ngkl_start.sh
+
+./keylimesetup/ngkl_fail.sh:
+
+./keylimesetup/ngkl_deployer.sh:
+<= ./keylimesetup/ngkl_start.sh
+
+./keylimesetup/ngkl_delete.sh:
+
+./keylimesetup/klbutil:
+<= ./keylimesetup/ngkl_verifier.sh
+<= ./keylimesetup/ngkl_setup_tenant.sh
+<= ./keylimesetup/ngkl_assetdb.sh
+<= ./keylimesetup/ngkl_status_pollster.sh
+<= ./keylimesetup/ngkl_generate_certificates.sh
+<= ./keylimesetup/ngkl_fail.sh
+<= ./keylimesetup/ngkl_deployer.sh
+<= ./keylimesetup/ngkl_delete.sh
+<= ./keylimesetup/seeder_wl_manage.sh
+<= ./keylimesetup/ngkl_get_deployment_opt.sh
+<= ./keylimesetup/ngkl_test.sh
+<= ./keylimesetup/ngkl_toggle_deployment_opt.sh
+<= ./keylimesetup/ngkl_check.sh
+<= ./keylimesetup/ngkl_process_manager.sh
+<= ./keylimesetup/ngkl_webapp.sh
+<= ./keylimesetup/ngkl_list.sh
+<= ./keylimesetup/ngkl_disable_deployment_opt.sh
+<= ./keylimesetup/ngkl_registrar.sh
+<= ./keylimesetup/seeder_ek_manage.sh
+<= ./keylimesetup/seeder_autorun_manage.sh
+<= ./keylimesetup/ngkl_agent.sh
+<= ./keylimesetup/seeder_mb_manage.sh
+<= ./keylimesetup/ngkl_seeder.sh
+<= ./keylimesetup/ngkl_retry.sh
+<= ./keylimesetup/ngkl_enable_deployment_opt.sh
+<= ./keylimesetup/ngkl_setup_keylime_container.sh
+<= ./keylimesetup/ngkl_start.sh
+
+./keylimesetup/seeder_wl_manage.sh:
+<= ./keylimesetup/ngkl_seeder.sh
+
+./keylimesetup/ngkl_jira.sh:
+<= ./keylimesetup/ngkl_start.sh
+
+./keylimesetup/ngkl_deployer_helper.sh:
+<= ./keylimesetup/ngkl_deployer.sh
+<= ./keylimesetup/klbutil
+<= ./keylimesetup/ngkl_agent.sh
+
+./keylimesetup/ngkl_get_deployment_opt.sh:
+
+./keylimesetup/ngkl_test.sh:
+
+./keylimesetup/ek_check.sh:
+<= ./keylimesetup/ngkl_setup_keylime_container.sh
+<= ./util/undercloud/keylimecontainer-config
+
+./keylimesetup/ngkl_alembic_fixup.py:
+<= ./keylimesetup/ngkl_start.sh
+
+./keylimesetup/ngkl_toggle_deployment_opt.sh:
+
+./keylimesetup/ngkl_check.sh:
+<= ./keylimesetup/ngkl_test.sh
+
+./keylimesetup/data/ima_exclude.txt:
+<= ./keylimesetup/klbutil
+
+./keylimesetup/data/ima-policy:
+<= ./keylimesetup/ngkl_seeder.sh
+
+./keylimesetup/ngkl_clone.sh:
+<= ./Makefile
+<= ./util/Docker/rustagent/Dockerfile
+<= ./Dockerfile.in
+<= ./prepare.sh
+
+./keylimesetup/ngkl_process_manager.sh:
+<= ./keylimesetup/ngkl_verifier.sh
+<= ./keylimesetup/ngkl_registrar.sh
+<= ./keylimesetup/ngkl_agent.sh
+
+./keylimesetup/ngkl_webapp.sh:
+<= ./keylimesetup/ngkl_start.sh
+
+./keylimesetup/ngkl_list.sh:
+
+./keylimesetup/revocation_examples/local_action_revocation_record.py:
+<= ./keylimesetup/revocation_examples/action_list
+
+./keylimesetup/revocation_examples/action_list:
+
+./keylimesetup/old/keylime_kubernetes_setup.sh:
+
+./keylimesetup/old/install.sh:
+<= ./hack/ci/travis_integration_test.sh
+<= ./keylimesetup/data/ima_exclude.txt
+<= ./tests/linter/Dockerfile
+<= ./tests/unittests/Dockerfile
+<= ./util/debian/preinst
+<= ./util/Docker/tpm2/Dockerfile
+<= ./util/Docker/rustagent/Dockerfile
+<= ./util/Docker/ibmextras/Dockerfile
+<= ./util/Docker/base/Dockerfile
+<= ./util/undercloud/docker/Dockerfile
+<= ./Dockerfile.in
+<= ./README.md
+<= ./.travis.yml
+
+./keylimesetup/ngkl_disable_deployment_opt.sh:
+<= ./keylimesetup/ngkl_test.sh
+
+./keylimesetup/ngkl_registrar.sh:
+<= ./keylimesetup/ngkl_start.sh
+
+./keylimesetup/seeder_ek_manage.sh:
+<= ./keylimesetup/ngkl_seeder.sh
+
+./keylimesetup/seeder_autorun_manage.sh:
+<= ./keylimesetup/ngkl_seeder.sh
+
+./keylimesetup/seeder_mbref.py:
+<= ./keylimesetup/seeder_mb_manage.sh
+
+./keylimesetup/ngkl_agent.sh:
+<= ./keylimesetup/ngkl_start.sh
+
+./keylimesetup/tpm2_ls.sh:
+<= ./keylimesetup/old/install.sh
+<= ./keylimesetup/ngkl_setup_keylime_container.sh
+
+./keylimesetup/ngkl_jira_alert.py:
+<= ./keylimesetup/ngkl_jira.sh
+
+./keylimesetup/seeder_mb_manage.sh:
+<= ./keylimesetup/ngkl_seeder.sh
+
+./keylimesetup/autorun.sh:
+#Warning: same basename is found with the following files.
+./util/undercloud/docker/autorun.sh
+<= ./hack/ci/travis_integration_test.sh
+<= ./keylimesetup/klbutil
+<= ./keylimesetup/ngkl_get_deployment_opt.sh
+<= ./keylimesetup/ngkl_test.sh
+<= ./keylimesetup/ngkl_toggle_deployment_opt.sh
+<= ./keylimesetup/old/keylime_kubernetes_setup.sh
+<= ./keylimesetup/ngkl_disable_deployment_opt.sh
+<= ./keylimesetup/seeder_autorun_manage.sh
+<= ./keylimesetup/ngkl_enable_deployment_opt.sh
+<= ./keylimesetup/ngkl_setup_keylime_container.sh
+<= ./tests/unittests/run_klop_tests.sh
+<= ./tests/unittests/run_ecb_tests.sh
+<= ./util/debian/changelog.in
+<= ./util/undercloud/docker/ecb-apply.sh
+<= ./util/undercloud/docker/Dockerfile
+<= ./util/undercloud/attest_start
+<= ./util/undercloud/keylime-op
+
+./keylimesetup/ngkl_seeder.sh:
+<= ./keylimesetup/ngkl_start.sh
+
+./keylimesetup/ngkl_retry.sh:
+
+./keylimesetup/ngkl_enable_deployment_opt.sh:
+<= ./keylimesetup/ngkl_test.sh
+
+./keylimesetup/ngkl_setup_keylime_container.sh:
+<= ./Dockerfile.in
+
+./keylimesetup/ngkl_start.sh:
+<= ./Dockerfile.in
+
+./other_certs/tsa_cert1.pem:
+
+./other_certs/tsa.crt:
+
+./other_certs/tsaca.pem:
+
+./other_certs/cacert.pem:
+
+./tpm_certs/IFX_RSA_34I.pem:
+
+./tpm_certs/VE_cert.pem:
+
+./tpm_certs/IFX_RSA_042.pem:
+
+./tpm_certs/IFX_ECC_042.pem:
+
+./tests/linter/pylintrc:
+<= ./tests/linter/run_linter.sh
+<= ./tests/linter/Dockerfile
+
+./tests/linter/run_linter.sh:
+<= ./tests/linter/Dockerfile
+
+./tests/linter/Dockerfile:
+#Warning: same basename is found with the following files.
+./tests/unittests/Dockerfile
+./util/Docker/tpm2/Dockerfile
+./util/Docker/rustagent/Dockerfile
+./util/Docker/ibmextras/Dockerfile
+./util/Docker/base/Dockerfile
+./util/undercloud/docker/Dockerfile
+<= ./Makefile
+<= ./prepare.sh
+
+./tests/integration/ci_integration_test.sh:
+<= ./hack/ci/travis_integration_test.sh
+
+./tests/integration/ecb_test.sh:
+<= ./hack/ci/travis_integration_test.sh
+
+./tests/integration/env.json:
+#Warning: same basename is found with the following files.
+./util/undercloud/docker/env.json
+<= ./hack/ci/travis_integration_test.sh
+<= ./tests/integration/ecb_test.sh
+<= ./util/undercloud/docker/Dockerfile
+
+./tests/integration/kmbref.json:
+<= ./hack/ci/travis_integration_test.sh
+<= ./tests/integration/ci_integration_test.sh
+
+./tests/unittests/run_tests.sh:
+<= ./tests/unittests/Dockerfile
+
+./tests/unittests/run_klop_tests.sh:
+<= ./tests/unittests/run_tests.sh
+<= ./tests/unittests/Dockerfile
+
+./tests/unittests/Dockerfile:
+#Warning: same basename is found with the following files.
+./tests/linter/Dockerfile
+./util/Docker/tpm2/Dockerfile
+./util/Docker/rustagent/Dockerfile
+./util/Docker/ibmextras/Dockerfile
+./util/Docker/base/Dockerfile
+./util/undercloud/docker/Dockerfile
+<= ./Makefile
+<= ./prepare.sh
+
+./tests/unittests/run_ecb_tests.sh:
+<= ./tests/unittests/run_tests.sh
+<= ./tests/unittests/Dockerfile
+
+./manifest.json:
+<= ./hack/ci/travis_integration_test.sh
+<= ./Makefile
+<= ./prepare.sh
+
+./keylime_reconfigure.sh:
+<= ./Makefile
+
+./util/keylime_deploy.py:
+
+./util/debian/install:
+<= ./hack/ci/travis_integration_test.sh
+<= ./keylimesetup/data/ima_exclude.txt
+<= ./keylimesetup/old/install.sh
+<= ./tests/linter/Dockerfile
+<= ./tests/unittests/Dockerfile
+<= ./util/debian/preinst
+<= ./util/Docker/tpm2/Dockerfile
+<= ./util/Docker/rustagent/Dockerfile
+<= ./util/Docker/ibmextras/Dockerfile
+<= ./util/Docker/base/Dockerfile
+<= ./util/undercloud/docker/Dockerfile
+<= ./Dockerfile.in
+<= ./README.md
+<= ./.travis.yml
+
+./util/debian/postrm:
+
+./util/debian/compat:
+
+./util/debian/control:
+<= ./util/keylime_deploy.py
+<= ./util/undercloud/file_attestation_allowlist.py
+<= ./util/undercloud/keylime-op
+<= ./README.md
+
+./util/debian/changelog.in:
+<= ./Makefile
+
+./util/debian/rules:
+
+./util/debian/postinst:
+
+./util/debian/preinst:
+
+./util/list_files_xref.sh:
+
+./util/Docker/tpm2/Dockerfile:
+#Warning: same basename is found with the following files.
+./tests/linter/Dockerfile
+./tests/unittests/Dockerfile
+./util/Docker/rustagent/Dockerfile
+./util/Docker/ibmextras/Dockerfile
+./util/Docker/base/Dockerfile
+./util/undercloud/docker/Dockerfile
+<= ./Makefile
+<= ./prepare.sh
+
+./util/Docker/rustagent/Dockerfile:
+#Warning: same basename is found with the following files.
+./tests/linter/Dockerfile
+./tests/unittests/Dockerfile
+./util/Docker/tpm2/Dockerfile
+./util/Docker/ibmextras/Dockerfile
+./util/Docker/base/Dockerfile
+./util/undercloud/docker/Dockerfile
+<= ./Makefile
+<= ./prepare.sh
+
+./util/Docker/ibmextras/Dockerfile:
+#Warning: same basename is found with the following files.
+./tests/linter/Dockerfile
+./tests/unittests/Dockerfile
+./util/Docker/tpm2/Dockerfile
+./util/Docker/rustagent/Dockerfile
+./util/Docker/base/Dockerfile
+./util/undercloud/docker/Dockerfile
+<= ./Makefile
+<= ./prepare.sh
+
+./util/Docker/base/Dockerfile:
+#Warning: same basename is found with the following files.
+./tests/linter/Dockerfile
+./tests/unittests/Dockerfile
+./util/Docker/tpm2/Dockerfile
+./util/Docker/rustagent/Dockerfile
+./util/Docker/ibmextras/Dockerfile
+./util/undercloud/docker/Dockerfile
+<= ./Makefile
+<= ./prepare.sh
+
+./util/undercloud/keylimecontainer-cleanup:
+<= ./util/debian/install
+<= ./util/undercloud/README
+
+./util/undercloud/file-attestation-allowlist:
+<= ./README.md
+
+./util/undercloud/bundle_files_cache.py:
+<= ./util/undercloud/file_attestation_allowlist.py
+<= ./util/undercloud/bundle-files-cache
+
+./util/undercloud/docker/enforcement-config.sh:
+<= ./hack/ci/travis_publish.sh
+<= ./hack/ci/travis_build.sh
+<= ./Makefile
+<= ./tests/integration/ecb_test.sh
+<= ./tests/unittests/Dockerfile
+<= ./tests/unittests/run_ecb_tests.sh
+<= ./util/undercloud/docker/Dockerfile
+
+./util/undercloud/docker/ecb-apply.sh:
+<= ./tests/unittests/Dockerfile
+<= ./util/undercloud/docker/enforcement-config.sh
+<= ./util/undercloud/docker/ecb-apply-patch.py
+<= ./util/undercloud/docker/Dockerfile
+
+./util/undercloud/docker/env.json:
+#Warning: same basename is found with the following files.
+./tests/integration/env.json
+<= ./hack/ci/travis_integration_test.sh
+<= ./tests/integration/ecb_test.sh
+<= ./util/undercloud/docker/Dockerfile
+
+./util/undercloud/docker/ecb-apply-patch.py:
+<= ./tests/unittests/Dockerfile
+<= ./util/undercloud/docker/enforcement-config.sh
+<= ./util/undercloud/docker/Dockerfile
+
+./util/undercloud/docker/utils.sh:
+<= ./tests/unittests/Dockerfile
+<= ./util/undercloud/docker/enforcement-config.sh
+<= ./util/undercloud/docker/ecb-apply.sh
+<= ./util/undercloud/docker/Dockerfile
+
+./util/undercloud/docker/autorun.sh:
+#Warning: same basename is found with the following files.
+./keylimesetup/autorun.sh
+<= ./hack/ci/travis_integration_test.sh
+<= ./keylimesetup/klbutil
+<= ./keylimesetup/ngkl_get_deployment_opt.sh
+<= ./keylimesetup/ngkl_test.sh
+<= ./keylimesetup/ngkl_toggle_deployment_opt.sh
+<= ./keylimesetup/old/keylime_kubernetes_setup.sh
+<= ./keylimesetup/ngkl_disable_deployment_opt.sh
+<= ./keylimesetup/seeder_autorun_manage.sh
+<= ./keylimesetup/ngkl_enable_deployment_opt.sh
+<= ./keylimesetup/ngkl_setup_keylime_container.sh
+<= ./tests/unittests/run_klop_tests.sh
+<= ./tests/unittests/run_ecb_tests.sh
+<= ./util/debian/changelog.in
+<= ./util/undercloud/docker/ecb-apply.sh
+<= ./util/undercloud/docker/Dockerfile
+<= ./util/undercloud/attest_start
+<= ./util/undercloud/keylime-op
+
+./util/undercloud/docker/Dockerfile:
+#Warning: same basename is found with the following files.
+./tests/linter/Dockerfile
+./tests/unittests/Dockerfile
+./util/Docker/tpm2/Dockerfile
+./util/Docker/rustagent/Dockerfile
+./util/Docker/ibmextras/Dockerfile
+./util/Docker/base/Dockerfile
+<= ./Makefile
+<= ./prepare.sh
+
+./util/undercloud/keylimecontainer-config:
+<= ./hack/ci/travis_integration_test.sh
+<= ./util/debian/install
+<= ./util/undercloud/README
+<= ./README.md
+
+./util/undercloud/file_attestation_allowlist.py:
+<= ./util/undercloud/file-attestation-allowlist
+<= ./README.md
+
+./util/undercloud/README:
+
+./util/undercloud/keylimecontainer-setup:
+<= ./hack/ci/travis_integration_test.sh
+<= ./util/debian/install
+<= ./util/undercloud/README
+<= ./README.md
+
+./util/undercloud/bundle-files-cache:
+<= ./README.md
+
+./util/undercloud/attest_start:
+<= ./util/debian/install
+
+./util/undercloud/keylime-op:
+<= ./Makefile
+<= ./keylimesetup/ngkl_jira.sh
+<= ./tests/linter/pylintrc
+<= ./tests/linter/Dockerfile
+<= ./tests/integration/ci_integration_test.sh
+<= ./tests/integration/ecb_test.sh
+<= ./tests/unittests/run_klop_tests.sh
+<= ./tests/unittests/Dockerfile
+<= ./util/debian/install
+<= ./util/debian/changelog.in
+<= ./util/undercloud/docker/ecb-apply.sh
+<= ./util/undercloud/docker/Dockerfile
+<= ./util/undercloud/attest_start
+<= ./Dockerfile.in
+<= ./README.md
+
+./Dockerfile.in:
+<= ./Makefile
+<= ./prepare.sh
+
+./README.md:
+#Warning: same basename is found with the following files.
+./data/README.md
+
+./data/binary_bios_measurements.swtpm2:
+
+./data/README.md:
+#Warning: same basename is found with the following files.
+./README.md
+
+./data/binary_bios_measurements.hwtpm2:
+<= ./data/README.md
+
+./prepare.sh:
+<= ./util/undercloud/docker/Dockerfile
+
+./.travis.yml:

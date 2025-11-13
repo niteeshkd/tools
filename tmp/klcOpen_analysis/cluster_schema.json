@@ -1,0 +1,143 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "Cluster nodes for KeyLimeContainer(KLC)",
+    "description": "Info about cluster nodes and Keylime & KLC services",
+    "type": "object",
+    "properties": {
+        "nodes": {
+            "description": "List of cluster nodes",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "hostname": {
+                        "type": "string"
+                    },
+                    "hostIP": {
+                        "type": "string"
+                    },
+                    "uuid": {
+                        "type": "string"
+                    }
+                },
+		"required": [ "hostname", "hostIP", "uuid" ]
+	    }
+	},
+        "services": {
+            "description": "Services",
+	    "type": "object",
+ 	    "properties": {
+	        "keylime": {
+                   "type": "object",
+		   "properties": {
+		       "CLOUD_AGENT_CLOUDAGENT_PORT": {
+		           "type": "string"
+		       },
+		       "CLOUD_AGENT_EK_HANDLE": {
+		           "type": "string"
+		       },
+		       "CLOUD_AGENT_TPM_OWNERPASSWORD": {
+		           "type": "string"
+		       },
+		       "CLOUD_VERIFIER_CLOUDVERIFIER_IP": {
+		           "type": "string"
+		       },
+		       "CLOUD_VERIFIER_REVOCATION_NOTIFIER_IP": {
+		           "type": "string"
+		       },
+		       "CLOUD_VERIFIER_PORT": {
+		           "type": "string"
+		       },
+		       "CLOUD_VERIFIER_TLS_DIR": {
+		           "type": "string"
+		       },
+		       "CLOUD_VERIFIER_DATABASE_SHARED": {
+		           "type": "string"
+		       },
+		       "CLOUD_VERIFIER_DATABASE_UR": {
+		           "type": "string"
+		       },
+		       "REGISTRAR_REGISTRAR_IP": {
+		           "type": "string"
+		       },
+		       "REGISTRAR_PORT": {
+		           "type": "string"
+		       },
+		       "REGISTRAR_PROVIDER_REGISTRAR_IP": {
+		           "type": "string"
+		       },
+		       "REGISTRAR_DATABASE_SHARED": {
+		           "type": "string"
+		       },
+		       "REGISTRAR_DATABASE_URL": {
+		           "type": "string"
+		       },
+		       "TENANT_TPM_CERT_STORE": {
+		           "type": "string"
+		       },
+		       "LOGGER_KEYLIME_LEVEL": {
+		           "type": "string"
+		       }
+		   },
+                   "required": [
+			    "CLOUD_AGENT_TPM_OWNERPASSWORD", 
+			    "CLOUD_VERIFIER_CLOUDVERIFIER_IP", 
+			    "REGISTRAR_REGISTRAR_IP"
+		   ]
+	        },
+	        "keylimecontainer": {
+                   "type": "object",
+		   "properties": {
+                       "ASSET_DB_IP": {
+		           "type": "string"
+		       },
+		       "ASSET_DB_ID": {
+		           "type": "string"
+		       },
+		       "ASSET_DB_PORT": {
+		           "type": "string"
+		       },
+		       "ASSET_DB_PW": {
+		           "type": "string"
+		       },
+		       "DEPLOYER_IP": {
+		           "type": "string"
+		       },
+		       "DEPLOY_AGENT": {
+		           "type": "string"
+		       },
+		       "DEPLOY_AUTORUN": {
+		           "type": "string"
+		       },
+		       "DEPLOY_IMA": {
+		           "type": "string"
+		       },
+		       "DEPLOY_MB": {
+		           "type": "string"
+		       },
+		       "DEPLOY_PARALLELISM": {
+		           "type": "string"
+		       },
+		       "CLUSTER": {
+		           "type": "string"
+		       },
+		       "MASTER_NODE_LIST": {
+		           "type": "string"
+		       },
+		       "CONTAINER_TEST": {
+		           "type": "string"
+		       }
+		    },
+                    "required": [
+			    "ASSET_DB_IP", 
+			    "ASSET_DB_ID", 
+			    "ASSET_DB_PORT", 
+			    "ASSET_DB_PW"
+		    ]
+	        }
+	    },
+            "required": ["keylime", "keylimecontainer"]
+        }
+    },
+    "required": ["nodes", "services"]
+}

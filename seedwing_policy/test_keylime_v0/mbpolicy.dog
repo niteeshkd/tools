@@ -1,0 +1,34 @@
+//refstate = {
+//    "kernel_plain_sha256": "0x2ae3edb0730ea74d74ed76da2f297888abd9a990ce95dbb51e7e088b74680292",
+//    "kernel_authcode_sha256": "0xd968af6fbb6210352455d1c67b49d7b3c414361c9ea1d2828ef15f6d5bac4d19"
+//}
+
+pattern allow = secure_boot_enabled && kernel_authcode_sha256_granted
+
+pattern secure_boot_enabled = {
+    events: list::any<event_Event<"EV_EFI_VARIABLE_DRIVER_CONFIG", 7, "SecureBoot">>
+}
+
+pattern kernel_authcode_sha256_granted = {
+    //events: list::any<event_Digests<"EV_EFI_BOOT_SERVICES_APPLICATION", 4, <getDgst(refstate,kernel_authcode_sha256)>>>
+    events: list::any<event_Digests<"EV_EFI_BOOT_SERVICES_APPLICATION", 4, "d968af6fbb6210352455d1c67b49d7b3c414361c9ea1d2828ef15f6d5bac4d19">>
+}
+
+pattern event_Event<evtype, pcrx, evstr> = {
+    PCRIndex: pcrx,
+    EventType: evtype,
+    Event: {
+        UnicodeName: evstr
+    }
+}
+
+pattern event_Digests<evtype, pcrx, dgst> = {
+    PCRIndex: pcrx,
+    EventType: evtype,
+    Digests?: list::any<digest_sha256<dgst>>
+}
+
+pattern digest_sha256<dgst> = {
+    AlgorithmId: "sha256",
+    Digest: dgst
+}

@@ -1,0 +1,57 @@
+//refstate = {
+//    "shim_authcode_sha256": "0xdbffd70a2c43fd2c1931f18b8f8c08c5181db15f996f747dfed34def52fad036",
+//    "grub_authcode_sha256": "0xacc00aad4b0413a8b349b4493f95830da6a7a44bd6fc1579f6f53c339c26cb05",
+//    "kernel_authcode_sha256": "0xd968af6fbb6210352455d1c67b49d7b3c414361c9ea1d2828ef15f6d5bac4d19",
+//    "kernel_plain_sha256": "0x2ae3edb0730ea74d74ed76da2f297888abd9a990ce95dbb51e7e088b74680292",
+//    "initrd_plain_sha256": "0x411a773dce24fddca247c8439182bf265504abb379be18f0f76df6ed3f575148"
+//}
+
+pattern allow = kernel_plain_sha256_granted && 
+                initrd_plain_sha256_granted && 
+                grub_authcode_sha256_granted &&
+                shim_authcode_sha256_granted &&
+                kernel_authcode_sha256_granted
+
+pattern kernel_plain_sha256_granted = {
+    //events: list::any<event_Digests<"EV_IPL", 9, <refstate.kernel_plain_sha256>>>
+    events: list::any<event_Digests<"EV_IPL", 9, "2ae3edb0730ea74d74ed76da2f297888abd9a990ce95dbb51e7e088b74680292">>
+}
+
+pattern initrd_plain_sha256_granted = {
+    events: list::any<event_Digests<"EV_IPL", 9, "411a773dce24fddca247c8439182bf265504abb379be18f0f76df6ed3f575148">>
+}
+
+pattern grub_authcode_sha256_granted = {
+    events: list::any<event_Digests<"EV_EFI_BOOT_SERVICES_APPLICATION", 4, "acc00aad4b0413a8b349b4493f95830da6a7a44bd6fc1579f6f53c339c26cb05">>
+}
+
+pattern shim_authcode_sha256_granted = {
+    events: list::any<event_Digests<"EV_EFI_BOOT_SERVICES_APPLICATION", 4, "dbffd70a2c43fd2c1931f18b8f8c08c5181db15f996f747dfed34def52fad036">>
+}
+
+pattern kernel_authcode_sha256_granted = secure_boot_enabled && kernel_authcode_sha256d
+pattern secure_boot_enabled = {
+    events: list::any<event_Event<"EV_EFI_VARIABLE_DRIVER_CONFIG", 7, "SecureBoot">>
+}
+pattern kernel_authcode_sha256d = {
+    events: list::any<event_Digests<"EV_EFI_BOOT_SERVICES_APPLICATION", 4, "d968af6fbb6210352455d1c67b49d7b3c414361c9ea1d2828ef15f6d5bac4d19">>
+}
+
+pattern event_Event<evtype, pcrx, evstr> = {
+    PCRIndex: pcrx,
+    EventType: evtype,
+    Event: {
+        UnicodeName: evstr
+    }
+}
+
+pattern event_Digests<evtype, pcrx, dgst> = {
+    PCRIndex: pcrx,
+    EventType: evtype,
+    Digests?: list::any<digest_sha256<dgst>>
+}
+
+pattern digest_sha256<dgst> = {
+    AlgorithmId: "sha256",
+    Digest: dgst
+}

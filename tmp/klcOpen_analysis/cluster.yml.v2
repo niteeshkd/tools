@@ -1,0 +1,43 @@
+node:
+  - hostname: small12-agent0
+    hostIP: 100.64.12.33
+    uuid: 00000000-0000-0000-0000-52540c0d0221
+    network: eth0
+    order: 1
+  - hostname: small12-agent1
+    hostIP: 100.64.12.34
+    uuid: 00000000-0000-0000-0000-52540c0d0222
+    network: eth0
+    order: 2
+services:
+    keylime:
+        ASSET_DB_IP: "100.64.12.1"
+        ASSET_DB_ID: "3"
+        ASSET_DB_PORT: "16379"
+        ASSET_DB_PW: "temp4now"
+        CLOUD_AGENT_CLOUDAGENT_PORT: "9002"
+        CLOUD_AGENT_EK_HANDLE: "generate"
+        CLOUD_AGENT_TPM_OWNERPASSWORD: "temp4now"
+        CLOUD_VERIFIER_CLOUDVERIFIER_IP: "100.64.12.1"
+        CLOUD_VERIFIER_DATABASE_SHARED: "1"
+        CLOUD_VERIFIER_DATABASE_URL: " "
+        CLOUD_VERIFIER_PORT: "8881"
+        CLOUD_VERIFIER_REVOCATION_NOTIFIER_IP: "100.64.12.1"
+        CLOUD_VERIFIER_TLS_DIR: "generate"
+        CLUSTER: "small12"
+        CONTAINER_TEST: "0"
+        DEPLOY_AGENT: "0"
+        DEPLOY_AUTORUN: "0"
+        DEPLOYER_IP: "100.64.12.1"
+        DEPLOY_IMA: "0"
+        DEPLOY_MB: "0"
+        DEPLOY_PARALLELISM: "5"
+        ENABLE_SEEDER: "0"
+        LOGGER_KEYLIME_LEVEL: "DEBUG"
+        MASTER_NODE_LIST: "allnodes"
+        REGISTRAR_DATABASE_SHARED: "1"
+        REGISTRAR_DATABASE_URL: " "
+        REGISTRAR_PORT: "8890"
+        REGISTRAR_PROVIDER_REGISTRAR_IP: "127.0.0.1"
+        REGISTRAR_REGISTRAR_IP: "100.64.12.1"
+        TENANT_TPM_CERT_STORE: "/var/lib/keylime/tpm_cert_store/"

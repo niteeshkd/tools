@@ -1,0 +1,2 @@
+[root@small12-agent0 /]# tpm2_getekcertificate > /tmp/ekcert
+[root@small12-agent0 /]# openssl x509 -in /tmp/ekcert -inform der -out /tmp/ekcert.pem -outform pem

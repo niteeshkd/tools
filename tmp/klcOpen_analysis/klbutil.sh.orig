@@ -1,0 +1,1959 @@
+#!/bin/bash
+
+# keylime-bootstrap linux utilities
+
+declare -A KEYLIME_CERTS_DIR
+
+export KEYLIME_NODE_NAME=${KEYLIME_NODE_NAME:-$(hostname -s)}
+export KEYLIME_USER_PWD=${KEYLIME_USER_PWD:-"temp4now"}
+export KEYLIME_ASSET_DB_AUTH_PATH=${KEYLIME_ASSET_DB_AUTH_PATH:-/etc/redis/redis.auth:~/.ssh/redis.auth}
+export KEYLIME_IMA_EXCLUDELIST=${KEYLIME_IMA_EXCLUDELIST:-/ima_exclude.txt}
+export KEYLIME_EXECUTE_TENANT_CMD=${KEYLIME_EXECUTE_TENANT_CMD:-1}
+export KEYLIME_IMA_FAULT=${KEYLIME_IMA_FAULT:-0}
+export KEYLIME_PCR_FAULT=${KEYLIME_PCR_FAULT:-0}
+export KEYLIME_PCR_FAULT_NR=${KEYLIME_PCR_FAULT_NR:-23}
+export KEYLIME_REGISTRAR_REGISTRAR_PORT=${KEYLIME_REGISTRAR_REGISTRAR_PORT:-8890}
+export KEYLIME_REGISTRAR_REGISTRAR_TLS_PORT=${KEYLIME_REGISTRAR_REGISTRAR_TLS_PORT:-8891}
+export KEYLIME_REGISTRAR_DATABASE_SHARED=${KEYLIME_REGISTRAR_DATABASE_SHARED:-0}
+export KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_PORT=${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_PORT:-8881}
+export KEYLIME_CLOUD_VERIFIER_DATABASE_SHARED=${KEYLIME_CLOUD_VERIFIER_DATABASE_SHARED:-0}
+export KEYLIME_CLOUD_AGENT_CLOUDAGENT_PORT=${KEYLIME_CLOUD_AGENT_CLOUDAGENT_PORT:-9002}
+export KEYLIME_CHECK_PORT_OPEN_ATTEMPTS=${KEYLIME_CHECK_PORT_OPEN_ATTEMPTS:-30}
+export KEYLIME_CHECK_PORT_OPEN_INTERVAL=${KEYLIME_CHECK_PORT_OPEN_INTERVAL:-6}
+export KEYLIME_CERT_FILE_LIST=${KEYLIME_CERT_FILE_LIST:-cacert.crt,ca-public.pem,cacrl.der,cacrl.pem,client-cert.crt,client-private.pem,host-cert.crt,host-private.pem,host-public.pem}
+export KEYLIME_CHECK_CERT_EXISTS_ATTEMPTS=${KEYLIME_CHECK_CERT_EXISTS_ATTEMPTS:-300}
+export KEYLIME_CHECK_CERT_EXISTS_INTERVAL=${KEYLIME_CHECK_CERT_EXISTS_INTERVAL:-3}
+export KEYLIME_CHECK_STATUS_INTERVAL=${KEYLIME_CHECK_STATUS_INTERVAL:-6}
+export KEYLIME_WEBAPP_WEBAPP_PORT=${KEYLIME_WEBAPP_WEBAPP_PORT:-443}
+export KEYLIME_MASTER_NODE_LIST=${KEYLIME_MASTER_NODE_LIST:-"agent_started_ok"}
+export KEYLIME_DEPLOY_AGENT=${KEYLIME_DEPLOY_AGENT:-1}
+export KEYLIME_DEPLOY_MB=${KEYLIME_DEPLOY_MB:-1}
+export KEYLIME_DEPLOY_IMA=${KEYLIME_DEPLOY_IMA:-1}
+export KEYLIME_DEPLOY_AUTORUN=${KEYLIME_DEPLOY_AUTORUN:-0}
+export KEYLIME_NODE_ORDER=${KEYLIME_NODE_ORDER:-1}
+export KEYLIME_ENABLE_SEEDER=${KEYLIME_ENABLE_SEEDER:-1}
+export KEYLIME_ENABLE_DEPLOYER=${KEYLIME_ENABLE_DEPLOYER:-1}
+export KEYLIME_DEPLOY_PARALLELISM=${KEYLIME_DEPLOY_PARALLELISM:-1}
+export KEYLIME_TENANT_TPM_HASH_ALG=${KEYLIME_TENANT_TPM_HASH_ALG:-"sha256"}
+export KEYLIME_CLOUD_AGENT_TPM_HASH_ALG=${KEYLIME_CLOUD_AGENT_TPM_HASH_ALG:-"sha256"}
+export KEYLIME_CLOUD_AGENT_TPM_ENCRYPTION_ALG=${KEYLIME_CLOUD_AGENT_TPM_ENCRYPTION_ALG:-"rsa"}
+export KEYLIME_CLOUD_AGENT_TPM_SIGNING_ALG=${KEYLIME_CLOUD_AGENT_TPM_SIGNING_ALG:-"rsassa"}
+export KEYLIME_CLOUD_AGENT_TPM_OWNERPASSWORD=${KEYLIME_CLOUD_AGENT_TPM_OWNERPASSWORD:-"temp4now"}
+export KEYLIME_CLOUD_AGENT_SERVER_KEY=${KEYLIME_CLOUD_AGENT_SERVER_KEY:-"tci_rsa_key"}
+export KEYLIME_CLOUD_AGENT_SERVER_CERT=${KEYLIME_CLOUD_AGENT_SERVER_CERT:-"tci_mtls_cert"}
+export KEYLIME_CLOUD_AGENT_ENC_KEYNAME=${KEYLIME_CLOUD_AGENT_ENC_KEYNAME:-"derived_tci_key"}
+export KEYLIME_CLOUD_AGENT_DEC_PAYLOAD_FILE=${KEYLIME_CLOUD_AGENT_DEC_PAYLOAD_FILE:-"decrypted_payload"}
+export KEYLIME_CLOUD_AGENT_PAYLOAD_SCRIPT=${KEYLIME_CLOUD_AGENT_PAYLOAD_SCRIPT:-""}
+export KEYLIME_CLOUD_AGENT_SECURE_SIZE=${KEYLIME_CLOUD_AGENT_SECURE_SIZE:-"1m"}
+export KEYLIME_CLOUD_AGENT_EK_HANDLE=${KEYLIME_CLOUD_AGENT_EK_HANDLE:-"generate"}
+export KEYLIME_CLOUD_AGENT_CONTACT_IP=${KEYLIME_CLOUD_AGENT_CONTACT_IP:-"127.0.0.1"}
+export KEYLIME_CLOUD_AGENT_RUN_AS=${KEYLIME_CLOUD_AGENT_RUN_AS:-"root:root"}
+export KEYLIME_AGENT_TYPE=${KEYLIME_AGENT_TYPE:-python}
+export KEYLIME_MBREF_BUILDING_METHOD=${KEYLIME_MBREF_BUILDING_METHOD:-"assemble"}
+export KEYLIME_CLONE_DIR=${KEYLIME_CLONE_DIR:-"/KL/keylime"}
+export KEYLIME_CONFIG_FILE=${KEYLIME_CONFIG_FILE:-"/etc/keylime.conf"}
+export KEYLIME_CONFIG_DIR=${KEYLIME_CONFIG_DIR:-"/etc/keylime"}
+export KEYLIME_CLOUD_VERIFIER_PERSISTENT_STORE_IMPORT=${KEYLIME_CLOUD_VERIFIER_PERSISTENT_STORE_IMPORT:-""}
+export KEYLIME_CLOUD_VERIFIER_PERSISTENT_STORE_CONNECTION_DATA=${KEYLIME_CLOUD_VERIFIER_PERSISTENT_STORE_CONNECTION_DATA:-""}
+
+if [[ $KEYLIME_CLOUD_AGENT_TPM_HASH_ALG == "sha256" ]]
+then
+    export KEYLIME_PCR_FAULT_VAL=0000000000000000000000000000000000000000000000000000000000000000
+else
+    export KEYLIME_PCR_FAULT_VAL=0000000000000000000000000000000000000000
+fi
+
+export KEYLIME_DATABASE_IP=sqlite
+export KEYLIME_DATABASE_PASSWORD=sqlite
+export KEYLIME_DATABASE_USER=sqlite
+export KEYLIME_DATABASE_NAME=sqlite
+export KEYLIME_DATABASE_PORT=sqlite
+
+echo ${KEYLIME_REGISTRAR_DATABASE_URL} | grep -q @
+if [[ $? -eq 0 ]]
+then
+    _KEYLIME_REGISTRAR_DATABASE_URL=$(echo ${KEYLIME_REGISTRAR_DATABASE_URL} | sed -E 's^@|:|/|\?^ ^g')
+    export KEYLIME_DATABASE_IP=$(echo ${_KEYLIME_REGISTRAR_DATABASE_URL} | cut -d ' ' -f 4)
+    export KEYLIME_DATABASE_PASSWORD=$(echo ${_KEYLIME_REGISTRAR_DATABASE_URL} | cut -d ' ' -f 3)
+    export KEYLIME_DATABASE_USER=$(echo ${_KEYLIME_REGISTRAR_DATABASE_URL} | cut -d ' ' -f 2)
+    export KEYLIME_DATABASE_PORT=$(echo ${_KEYLIME_REGISTRAR_DATABASE_URL} | cut -d ' ' -f 5)
+    export KEYLIME_DATABASE_NAME=$(echo ${_KEYLIME_REGISTRAR_DATABASE_URL} | cut -d ' ' -f 6)
+fi
+
+#echo ${KEYLIME_CLOUD_VERIFIER_DATABASE_URL} | grep -q @
+#if [[ $? -eq 0 ]]
+#then
+#    _KEYLIME_CLOUD_VERIFIER_DATABASE_URL=$(echo ${KEYLIME_CLOUD_VERIFIER_DATABASE_URL} | sed -E 's^@|:|/|\?^ ^g')
+#    export KEYLIME_DATABASE_IP=$(echo ${_KEYLIME_CLOUD_VERIFIER_DATABASE_URL} | cut -d ' ' -f 4)
+#    export KEYLIME_DATABASE_PASSWORD=$(echo ${_KEYLIME_CLOUD_VERIFIER_DATABASE_URL} | cut -d ' ' -f 3)
+#    export KEYLIME_DATABASE_USER=$(echo ${_KEYLIME_CLOUD_VERIFIER_DATABASE_URL} | cut -d ' ' -f 2)
+#    export KEYLIME_DATABASE_PORT=$(echo ${_KEYLIME_CLOUD_VERIFIER_DATABASE_URL} | cut -d ' ' -f 5)
+#    export KEYLIME_DATABASE_NAME=$(echo ${_KEYLIME_CLOUD_VERIFIER_DATABASE_URL} | cut -d ' ' -f 6)
+#fi
+
+# total size of "bulkinfo" output could be large, direct it to a file
+export KEYLIME_BULKINFO_FILE=${KEYLIME_BULKINFO_FILE:-/tmp/bulkinfo}
+
+# total size of "reglist" output could be large, direct it to a file
+export KEYLIME_REGLIST_FILE=${KEYLIME_REGLIST_FILE:-/tmp/reglist}
+
+# set redis authorization
+export REDISCLI_AUTH=${KEYLIME_ASSET_DB_PW}
+for f in $(echo ${KEYLIME_ASSET_DB_AUTH_PATH} | tr ':' ' ')
+do
+    if test -f ${f}
+    then
+        export REDISCLI_AUTH=$(cat ${f})
+        break
+    fi
+done
+
+function announce {
+    # 1 - MESSAGE
+    # 2 - UPDATE "LOG" (SORTED SET) BUT DO NOT PRINT MESSAGE
+
+    if [[ -z $2 ]]
+    then
+        _MP=1
+    else
+        _MP=$2
+    fi
+    
+    sudo chown -R $(whoami):$(whoami) /tmp/syslog_active > /dev/null 2>&1
+
+    if [[ -z ${KEYLIME_NC_PORT_SYSLOG} || -z ${KEYLIME_NC_HOST_SYSLOG} ]]
+    then
+        echo 0 > /tmp/syslog_active
+    fi
+    
+    if [[ -z $KEYLIME_ASSET_DB_IP || -z $KEYLIME_ASSET_DB_ID || -z $KEYLIME_ASSET_DB_PORT ]]
+    then
+        echo 0 > /tmp/redis_active
+    fi
+    
+    if [[ ! -f /tmp/syslog_active ]]
+    then
+        which nmap >/dev/null 2>&1
+        if [[ $? -ne 0 ]]
+        then
+            sudo nmap -P0 -sU -p${KEYLIME_NC_PORT_SYSLOG} ${KEYLIME_NC_HOST_SYSLOG} | grep udp | grep closed >/dev/null 2>&1
+            SYSLOG_PORT_OPEN=$?
+        else 
+            nc -u -v -w3 ${KEYLIME_NC_HOST_SYSLOG} ${KEYLIME_NC_PORT_SYSLOG} >/dev/null 2>&1
+            if [[ $? -ne 0 ]]
+            then
+                SYSLOG_PORT_OPEN=0
+            else
+                SYSLOG_PORT_OPEN=1
+            fi        
+        fi    
+     
+        if [[ ${SYSLOG_PORT_OPEN} -eq 1 ]]
+        then
+            echo 1 > /tmp/syslog_active
+        else
+            echo 0 > /tmp/syslog_active
+        fi
+    fi
+    
+    MESSAGE=$(echo "${1}" | tr '\n' ' ')
+    MESSAGE=$(echo $MESSAGE | sed "s/\t\t*/ /g")
+
+    if [[ -z ${KEYLIME_NC_FACILITY_SYSLOG} ]]
+    then
+        KEYLIME_NC_FACILITY_SYSLOG=175
+    fi
+    
+    if [[ -z ${SCRIPT_NAME} ]]
+    then
+        SCRIPT_NAME=${BASH_SOURCE[0]}
+    fi
+    
+    if [[ ! -z ${KEYLIME_CLUSTER} && ! -z ${KEYLIME_NODE_NAME} && ! -z ${KEYLIME_ROLE} ]]
+    then
+        local _PREFIX="- $(date) - ${KEYLIME_CLUSTER}/${KEYLIME_NODE_NAME} (${KEYLIME_ROLE}) - $SCRIPT_NAME - "
+    else
+        local _PREFIX="- $(date) - $SCRIPT_NAME - "
+    fi
+    
+    if [[ $(cat /tmp/syslog_active) -eq 1 ]]
+    then
+        echo "<${KEYLIME_NC_FACILITY_SYSLOG}>${_PREFIX}${MESSAGE}" | $KEYLIME_NC_CMD &
+    fi
+
+    _TS=$(redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT time)
+    if [[ $? -eq 0 ]]
+    then
+        _TS=$(echo "${_TS}" | head -n 1)
+        if [[ ! -z ${KEYLIME_CLUSTER} && ! -z ${KEYLIME_NODE_NAME} && ! -z ${KEYLIME_ROLE} ]]        
+        then
+            redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT zadd ${KEYLIME_CLUSTER}_${KEYLIME_NODE_NAME}_events ${_TS} "${MESSAGE} : ${_TS}" >/dev/null 2>&1       
+        fi
+        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT publish keylime "${_PREFIX}${MESSAGE}" >/dev/null 2>&1
+    fi
+
+    if [[ ${_MP} -eq 1 ]]
+    then
+        echo "<${KEYLIME_NC_FACILITY_SYSLOG}>${_PREFIX}${MESSAGE}"
+    fi
+}
+export -f announce 
+
+function obtain_timestamp {
+    local _start=$1
+    local _ts=$(date +%s%N)        
+    if [[ ! -z ${_start} ]]
+    then
+        echo "$(((_ts-_start)/1000000)) ms"
+    else
+        echo "${_ts}"
+    fi
+}
+
+function get_registrar {
+    local verbose=${2:-0}
+    if [[ ! -z ${1} ]]
+    then
+        export KEYLIME_NODE_ORDER=$(bc <<<ibase=16\;$(sha1sum <<<"${1}"|tr a-z A-Z)0)
+    else
+        $(echo ${1} | grep -q "-") >/dev/null 2>&1
+        if [[ $? -eq 0 ]]
+        then
+            export KEYLIME_NODE_ORDER=$(bc <<<ibase=16\;$(sha1sum <<<"${1}"|tr a-z A-Z)0)
+        fi
+    fi
+
+    if [[ -z ${2} ]]
+    then
+        _zap=1
+    else
+        _zap=${2}
+    fi
+
+    if [[ ${verbose} == 1 ]] ; then announce "====> (get_registrar) : the node ordinal number is $KEYLIME_NODE_ORDER" ${_zap} ; fi
+
+    if [[ -z $KEYLIME_REGISTRAR_REGISTRAR_IP_LIST ]]
+    then
+        export KEYLIME_REGISTRAR_REGISTRAR_IP_LIST=$KEYLIME_REGISTRAR_REGISTRAR_IP 
+    fi
+
+    if [[ $KEYLIME_ROLE == "registrar" ]]
+    then
+        for _ip in $(echo "$KEYLIME_REGISTRAR_REGISTRAR_IP_LIST" | sed 's/,/ /g')
+        do   
+            if ip a list | grep -q "${_ip}/"
+            then
+                export KEYLIME_REGISTRAR_REGISTRAR_IP=${_ip}
+            fi
+        done
+        if [[ ${verbose} == 1 ]] ; then announce "====> (get_registrar) : this is a registrar, and found its own IP ${KEYLIME_REGISTRAR_REGISTRAR_IP}, port ${KEYLIME_REGISTRAR_REGISTRAR_PORT}/${KEYLIME_REGISTRAR_REGISTRAR_TLS_PORT} on the list ${KEYLIME_REGISTRAR_REGISTRAR_IP_LIST}" ${_zap} ; fi
+    else
+        if [[ -z $KEYLIME_REGISTRAR_REGISTRAR_IPORT ]]
+        then
+            
+            export KEYLIME_REGISTRAR_REGISTRAR_IPORT=$KEYLIME_REGISTRAR_REGISTRAR_PORT
+            if [[ ${verbose} == 1 ]] ; then announce "====> (get_registrar) : the variable KEYLIME_REGISTRAR_REGISTRAR_IPORT was undefined. Setting it to $KEYLIME_REGISTRAR_REGISTRAR_PORT" ; fi
+        fi
+
+        if [[ -z $KEYLIME_REGISTRAR_REGISTRAR_TLS_IPORT ]]
+        then
+            export KEYLIME_REGISTRAR_REGISTRAR_TLS_IPORT=$KEYLIME_REGISTRAR_REGISTRAR_TLS_PORT
+            if [[ ${verbose} == 1 ]] ; then announce "====> (get_registrar) : the variable KEYLIME_REGISTRAR_REGISTRAR_TLS_IPORT was undefined. Setting it to $KEYLIME_REGISTRAR_REGISTRAR_TLS_PORT" ; fi
+        fi
+
+        if [[ ! -z $KEYLIME_REGISTRAR_REGISTRAR_VIP ]]
+        then
+            export KEYLIME_REGISTRAR_REGISTRAR_IP=$KEYLIME_REGISTRAR_REGISTRAR_VIP
+            if [[ ! -z ${KEYLIME_REGISTRAR_REGISTRAR_VPORT} ]]
+            then
+                export KEYLIME_REGISTRAR_REGISTRAR_PORT=$KEYLIME_REGISTRAR_REGISTRAR_VPORT
+            fi
+
+            if [[ ! -z ${KEYLIME_REGISTRAR_REGISTRAR_TLS_VPORT} ]]
+            then
+                export KEYLIME_REGISTRAR_REGISTRAR_TLS_PORT=$KEYLIME_REGISTRAR_REGISTRAR_TLS_VPORT
+            fi
+
+            if [[ $KEYLIME_REGISTRAR_DATABASE_SHARED -eq 1 ]]
+            then
+                if [[ ${verbose} == 1 ]] ; then announce "====> (get_registrar) : load balancer detected in front of registrar with shared database, determined the register IP to be ${KEYLIME_REGISTRAR_REGISTRAR_IP}, port ${KEYLIME_REGISTRAR_REGISTRAR_PORT}/${KEYLIME_REGISTRAR_REGISTRAR_TLS_PORT}" ${_zap} ; fi
+            else
+                KEYLIME_REGISTRAR_REGISTRAR_IP=$(ssh -p 10000 ${KEYLIME_REGISTRAR_REGISTRAR_VIP} "ip address show dev $KEYLIME_NETWORK_DEVICE | grep inet[[:space:]] | cut -d ' ' -f 6 | cut -d '/' -f 1")
+                while [[ -z $KEYLIME_REGISTRAR_REGISTRAR_IP ]]
+                do
+                    sleep $KEYLIME_CHECK_PORT_OPEN_INTERVAL
+                    KEYLIME_REGISTRAR_REGISTRAR_IP=$(ssh -p 10000 ${KEYLIME_REGISTRAR_REGISTRAR_VIP} "ip address show dev $KEYLIME_NETWORK_DEVICE | grep inet[[:space:]] | cut -d ' ' -f 6 | cut -d '/' -f 1")
+                done
+                if [[ ${verbose} == 1 ]] ; then announce "====> (get_registrar) : load balancer detected in front of registrar with private databases, determined the verifier IP to be ${KEYLIME_REGISTRAR_REGISTRAR_IP}, port ${KEYLIME_REGISTRAR_REGISTRAR_PORT}/${KEYLIME_REGISTRAR_REGISTRAR_TLS_PORT}" ${_zap} ; fi
+            fi
+        else
+            local _nr_registrars=$(echo $KEYLIME_REGISTRAR_REGISTRAR_IP_LIST | sed 's/\,/\n/g' | wc -l)
+            local _registrar_list=$(echo $KEYLIME_REGISTRAR_REGISTRAR_IP_LIST | sed 's/\,/\n/g' | awk '{printf "%d:%s\n", NR, $0}')
+            local _my_registrar_index=`echo "($KEYLIME_NODE_ORDER % ${_nr_registrars}) + 1" | bc`
+            export KEYLIME_REGISTRAR_REGISTRAR_IP=$(echo "${_registrar_list}" | grep ^${_my_registrar_index}: | cut -d ':' -f 2)
+            if [[ ${verbose} == 1 ]] ; then announce "====> (get_registrar) : no load balancer detected, determined the registrar IP to be ${KEYLIME_REGISTRAR_REGISTRAR_IP}, port ${KEYLIME_REGISTRAR_REGISTRAR_PORT}/${KEYLIME_REGISTRAR_REGISTRAR_TLS_PORT} from the list ${KEYLIME_REGISTRAR_REGISTRAR_IP_LIST}" ${_zap} ; fi
+        fi
+
+        if [[ $KEYLIME_ROLE == "agent" ]]
+        then
+            export KEYLIME_CLOUD_AGENT_REGISTRAR_IP=$KEYLIME_REGISTRAR_REGISTRAR_IP
+
+            if [[ ! -z $KEYLIME_REGISTRAR_REGISTRAR_PORT ]]
+            then
+                export KEYLIME_CLOUD_AGENT_REGISTRAR_PORT=$KEYLIME_REGISTRAR_REGISTRAR_PORT
+            fi
+
+            if [[ ! -z $KEYLIME_REGISTRAR_REGISTRAR_TLS_PORT ]]
+            then
+                export KEYLIME_CLOUD_AGENT_REGISTRAR_TLS_PORT=$KEYLIME_REGISTRAR_REGISTRAR_TLS_PORT
+            fi
+        fi
+
+        if [[ $KEYLIME_ROLE == "verifier" ]]
+        then
+            export KEYLIME_CLOUD_VERIFIER_REGISTRAR_IP=$KEYLIME_REGISTRAR_REGISTRAR_IP
+
+            # The verifier talks to the registrar via TLS
+            if [[ ! -z $KEYLIME_REGISTRAR_REGISTRAR_TLS_PORT ]]
+            then
+                export KEYLIME_CLOUD_VERIFIER_REGISTRAR_PORT=$KEYLIME_REGISTRAR_REGISTRAR_TLS_PORT
+            fi
+        fi
+
+        if [[ $KEYLIME_ROLE == "deployer" ]]
+        then
+            export KEYLIME_TENANT_REGISTRAR_IP=$KEYLIME_REGISTRAR_REGISTRAR_IP
+
+            if [[ ! -z $KEYLIME_REGISTRAR_REGISTRAR_TLS_PORT ]]
+            then
+                export KEYLIME_TENANT_REGISTRAR_PORT=$KEYLIME_REGISTRAR_REGISTRAR_TLS_PORT
+            fi
+
+        fi
+    fi
+}
+export -f get_registrar
+
+function get_verifier {
+    local verbose=${2:-0}
+    if [[ ! -z ${1} ]]
+    then
+        export KEYLIME_NODE_ORDER=$(bc <<<ibase=16\;$(sha1sum <<<"${1}"|tr a-z A-Z)0)
+    else
+        $(echo ${1} | grep -q "-") >/dev/null 2>&1
+        if [[ $? -eq 0 ]]
+        then
+            export KEYLIME_NODE_ORDER=$(bc <<<ibase=16\;$(sha1sum <<<"${1}"|tr a-z A-Z)0)
+        fi
+    fi
+
+    if [[ -z ${2} ]]
+    then
+        _zap=1
+    else
+        _zap=${2}
+    fi
+
+    if [[ ${verbose} == 1 ]] ; then announce "====> (get_verifier) : the node ordinal number is $KEYLIME_NODE_ORDER" ${_zap} ; fi
+
+    if [[ -z $KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP_LIST ]]
+    then
+        export KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP_LIST=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP
+    fi
+
+    if [[ $KEYLIME_ROLE == "verifier" ]]
+    then
+        for _ip in $(echo "$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP_LIST" | sed 's/,/ /g')
+        do   
+            if ip a list | grep -q "${_ip}/"
+            then
+                export KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP=${_ip}
+            fi
+        done
+        if [[ ${verbose} == 1 ]] ; then announce "====> (get_verifier) : this is a verifier, and found its own IP ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP}, port ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_PORT} on the list ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP_LIST}" ${_zap} ; fi
+    else
+
+        if [[ -z $KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IPORT ]]
+        then
+            export KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IPORT=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_PORT
+            if [[ ${verbose} == 1 ]] ; then announce "====> (get_verifier) : the variable KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IPORT was undefined. Setting it to $KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_PORT" ; fi
+        fi
+
+        if [[ ! -z $KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_VIP ]]
+        then
+            export KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_VIP
+            if [[ ! -z ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_VPORT} ]]
+            then
+                export KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_PORT=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_VPORT
+            fi
+
+            if [[ $KEYLIME_CLOUD_VERIFIER_DATABASE_SHARED -eq 1 ]]
+            then
+                if [[ ${verbose} == 1 ]] ; then announce "====> (get_verifier) : load balancer detected in front of verifiers with shared database, determined the verifier IP to be ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP}, port ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_PORT}" ${_zap} ; fi
+            else
+                KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP=$(ssh -p 20000 ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_VIP} "ip address show dev $KEYLIME_NETWORK_DEVICE | grep inet[[:space:]] | cut -d ' ' -f 6 | cut -d '/' -f 1")
+                while [[ -z $KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP ]]
+                do
+                    sleep $KEYLIME_CHECK_PORT_OPEN_INTERVAL
+                    KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP=$(ssh -p 20000 ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_VIP} "ip address show dev $KEYLIME_NETWORK_DEVICE | grep inet[[:space:]] | cut -d ' ' -f 6 | cut -d '/' -f 1")
+                done
+                if [[ ${verbose} == 1 ]] ; then announce "====> (get_verifier) : load balancer detected in front of verifiers with private databases, determined the verifier IP to be ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP}, port ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_PORT}" ${_zap} ; fi
+            fi            
+
+        else
+            local _nr_verifiers=$(echo $KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP_LIST | sed 's/\,/\n/g' | wc -l)
+            local _verifier_list=$(echo $KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP_LIST | sed 's/\,/\n/g' | awk '{printf "%d:%s\n", NR, $0}')
+            local _my_verifier_index=`echo "($KEYLIME_NODE_ORDER % ${_nr_verifiers}) + 1" | bc`
+            export KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP=$(echo "${_verifier_list}" | grep ^${_my_verifier_index}: | cut -d ':' -f 2)
+            if [[ ${verbose} == 1 ]] ; then announce "====> (get_verifier) : no load balancer detected, determined the verifier IP to be ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP}, port $KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_PORT from the list ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP_LIST}" ${_zap} ; fi
+        fi
+
+        if [[ $KEYLIME_ROLE == "agent" ]]
+        then
+            export KEYLIME_CLOUD_AGENT_CLOUDVERIFIER_IP=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP
+
+            if [[ ! -z $KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_PORT ]]
+            then
+                export KEYLIME_CLOUD_AGENT_CLOUDVERIFIER_PORT=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_PORT
+            fi
+        fi
+
+        if [[ $KEYLIME_ROLE == "deployer" ]]
+        then
+            export KEYLIME_TENANT_CLOUDVERIFIER_IP=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP
+
+            if [[ ! -z $KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_PORT ]]
+            then
+                export KEYLIME_TENANT_CLOUDVERIFIER_PORT=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_PORT
+            fi
+        fi
+
+    fi
+    export KEYLIME_GENERAL_RECEIVE_REVOCATION_IP=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP
+    export KEYLIME_CLOUD_VERIFIER_REVOCATION_NOTIFIER_IP=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP
+}
+export -f get_verifier
+
+function get_events {
+    if [[ -z $1 ]]
+    then
+        local _nodename=${KEYLIME_NODE_NAME}
+    else
+        local _nodename=$1
+    fi
+    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT zrange ${KEYLIME_CLUSTER}_${_nodename}_events
+}
+export -f get_events
+    
+function version_gt { 
+    test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"
+}
+export -f version_gt
+
+function execute_command {
+
+    local _KBS_COMMAND=${1}
+    
+    local _KBS_INTERATTEMPTINT=1
+    if [[ ! -z ${2} ]]
+    then
+        local _KBS_INTERATTEMPTINT=${2}
+    fi
+
+    local _KBS_ATTEMPTS=1
+    if [[ ! -z ${3} ]]
+    then        
+        local _KBS_ATTEMPTS=${3}
+    fi
+    
+    local _KBS_STEP=0
+    if [[ ! -z ${4} ]]
+    then
+        local _KBS_STEP=${4}
+    fi
+    
+    local _KBS_QUIET=0
+    if [[ ! -z ${5} ]]
+    then
+        local _KBS_QUIET=${5}
+    fi
+    
+    counter=1
+    while [[ "$counter" -le "${_KBS_ATTEMPTS}" ]]
+    do
+
+        if [[ ${_KBS_QUIET} -eq 0 ]]
+        then
+            announce "Running command \"${_KBS_COMMAND}\" (from $(pwd)), attempt ${counter} of ${_KBS_ATTEMPTS}..."
+        fi
+
+        #DO NOT ADD "local" or export in front of _KBS_COMMAND_RESULT, it causes the exit code to not propagate correctly
+        _KBS_COMMAND_RESULT=$(bash -c "${_KBS_COMMAND} 2>&1")
+        EXIT_CODE=$?
+        if [[ $EXIT_CODE -ne 0 ]]
+        then
+            if [[ ${_KBS_QUIET} -eq 0 ]]
+            then
+                announce "Will try again, since the command \"${_KBS_COMMAND}\" exit code was $COUT, and the output was ------- ${_KBS_COMMAND_RESULT}"
+            fi
+            sleep ${_KBS_INTERATTEMPTINT}
+            counter="$(( $counter + 1 ))"
+        else
+            if [[ ${_KBS_QUIET} -eq 0 ]]
+            then            
+                announce "After ${counter} attempts (out of ${_KBS_ATTEMPTS}), the command \"${_KBS_COMMAND}\" exit code is zero, and the output is ------- ${_KBS_COMMAND_RESULT}"
+            fi
+            echo "${_KBS_COMMAND_RESULT}" > /tmp/execute_command_output
+            
+            if [[ ${_KBS_STEP} -eq 1 ]]
+            then
+                read  -n 1 -p "Press any key to continue..." mainput
+            fi
+            export KUBERNETES_EXEC_RETCODE=0                
+            return 0
+        fi
+    done
+
+    export KUBERNETES_EXEC_RETCODE=1
+    return 1
+}
+export -f execute_command
+
+function linux_distribution {
+    IS_UBUNTU=$(cat /etc/*release | grep -c "Ubuntu")
+
+    if [[ ${IS_UBUNTU} -ge 1 ]]
+    then
+        export LINUX_DISTRO=1
+    fi
+    
+    IS_REDHAT=$(cat /etc/*release | grep -c "Red Hat\|CentOS\|Fedora")    
+    if [[ ${IS_REDHAT} -ge 1 ]]
+    then
+        export LINUX_DISTRO=2
+    fi
+    
+    check_container
+}
+export -f linux_distribution
+
+function check_container {
+    if [[ $(sudo cat /proc/1/cgroup | grep -c docker) -ne 0 ]]
+    then
+        export IS_CONTAINER=1
+        if [[ -z $LC_ALL ]]
+        then 
+            export LC_ALL=C
+        fi
+        export NR_CPUS=`echo $(get_my_vm_attribute size) | cut -d '-' -f 1`                  
+    else
+        export IS_CONTAINER=0
+        export NR_CPUS=`cat /proc/cpuinfo | grep processor | wc -l`                
+    fi
+}
+export -f check_container
+
+function service_stop_disable {
+    #1 - service list (space-separated list)
+
+    if [[ -z ${LINUX_DISTRO} ]]
+    then
+        linux_distribution
+    fi
+    
+    for s in $*
+    do
+        if [[ ${LINUX_DISTRO} -eq 2 ]]
+        then
+            if [[ $(sudo sv status $s 2>&1 | grep -v "fail:" | grep -c $s) -ne 0 ]]
+            then
+                STOP_COMMAND="sudo sv stop $s"
+                DISABLE_COMMAND="sudo touch /etc/service/$s/down"
+            elif [[ $(sudo systemctl status 2>&1 | grep -c $s) -ne 0 && $(sudo find /etc/systemd 2>&1 | grep -c $s) -ne 0 ]]
+            then
+                STOP_COMMAND="sudo systemctl stop $s"
+                DISABLE_COMMAND="sudo systemctl disable $s"
+            elif [[ $(sudo systemctl status 2>&1 | grep -c $s) -ne 0 && $(sudo find /lib/systemd 2>&1 | grep -c $s) -ne 0 ]]
+            then
+                STOP_COMMAND="sudo systemctl stop $s"
+                DISABLE_COMMAND="sudo systemctl disable $s"  
+            else
+                STOP_COMMAND="sudo service $s stop"
+                DISABLE_COMMAND="sudo chkconfig $s off >/dev/null 2>&1"
+            fi
+        else
+            if [[ $(sudo sv status $s 2>&1 | grep -v "fail:" | grep -c $s) -ne 0 ]]
+            then
+                STOP_COMMAND="sudo sv stop $s"
+                DISABLE_COMMAND="sudo touch /etc/service/$s/down"
+            elif [[ $(sudo systemctl status 2>&1 | grep -c $s) -ne 0 && $(sudo find /etc/systemd 2>&1 | grep -c $s) -ne 0 ]]
+            then
+                STOP_COMMAND="sudo systemctl stop $s"
+                DISABLE_COMMAND="sudo systemctl disable $s"
+            elif [[ $(sudo systemctl status 2>&1 | grep -c $s) -ne 0 && $(sudo find /lib/systemd 2>&1 | grep -c $s) -ne 0 ]]
+            then
+                STOP_COMMAND="sudo systemctl stop $s"
+                DISABLE_COMMAND="sudo systemctl disable $s"                
+            else
+                STOP_COMMAND="sudo service $s stop"
+                if [[ -f /etc/init/$s.conf ]]
+                then
+                    DISABLE_COMMAND="sudo sh -c 'echo manual > /etc/init/$s.override'"
+                else
+                    DISABLE_COMMAND="sudo update-rc.d -f $s remove"
+                fi                    
+            fi
+        fi
+
+        announce "Stopping service \"${s}\" with command \"$STOP_COMMAND\"..."       
+        bash -c "$STOP_COMMAND"
+
+        announce "Disabling service \"${s}\" with command \"$DISABLE_COMMAND\"..."               
+        bash -c "$DISABLE_COMMAND"
+    done
+    /bin/true
+}
+export -f service_stop_disable
+    
+function service_restart_enable {
+    #1 - service list (space-separated list)
+    if [[ -z ${LINUX_DISTRO} ]]
+    then
+        linux_distribution
+    fi
+    
+    for s in $*
+    do            
+        if [[ ${LINUX_DISTRO} -eq 2 ]]
+        then
+            if [[ $(sudo sv status $s 2>&1 | grep -v "fail:" | grep -c $s) -ne 0 ]]
+            then
+                START_COMMAND="sudo sv restart $s"
+                ENABLE_COMMAND="sudo rm /etc/service/$s/down"            
+            elif [[ $(sudo systemctl status 2>&1 | grep -c $s) -ne 0 && $(sudo find /etc/systemd 2>&1 | grep -c $s) -ne 0 ]]
+            then
+                START_COMMAND="sudo systemctl restart $s"
+                ENABLE_COMMAND="sudo systemctl enable $s"
+            elif [[ $(sudo systemctl status 2>&1 | grep -c $s) -ne 0 && $(sudo find /lib/systemd 2>&1 | grep -c $s) -ne 0 ]]
+            then
+                START_COMMAND="sudo systemctl restart $s"
+                ENABLE_COMMAND="sudo systemctl enable $s"                
+            else
+                START_COMMAND="sudo service $s restart"
+                ENABLE_COMMAND="sudo chkconfig $s on >/dev/null 2>&1"
+            fi
+        else
+            if [[ $(sudo sv status $s 2>&1 | grep -v "fail:" | grep -c $s) -ne 0 ]]
+            then
+                START_COMMAND="sudo sv restart $s"
+                ENABLE_COMMAND="sudo rm /etc/service/$s/down"            
+            elif [[ $(sudo systemctl status 2>&1 | grep -c $s) -ne 0 && $(sudo find /etc/systemd 2>&1 | grep -c $s) -ne 0 ]]
+            then
+                START_COMMAND="sudo systemctl restart $s"
+                ENABLE_COMMAND="sudo systemctl enable $s"
+            elif [[ $(sudo systemctl status 2>&1 | grep -c $s) -ne 0 && $(sudo find /lib/systemd 2>&1 | grep -c $s) -ne 0 ]]
+            then
+                START_COMMAND="sudo systemctl restart $s"
+                ENABLE_COMMAND="sudo systemctl enable $s"
+            else
+                START_COMMAND="sudo service $s restart"
+                if [[ -f /etc/init/$s.conf ]]
+                then
+                    ENABLE_COMMAND="sudo rm -rf /etc/init/$s.override"            
+                else
+                    ENABLE_COMMAND="sudo update-rc.d -f $s defaults"
+                fi
+            fi
+        fi
+    
+        counter=1
+        ATTEMPTS=7
+        while [[ "$counter" -le "$ATTEMPTS" ]]
+        do
+            announce "Restarting service \"${s}\", with command \"$START_COMMAND\", attempt ${counter} of ${ATTEMPTS}..."            
+            bash -c "$START_COMMAND"
+            if [[ $? -eq 0 ]]
+            then
+                announce "Service \"$s\" was successfully restarted"
+                announce "Enabling service \"${s}\", with command \"$ENABLE_COMMAND\"..."   
+                bash -c "$ENABLE_COMMAND"
+                break
+            else
+                sleep 5
+                counter="$(( $counter + 1 ))"
+            fi
+        done
+    
+        if [[ "${counter}" -ge "$ATTEMPTS" ]]
+        then
+            announce "Service \"${s}\" failed to restart after ${ATTEMPTS} attempts"
+            exit 1
+        fi
+    done
+    
+    /bin/true
+}
+export -f service_restart_enable
+
+function kbscoord {
+    if [[ ! -z $KUBERNETES_REDIS_TSTAMP ]]
+    then
+        KUBERNETES_REDIS_PREVIOUS_TSTAMP=$KUBERNETES_REDIS_TSTAMP
+    else
+        KUBERNETES_REDIS_PREVIOUS_TSTAMP=$(redis-cli -h $KUBERNETES_REDIS_HOST -p $KUBERNETES_REDIS_PORT -n $KUBERNETES_REDIS_DB time | head -n 1)
+    fi
+    
+    export KUBERNETES_REDIS_TSTAMP=$(redis-cli -h $KUBERNETES_REDIS_HOST -p $KUBERNETES_REDIS_PORT -n $KUBERNETES_REDIS_DB time | head -n 1)
+    
+    if [[ ${1} == "publish" ]]
+    then
+        redis-cli -h $KUBERNETES_REDIS_HOST -p $KUBERNETES_REDIS_PORT -n $KUBERNETES_REDIS_DB publish KUBEBOOTSTRAP "$(date) ${2} after $((KUBERNETES_REDIS_TSTAMP - KUBERNETES_REDIS_PREVIOUS_TSTAMP)) seconds"
+        echo "$(date) ${2} after $((KUBERNETES_REDIS_TSTAMP - KUBERNETES_REDIS_PREVIOUS_TSTAMP)) seconds" >> /tmp/kubeboostrap_messages
+    fi
+    
+    if [[ ${1} == "set" ]]
+    then
+        redis-cli -h $KUBERNETES_REDIS_HOST -p $KUBERNETES_REDIS_PORT -n $KUBERNETES_REDIS_DB set ${KUBERNETES_CLUSTER}JOIN "${2}"
+    fi
+
+    if [[ ${1} == "mark" ]]
+    then
+        if [[ ${2} == "start" ]]
+        then
+            redis-cli -h $KUBERNETES_REDIS_HOST -p $KUBERNETES_REDIS_PORT -n $KUBERNETES_REDIS_DB setnx ${KUBERNETES_CLUSTER}START "$KUBERNETES_REDIS_TSTAMP"
+        fi
+        
+        if [[ ${2} == "end" ]]
+        then
+            KUBERNETES_REDIS_START_TIMESTAMP=$(redis-cli -h $KUBERNETES_REDIS_HOST -p $KUBERNETES_REDIS_PORT -n $KUBERNETES_REDIS_DB get ${KUBERNETES_CLUSTER}START)
+            export KUBERNETES_REDIS_DEPLOYMENT_TIME=$((KUBERNETES_REDIS_TSTAMP - KUBERNETES_REDIS_START_TIMESTAMP))
+            redis-cli -h $KUBERNETES_REDIS_HOST -p $KUBERNETES_REDIS_PORT -n $KUBERNETES_REDIS_DB set ${KUBERNETES_CLUSTER}END "$KUBERNETES_REDIS_DEPLOYMENT_TIME"
+        fi        
+    fi
+
+    if [[ ${1} == "incr" ]]
+    then
+        export KUBERNETES_NODE_NUMBER=$(redis-cli -h $KUBERNETES_REDIS_HOST -p $KUBERNETES_REDIS_PORT -n $KUBERNETES_REDIS_DB incr ${KUBERNETES_CLUSTER}NODECOUNT)
+    fi        
+
+    if [[ ${1} == "zadd" ]]                        
+    then
+        redis-cli -h $KUBERNETES_REDIS_HOST -p $KUBERNETES_REDIS_PORT -n $KUBERNETES_REDIS_DB zscan klabvNODELIST 0 match "$KUBERNETES_NODE_ID*" | grep "$KUBERNETES_NODE_ID" 
+        
+        if [[ $? -ne 0 ]]
+        then
+            redis-cli -h $KUBERNETES_REDIS_HOST -p $KUBERNETES_REDIS_PORT -n $KUBERNETES_REDIS_DB zadd ${KUBERNETES_CLUSTER}NODELIST "$KUBERNETES_REDIS_TSTAMP" "$KUBERNETES_NODE_ID $KUBERNETES_NODE_NUMBER"
+        fi
+    fi
+           
+    if [[ ${1} == "get" ]]
+    then
+        redis-cli -h $KUBERNETES_REDIS_HOST -p $KUBERNETES_REDIS_PORT -n $KUBERNETES_REDIS_DB get ${KUBERNETES_CLUSTER}JOIN
+    fi
+    
+    if [[ ${1} == "del" ]]
+    then
+        redis-cli -h $KUBERNETES_REDIS_HOST -p $KUBERNETES_REDIS_PORT -n $KUBERNETES_REDIS_DB del ${KUBERNETES_CLUSTER}JOIN
+    fi
+    
+}
+export -f kbscoord
+
+function wait_until_port_open {
+    #1 - host name
+    #2 - port number
+    #3 - number of attempts
+    #4 - time between attempts
+    #5 - uuid (optional)
+    counter=1
+
+    ATTEMPTS=${3}
+    PERIOD=${4}
+
+    announce "====> (wait_until_port_open) : Checking for openess of port ${2} on host ${1}/${5} (will try ${ATTEMPTS} times, waiting ${PERIOD} seconds between attempts)"
+    
+    while [[ "$counter" -le "$ATTEMPTS" ]]
+    do
+        nc -z -w 3 ${1} ${2} 2>&1 > /dev/null || (nmap -sT -p${2} ${1} | grep open 2>&1 > /dev/null)
+        if [[ $? -eq 0 ]]
+        then
+            announce "====> (wait_until_port_open) : Port ${2} on host ${1}/${5} was found open after ${counter} attempts"
+            export PORT_CLOSED=0
+            return 0
+        fi
+        sleep ${PERIOD}
+        counter="$(( $counter + 1 ))"
+    done
+    announce "====> (wait_until_port_open) :Port ${2} on host ${1}/${5} was NOT found open after ${counter} attempts!"
+    export PORT_CLOSED=1
+    return 1
+}
+export -f wait_until_port_open
+
+
+function wait_for_redis() {
+    local ATTEMPTS=${1}
+    local PERIOD=${2}
+    local counter=1
+    announce "====> (wait_for_redis) : checking asset DB availability"
+    while [[ ${counter} -le ${ATTEMPTS} ]]
+    do
+        # write the timestamp to a random key
+        local timestamp=$(date +%s)
+        local rediskey=${KEYLIME_CLUSTER}_rediswait_${KEYLIME_CLOUD_AGENT_AGENT_UUID}_${RANDOM}
+        redis-cli -h ${KEYLIME_ASSET_DB_IP} -n ${KEYLIME_ASSET_DB_ID} -p ${KEYLIME_ASSET_DB_PORT} set ${rediskey} ${timestamp} > /dev/null 2>&1
+
+        # check the timestamp twice, with a sleep period between; then delete the random key
+        local t1=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT get ${rediskey})
+        sleep ${PERIOD}
+        local t2=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT get ${rediskey})
+        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT del ${rediskey} > /dev/null 2>&1
+        
+        # if both readbacks match the time stamp, then redis has been up for PERIOD seconds.
+        announce "====> (wait_for_redis): try ${counter}: wr=${timestamp}, r1=${t1}, r2=${t2}"
+        if [[ ${timestamp} == ${t1} ]] && [[ ${timestamp} == ${t2} ]]
+        then
+            announce "====> (wait_for_redis) : asset DB found operational after ${counter} attempts."
+            return 0
+        fi
+        counter=$((counter+1))
+    done
+    announce "====> (wait_for_redis) : asset DB is not operational."
+    return 1
+}
+
+export -f wait_for_redis
+
+
+function check_service_status {
+    local srv=$1
+
+    systemctl list-unit-files --all --no-pager | grep $srv > /dev/null 2>&1
+    if [[ $? -eq 0 ]]
+    then
+        systemctl status $srv | grep activating > /dev/null 2>&1
+        if [[ $? -eq 0 ]]
+        then
+            announce "$srv status: ACTIVATING"
+            return 1
+        else
+            systemctl status $srv | grep -v $(hostname) | grep disabled > /dev/null 2>&1
+            if [[ $? -eq 0 ]]
+            then
+                announce "$srv status: DISABLED"
+                return 2
+            else
+                systemctl is-active --quiet $srv > /dev/null 2>&1
+                if [[ $? -eq 0 ]]
+                then
+                    announce "$srv status: ACTIVE"
+                    return 0
+                else
+                    systemctl is-failed --quiet $srv  > /dev/null 2>&1
+                    if [[ $? -eq 0 ]]
+                    then        
+                        announce "$srv status: DEAD"
+                        return 3
+                    fi
+                fi
+            fi
+        fi
+    else
+        announce "$srv status: NON-EXISTENT"
+        return 4
+    fi        
+}
+export -f check_service_status
+
+# ###############################################################################################
+#    security utility functions
+# ###############################################################################################
+
+function openfirewallports {
+
+    # 1+ - port numbers (space-separated list)
+    
+    linux_distribution
+    
+    if [[ $LINUX_DISTRO -eq 1 ]]
+    then
+        for port in $*
+        do
+            announce "Making sure firewall port ${port} is open (Ubuntu)"
+            ufw allow ${port}/tcp >/dev/null 2>&1
+            ufw allow ${port}/udp >/dev/null 2>&1
+        done
+    fi
+
+    if [[ $LINUX_DISTRO -eq 2 ]]
+    then
+        _Z=public
+        for port in $*
+        do
+            announce "Making sure firewall ${port} is open in zone \"${_Z}\" (RHEL/CentOS)"
+            port=$(echo $port | sed 's/:/-/g')
+            firewall-cmd --zone ${_Z} --add-port ${port}/udp >/dev/null 2>&1
+            firewall-cmd --zone ${_Z} --add-port ${port}/tcp >/dev/null 2>&1
+        done
+    fi
+}
+export -f openfirewallports
+
+function disable_apparmor {
+
+    echo "Disabling AppArmor"
+
+    tmux kill-session -t DISABLEAPPARMOR
+    tmux new -d -s DISABLEAPPARMOR
+    tmux send-keys -t DISABLEAPPARMOR "/etc/init.d/apparmor stop" Enter
+    tmux send-keys -t DISABLEAPPARMOR "/etc/init.d/apparmor teardown" Enter
+    tmux send-keys -t DISABLEAPPARMOR "sudo systemctl stop apparmor.service" Enter
+    tmux send-keys -t DISABLEAPPARMOR "sudo update-rc.d -f apparmor remove" Enter    
+
+    echo "AppArmor is disabled"
+
+}    
+export -f disable_apparmor
+
+function rfcp {
+    local origin=$1
+    local destination=$2
+    
+    _origin_end=$(echo $origin | rev | cut -d '/' -f 1 | rev)
+    _destination_end=$(echo $destination | sed "s^${_origin_end}^^g")
+    
+    echo ${_destination_end} | grep ':' >/dev/null 2>&1
+    if [[ $? -eq 0 ]]
+    then
+        _destination_end=$(echo ${_destination_end} | cut -d ':' -f 2)
+    fi
+    
+    echo ${_destination_end} | grep '/' >/dev/null 2>&1
+    if [[ $? -eq 0 ]]
+    then
+        _rsync_path="mkdir -p ${_destination_end} && rsync"
+    else
+        _rsync_path="rsync"
+    fi
+    
+    local cmd="rsync -az --inplace -e \"ssh -o BatchMode=yes -o PasswordAuthentication=no -o BatchMode=yes -o PasswordAuthentication=no\" --rsync-path=\"${_rsync_path}\" $origin $destination"
+    execute_command "$cmd" 5 5
+}
+export -f rfcp
+
+# #############################################
+# 1. determine the image ID from os-release and motd.
+# 2. check whether the white list for this ID already exists on REDIS
+# 3. get a write lock if the image ID does not exist yet.
+# #############################################
+function get_image_id {
+    local _root=${1}
+    touch ${_root}/etc/os-release  > /dev/null 2>&1
+    touch ${_root}/etc/motd  > /dev/null 2>&1
+    export KEYLIME_IMG_ID=$(cat ${_root}/etc/os-release ${_root}/etc/motd | sha512sum | awk '{ print $1 }')
+    export KEYLIME_IMG_EXISTS=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists whitelist_${KEYLIME_IMG_ID})
+    if [[ $KEYLIME_IMG_EXISTS -eq 0 ]]
+    then
+        KEYLIME_IMG_WRITE_LOCK=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw SETNX ${KEYLIME_IMG_ID}_write_lock 1)
+    fi
+}
+export -f get_image_id
+
+function get_lock_for_certs {
+    if [[ ( $KEYLIME_ROLE == "deployer" && $KEYLIME_REGISTRAR_TLS_DIR == "generate" ) || ( $KEYLIME_ROLE == "deployer" && $KEYLIME_CLOUD_VERIFIER_TLS_DIR == "generate" ) ]]
+#    if [[ ( $KEYLIME_ROLE == "registrar" && $KEYLIME_REGISTRAR_TLS_DIR == "generate" ) || ( $KEYLIME_ROLE == "verifier" && $KEYLIME_CLOUD_VERIFIER_TLS_DIR == "generate" ) ]]
+    then
+        announce "====> (get_lock_for_certs) : before attempting to generate certificates, will attempt get a write lock."        
+        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw SETNX ${KEYLIME_CLUSTER}_${KEYLIME_ROLE}_certs_write_lock $KEYLIME_NODE_NAME
+
+        KEYLIME_WRITE_LOCK_CONTENTS=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw GET ${KEYLIME_CLUSTER}_${KEYLIME_ROLE}_certs_write_lock)
+        announce "====> (get_lock_for_certs) : contents of ${KEYLIME_CLUSTER}_${KEYLIME_ROLE}_certs_write_lock is $KEYLIME_WRITE_LOCK_CONTENTS"
+        
+        if [[ $KEYLIME_NODE_NAME == $KEYLIME_WRITE_LOCK_CONTENTS ]]
+        then
+            announce "====> (get_lock_for_certs) : the lock was obtained by this node"
+            export KEYLIME_CERTS_WRITE_LOCK=1
+        else
+            export KEYLIME_CERTS_WRITE_LOCK=0
+        fi
+    else
+        KEYLIME_WRITE_LOCK_CONTENTS=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw GET ${KEYLIME_CLUSTER}_${KEYLIME_CERTS_ROLE}_certs_write_lock)
+        announce "====> (get_lock_for_certs) : contents of ${KEYLIME_CLUSTER}_${KEYLIME_ROLE}_certs_write_lock is $KEYLIME_WRITE_LOCK_CONTENTS"
+        
+        if [[ $KEYLIME_NODE_NAME == $KEYLIME_WRITE_LOCK_CONTENTS ]]
+        then
+            announce "====> (get_lock_for_certs) : the lock was obtained by this node"
+            export KEYLIME_CERTS_WRITE_LOCK=1
+        else
+            announce "====> (get_lock_for_certs) : the lock was NOT obtained by this node"
+            export KEYLIME_CERTS_WRITE_LOCK=0
+        fi
+    fi
+}
+export -f get_lock_for_certs
+
+function decide_cert_generator {
+    if [[ ( $KEYLIME_ROLE == "deployer" && $KEYLIME_REGISTRAR_TLS_DIR == "generate" && $KEYLIME_CERTS_WRITE_LOCK -eq 1 ) || ( $KEYLIME_ROLE == "deployer" && $KEYLIME_CLOUD_VERIFIER_TLS_DIR == "generate" && $KEYLIME_CERTS_WRITE_LOCK -eq 1 ) ]]
+#    if [[ ( $KEYLIME_ROLE == "registrar" && $KEYLIME_REGISTRAR_TLS_DIR == "generate" && $KEYLIME_CERTS_WRITE_LOCK -eq 1 ) || ( $KEYLIME_ROLE == "verifier" && $KEYLIME_CLOUD_VERIFIER_TLS_DIR == "generate" && $KEYLIME_CERTS_WRITE_LOCK -eq 1 ) ]]
+    then
+        KEYLIME_CERT_GENERATOR=1
+    else
+        KEYLIME_CERT_GENERATOR=0
+    fi
+}
+export -f decide_cert_generator
+
+function wait_for_certs {
+    _attempts=$1
+    _interval=$2
+
+    if [[ -z ${_attempts} ]]
+    then
+        _attempts=${KEYLIME_CHECK_CERT_EXISTS_ATTEMPTS}
+    fi
+
+    if [[ -z ${_interval} ]]
+    then
+        _interval=${KEYLIME_CHECK_CERT_EXISTS_INTERVAL}
+    fi
+
+    get_certs_dir
+
+    _counter=1
+    while [[ "${_counter}" -le "${_attempts}" ]]
+    do
+        for _role in $(echo $KEYLIME_CERTS_ROLE | sed 's/,/ /g')
+        do 
+            export KEYLIME_CERTS_ON_ASSET_DB=1
+            announce "====> (wait_for_certs) : Waiting for ${_role} certificates (using cluster_key ${KEYLIME_CLUSTER}) on Asset Database ${KEYLIME_ASSET_DB_IP}"
+            for _file in $(echo $KEYLIME_CERT_FILE_LIST | sed 's/,/ /g')
+            do
+                _fn=$(echo ${_file} | cut -d '.' -f 1 | sed 's/private/priv/g')
+                _fe=$(echo ${_file} | cut -d '.' -f 2)
+                redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists ${KEYLIME_CLUSTER}_${_role}_${_fn} | grep -q ^1
+                if [[ $? -ne 0 ]]
+                then
+                    export KEYLIME_CERTS_ON_ASSET_DB=0
+                fi
+            done
+
+            if [[ ${KEYLIME_CERTS_ON_ASSET_DB} -eq 1 ]]
+            then
+                announce "====> (wait_for_certs) : ${_role} certificates (using cluster_key ${KEYLIME_CLUSTER}) are ready on Asset Database ${KEYLIME_ASSET_DB_IP}"
+                return 0
+            fi
+
+            _counter="$(( ${_counter} + 1 ))"
+            sleep ${_interval}
+
+        done
+    done
+
+    announce "====> (wait_for_certs) : ${_role} certificates (using cluster_key ${KEYLIME_CLUSTER}) are NOT ready on Asset Database ${KEYLIME_ASSET_DB_IP}!"
+    return 1
+}
+export -f wait_for_certs
+
+function check_certs_on_disk {
+    get_certs_dir
+    _cert_dir=${KEYLIME_CERTS_DIR[${KEYLIME_ROLE},${KEYLIME_ROLE}]}
+
+    announce "====> (check_certs_on_disk) : checking for the presence of certificates on ${KEYLIME_NODE_NAME}'s directory (${_cert_dir})'"
+
+    if [[ $(ls -la ${_cert_dir} 2>&1 | wc -l) -lt 6 ]]
+    then
+        announce "====> (check_certs_on_disk) : certificates are NOT present on ${KEYLIME_NODE_NAME}'s directory (${_cert_dir})!"
+        export KEYLIME_CERTS_ON_DISK=0
+    else
+        announce "====> (check_certs_on_disk) : certificates are present on ${KEYLIME_NODE_NAME}'s directory (${_cert_dir})"    
+        export KEYLIME_CERTS_ON_DISK=1
+    fi
+}
+export -f check_certs_on_disk
+
+function download_certs {
+    wait_for_certs
+
+    for _role in $(echo $KEYLIME_CERTS_ROLE | sed 's/,/ /g')
+    do 
+
+        _cert_dir=${KEYLIME_CERTS_DIR[${KEYLIME_ROLE},${_role}]}            
+
+        if [[ -z ${_cert_dir} ]]
+        then
+            announce "====> (download_certs) : Unable to find a directory to hold certificates for nodes with role ${KEYLIME_ROLE},${_role}. Bypassing downloading of certicates..."
+        else
+            announce "====> (download_certs) : Downloading ${_role} certificates from Asset Database ${KEYLIME_ASSET_DB_IP} to directory ${_cert_dir} for role ${KEYLIME_ROLE}"
+            mkdir -p ${_cert_dir}
+            for _file in $(echo $KEYLIME_CERT_FILE_LIST | sed 's/,/ /g')
+            do
+                _fnr=$(echo ${_file} | cut -d '.' -f 1 | sed 's/private/priv/g')
+                _fnl=$(echo ${_file} | cut -d '.' -f 1 | sed "s/host/${KEYLIME_NODE_NAME}/g")
+                _fe=$(echo ${_file} | cut -d '.' -f 2 )
+
+                redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw GET ${KEYLIME_CLUSTER}_${_role}_${_fnr} > ${_cert_dir}/${_fnl}.${_fe}
+                sed -i '${/^$/d;}' ${_cert_dir}/${_fnl}.${_fe}
+
+            done
+
+            if [[ $KEYLIME_ROLE == "registrar" || $KEYLIME_ROLE == "verifier" ]]
+            then
+                pushd ${_cert_dir}  >/dev/null 2>&1
+                ln -s ${_cert_dir}/${KEYLIME_NODE_NAME}-cert.crt server-cert.crt
+                ln -s ${_cert_dir}/${KEYLIME_NODE_NAME}-private.pem server-private.pem
+                ln -s ${_cert_dir}/${KEYLIME_NODE_NAME}-public.pem server-public.pem
+                popd  >/dev/null 2>&1
+            fi
+            announce "====> (download_certs) : ${_role} certificates from Asset Database ${KEYLIME_ASSET_DB_IP} to directory ${_cert_dir} for role ${KEYLIME_ROLE}"
+        fi
+    done
+}
+export -f download_certs
+
+function upload_certs {
+    for _role in $(echo $KEYLIME_CERTS_ROLE | sed 's/,/ /g')
+    do 
+
+        _cert_dir=${KEYLIME_CERTS_DIR[${KEYLIME_ROLE},${_role}]}            
+
+        if [[ -z ${_cert_dir} ]]
+        then
+            announce "====> (upload_certs) : Unable to find a directory to hold certificates for nodes with role ${KEYLIME_ROLE},${_role}. Bypassing uploading of certicates..."
+        else
+            announce "====> (upload_certs) : Uploading ${_role} certificates from Asset Database ${KEYLIME_ASSET_DB_IP} to directory ${_cert_dir} for role ${KEYLIME_ROLE}"
+            mkdir -p ${_cert_dir}
+            for _file in $(echo $KEYLIME_CERT_FILE_LIST | sed 's/,/ /g')
+            do
+                _fnr=$(echo ${_file} | cut -d '.' -f 1 | sed 's/private/priv/g')
+                _fnl=$(echo ${_file} | cut -d '.' -f 1 | sed "s/host/${KEYLIME_NODE_NAME}/g")
+                _fe=$(echo ${_file} | cut -d '.' -f 2 )
+
+                cat ${_cert_dir}/${_fnl}.${_fe} | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_${_role}_${_fnr}
+            done            
+            announce "====> (upload_certs) : ${_role} certificates from Asset Database ${KEYLIME_ASSET_DB_IP} to directory ${_cert_dir} for role ${KEYLIME_ROLE}"
+        fi
+    done
+}
+export -f upload_certs
+
+function read_certs {
+    get_certs_dir
+
+    get_lock_for_certs
+
+    decide_cert_generator
+
+    if [[ $KEYLIME_CERT_GENERATOR -eq 1 ]]
+    then
+        _cert_dir=${KEYLIME_CERTS_DIR[${KEYLIME_ROLE},${KEYLIME_ROLE}]}
+
+        check_certs_on_disk
+
+        wait_for_certs 1 1
+
+        if [[ ${KEYLIME_CERTS_ON_DISK} -eq 0 && ${KEYLIME_CERTS_ON_ASSET_DB} -eq 0 ]]
+        then
+            announce "====> (read_certs) : Certificates absent from both disk (${_cert_dir} and Asset Database (${KEYLIME_ASSET_DB_IP}): generating certificates using keylime_ca utility on directory ${_cert_dir}"
+            /usr/local/bin/ngkl_deployer_helper "keylime_ca -d ${_cert_dir} --command init" $KEYLIME_USER_PWD > /dev/null 2>&1 
+            /usr/local/bin/ngkl_deployer_helper "keylime_ca -d ${_cert_dir} --command create --name $(hostname -s)" $KEYLIME_USER_PWD > /dev/null 2>&1
+            /usr/local/bin/ngkl_deployer_helper "keylime_ca -d ${_cert_dir} --command create --name client" $KEYLIME_USER_PWD > /dev/null 2>&1
+            announce "====> (read_certs) : certificates generated on directory ${_cert_dir}"
+        elif [[ ${KEYLIME_CERTS_ON_DISK} -eq 0 && ${KEYLIME_CERTS_ON_ASSET_DB} -eq 1 ]]
+        then
+            announce "====> (read_certs) : Certificates absent from disk (${_cert_dir} but present on Asset Database (${KEYLIME_ASSET_DB_IP}): downloading"
+            download_certs
+        else
+            announce "====> (read_certs) : Certificates already present on this node (directory ${_cert_dir})"
+        fi
+    else
+        download_certs
+    fi
+}
+export -f read_certs
+
+function write_certs {
+
+    get_certs_dir
+
+    decide_cert_generator
+
+    if [[ $KEYLIME_CERT_GENERATOR -eq 1 ]]
+    then
+        announce "====> (write_certs) : writing certificates from disk (${_cert_dir} to Asset Database (${KEYLIME_ASSET_DB_IP})"
+        upload_certs        
+    else
+        announce "====> (write_certs) : bypassing the writing of certifcates to Asset Database (${KEYLIME_ASSET_DB_IP})"
+    fi
+}
+export -f write_certs
+
+function delete_record {
+    local _record=${1}
+    announce "====> (whitelist manager) : deleting record ${KEYLIME_CLUSTER}_${_record}_${KEYLIME_CLOUD_AGENT_AGENT_UUID} from Asset Database ${KEYLIME_ASSET_DB_IP}"
+    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw DEL ${KEYLIME_CLUSTER}_${_record}_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+    announce "====> (whitelist manager) : record ${KEYLIME_CLUSTER}_${_record}_${KEYLIME_CLOUD_AGENT_AGENT_UUID} deleted from Asset Database ${KEYLIME_ASSET_DB_IP}"
+}
+
+function write_image_wl {
+    local img_wl_file=${1}
+    announce "====> (whitelist manager) : storing whitelist ($img_wl_file) for image ID $KEYLIME_IMG_ID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+    cat ${img_wl_file} | tr -cd '\11\12\15\40-\176' | env LANG=C grep -v "["$'\x80'-$'\xff'"]" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET whitelist_${KEYLIME_IMG_ID} >/dev/null 2>&1
+    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw DEL ${KEYLIME_IMG_ID}_write_lock >/dev/null 2>&1
+    announce "====> (whitelist manager) :  whitelist ($img_wl_file) for image ID $KEYLIME_IMG_ID stored on Asset Database ${KEYLIME_ASSET_DB_IP}"    
+}
+
+function write_node_ba {
+    local ba=${1}
+    announce "====> (whitelist manager) : storing boot aggregate ($ba) for node $KEYLIME_CLOUD_AGENT_AGENT_UUID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+    echo "${ba}  boot_aggregate" | tr -cd '\11\12\15\40-\176' | env LANG=C grep -v "["$'\x80'-$'\xff'"]" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_boot_aggregate_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+    announce "====> (whitelist manager) : boot aggregate ($ba) for node $KEYLIME_CLOUD_AGENT_AGENT_UUID stored on Asset Database ${KEYLIME_ASSET_DB_IP}"
+}
+
+function write_node_il {
+    announce "====> (whitelist manager) : adding image ID ($KEYLIME_IMG_ID) to the list of images for node $KEYLIME_CLOUD_AGENT_AGENT_UUID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT RPUSH ${KEYLIME_CLUSTER}_imagelist_${KEYLIME_CLOUD_AGENT_AGENT_UUID} whitelist_${KEYLIME_IMG_ID} >/dev/null 2>&1
+    announce "====> (whitelist manager) : image ID ($KEYLIME_IMG_ID) added to the list of images for node $KEYLIME_CLOUD_AGENT_AGENT_UUID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+}
+
+
+# #####################################################################
+# compose the allow list for a particular node.
+# we read the asset database looking for boot aggregates,
+# old style flat allow lists and new style JSON lists.
+# #####################################################################
+# the output of this function goes to /tmp/whitelist_${hostuuid}.txt
+# #####################################################################
+
+function get_node_wl {
+    local hostuuid=${1}
+    local verbose=${2:-0}
+    
+    # start with an empty whitelist
+    rm -f /tmp/whitelist_${hostuuid}.txt
+    
+    # extract boot aggregate
+    if [[ $(redis-cli  -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists  ${KEYLIME_CLUSTER}_boot_aggregate_${hostuuid}) -eq 1 ]]
+    then
+        if [[ ${verbose} == 1 ]] ; then announce "======> (whitelist manager) : adding boot aggregate allowlist for node ${hostuuid}" ; fi
+        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_boot_aggregate_${hostuuid} >> /tmp/whitelist_${hostuuid}.txt
+    fi
+
+    # extract old (Marcio-style) plain allow lists
+    if [[ $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists ${KEYLIME_CLUSTER}_imagelist_${hostuuid}) -eq 1 ]]
+    then
+        for _item in $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw LRANGE ${KEYLIME_CLUSTER}_imagelist_${hostuuid} 0 -1)
+        do
+            if [[ ${verbose} == 1 ]] ; then announce "======> (whitelist manager) : adding contents of image ID ${_item} to allowlist for node ${hostuuid}" ; fi
+            redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${_item} >> /tmp/whitelist_${hostuuid}.txt
+        done
+    fi
+
+    # extract newer (Mike-style) bundle allow lists and transform them to old plain format.
+    if [[ $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists ${KEYLIME_CLUSTER}_allowed_bundles_${hostuuid}) -eq 1 ]]
+    then
+        for _item in $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_allowed_bundles_${hostuuid} | jq -r .[])
+        do
+            if [[ ${verbose} == 1 ]] ; then announce "======> (whitelist manager): adding contents of bundle ${_item} to allow list for node ${hostuuid}" ; fi
+            # the jq string below is a bit more complex than the usual run, so it deserves a comment.
+            # * for every entry in the bundle description we generate _two_ lines of flat allowlist entries.
+            # * both lines refer to the same file (list element [0])
+            redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get bundle_files_${_item} \
+                | jq -cr '.[] | ( ( [ (.[1] | ltrimstr("sha1:")), .[0]] | join(" ") ) , ( [ (.[2] | ltrimstr("sha256:")), .[0]] | join(" ") ) )' \
+                     >> /tmp/whitelist_${hostuuid}.txt
+            
+        done
+    fi
+    return 0
+}
+
+function get_node_el {
+    local hostuuid=${1}
+    local verbose=${2:-0}
+
+    rm -f /tmp/excludelist_${hostuuid}.txt
+
+    # get the exclude list if there is one on the asset DB. Use the default if there is none.
+    if [[ $(redis-cli  -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists  ${KEYLIME_CLUSTER}_excludelist_${hostuuid}) -eq 1 ]]
+    then
+        if [[ ${verbose} == 1 ]] ; then announce "======> (whitelist manager) : reading exclude list for node ${hostuuid}"; fi
+        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_excludelist_${hostuuid} > /tmp/excludelist_${hostuuid}.txt
+    elif test -f ${KEYLIME_IMA_EXCLUDELIST}
+    then
+        if [[ ${verbose} == 1 ]] ; then announce "======> (whitelist manager) : default exclude list for node ${hostuuid}" ; fi
+        cp -f ${KEYLIME_IMA_EXCLUDELIST} /tmp/excludelist_${hostuuid}.txt
+    else
+        if [[ ${verbose} == 1 ]] ; then announce "======> (whitelist manager) : no exclude list for node ${hostuuid}" ; fi
+    fi
+    return 0
+}
+
+function write_node_mbref {
+    local mb=${1}
+    announce "====> (measuredboot manager) : writing measured boot reference state for node $KEYLIME_CLOUD_AGENT_AGENT_UUID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+    if [[ ${KEYLIME_MBREF_BUILDING_METHOD} != "assemble" ]]
+    then
+        echo "${mb}" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_mbref_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+    else
+        echo "${mb}" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_hostos_boot_releases_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+    fi
+    announce "====> (measuredboot manager) : wrote measured boot reference state for $KEYLIME_CLOUD_AGENT_AGENT_UUID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+}
+
+# #######################################################
+# assemble a node's measured boot attestation reference state
+# #######################################################
+
+function get_node_mbref {
+    local uuid=${1}
+    local verbose=${2}
+    if [[ ${verbose} == 1 ]] ; then announce "====> (measuredboot manager) : collecting measured boot reference state for node ${uuid} on Asset Database ${KEYLIME_ASSET_DB_IP}" ; fi
+
+    local mbref=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_mbref_${uuid} | jq '.')
+    if [[ "${mbref}" != "" ]] 
+    then 
+        if [[ ${verbose} == 1 ]] ; then announce "====> (measuredboot manager) : found a complete measured boot reference state for node ${uuid} on Asset Database ${KEYLIME_ASSET_DB_IP}" ; fi
+    else
+        if [[ ${verbose} == 1 ]] ; then announce "====> (measuredboot manager) : no complete measured boot reference state for node ${uuid} found on Asset Database ${KEYLIME_ASSET_DB_IP}. Will assemble one from multiple keys" ; fi
+        mbref="{ }"
+        # scrtm information -- expecting a single string object, a JSON list.
+        local scrtm=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_scrtm_${uuid} | jq '.')
+        if [[ "${scrtm}" != "" ]] 
+        then 
+            mbref=$(echo ${mbref} | jq ". + { \"s-crtm\": ${scrtm} }")
+        fi
+
+        # secure boot information -- expecting a single entry, a string
+        local secboot=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_secure_boot_on_${uuid})
+        case $secboot in
+            allowed|required|forbidden) mbref=$(echo ${mbref} | jq ". + { \"secure_boot\": \"${secboot}\" }") ;;
+            *) ;;
+        esac
+        
+        # bios post code information -- expecting a JSON list
+        local bios=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_bios_${uuid} | jq '.')
+        if [[ "${bios}" != "" ]]
+        then 
+            mbref=$(echo ${mbref} | jq ". + { \"bios\": ${bios} }")
+        fi
+
+        # allow scrtm_and_bios
+        local scrtm_and_bios=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_scrtm_and_bios_${uuid} | jq '.')
+        if [[ "${scrtm_and_bios}" != "" ]]
+        then 
+            mbref=$(echo ${mbref} | jq ". + { \"scrtm_and_bios\": ${scrtm_and_bios} }")
+        fi
+        
+        # nvram information
+        for key in pk kek db dbx mok
+        do
+            local value=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_nvram_${key}_${uuid} | jq '.')
+            if [[ "${value}" != "" ]]
+            then 
+                mbref=$(echo ${mbref} | jq ". + { \"$key\": ${value} }")
+            fi
+        done
+
+        # boot release bundle information
+        local bundle=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_hostos_boot_releases_${uuid} | jq '.')
+        if [[ ${bundle} != "" ]]
+        then 
+            mbref=$(echo ${mbref} | jq ". + { \"hostosboots\": ${bundle} }")
+        fi
+    fi
+
+    # write complete reference state to a file.
+    echo "${mbref}" > /tmp/mb_refstate_${uuid}.txt
+    if [[ ${verbose} == 1 ]] ; then announce "====> (measuredboot manager) : measured boot reference state for node ${uuid} collected from Asset Database ${KEYLIME_ASSET_DB_IP}" ; fi
+}
+
+function write_node_autorun {
+    announce "====> (autorun manager) : storing autorun script for node $KEYLIME_CLOUD_AGENT_AGENT_UUID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+    cat /usr/local/bin/autorun | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_autorun_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+    announce "====> (autorun manager) : autorun script for node $KEYLIME_CLOUD_AGENT_AGENT_UUID stored on Asset Database ${KEYLIME_ASSET_DB_IP}"
+}
+
+function get_node_autorun {
+    local hostuuid=${1}
+    local verbose=${2}
+    if [[ ${verbose} == 1 ]] ; then announce "====> (autorun manager) : getting autorun script for node ${hostuuid} on Asset Database ${KEYLIME_ASSET_DB_IP}" ; fi
+    if [[ $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists ${KEYLIME_CLUSTER}_autorun_${hostuuid}) -eq 1 ]]
+    then
+        if [[ ${verbose} == 1 ]] ; then announce "======> (autorun manager) : adding contents of the autorun script for node ${hostuuid} on Asset Database ${KEYLIME_ASSET_DB_IP}" ; fi
+        mkdir -p /tmp/autorun_${hostuuid}
+        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_autorun_${hostuuid} > /tmp/autorun_${hostuuid}/autorun.sh
+        chmod +x /tmp/autorun_${hostuuid}/autorun.sh
+    fi
+    if [[ ${verbose} == 1 ]] ; then announce "====> (autorun manager) : contents of the autorun script for node ${hostuuid} extracted from Asset Database ${KEYLIME_ASSET_DB_IP}" ; fi
+}
+
+# unused
+function write_ek {
+    # TODO setnx because in theory the Pub EK/Certificate should never change once set.
+    local _type=${1}    
+    local _ek_contents=${2}
+    local _verbose=${3}
+
+    if [[ -z ${_verbose} ]]
+    then
+        _verbose=1
+    fi
+
+    if [[ ${_verbose}  -eq 1 ]]
+    then
+        announce "====> (ek manager) : storing ${_type} for node $KEYLIME_CLOUD_AGENT_AGENT_UUID to Asset Database ${KEYLIME_ASSET_DB_IP}." 
+    fi
+
+    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_${_type}_${KEYLIME_CLOUD_AGENT_AGENT_UUID} $(cat ${_ek_contents} | base64 | tr -d '\n') >/dev/null 2>&1
+    
+    if [[ ${_verbose}  -eq 1 ]]
+    then    
+        announce "====> (ek manager) : stored ${_type} for node $KEYLIME_CLOUD_AGENT_AGENT_UUID to Asset Database ${KEYLIME_ASSET_DB_IP}."
+    fi
+}
+
+# unused
+function get_ek {
+    local _type=${1}
+    local _uuid=${2}
+    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT GET ${KEYLIME_CLUSTER}_${_type}_${_uuid}
+}    
+
+function get_element_name {
+#    echo "${KEYLIME_CLOUD_AGENT_CLOUDAGENT_IP}/${KEYLIME_NODE_NAME}/${KEYLIME_CLOUD_AGENT_AGENT_UUID}/${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP}/"
+    echo "${KEYLIME_CLOUD_AGENT_CLOUDAGENT_IP}/${KEYLIME_NODE_NAME}/${KEYLIME_CLOUD_AGENT_AGENT_UUID}/AUTO/"
+}
+
+function add_node_to_set {
+    local _zname=$1
+    local _zelement=$2
+    local _zap=$3
+
+    if [[ -z ${_zelement} ]]
+    then
+        _zelement=$(get_element_name)
+    fi
+
+    if [[ -z ${_zap} ]]
+    then
+        _zap=1
+    fi
+
+    local _ts=$(redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT time | head -n 1)
+    announce "====> (nodeset manager) : adding node ${_zelement} to sorted set ${KEYLIME_CLUSTER}_nodes_${_zname}" ${_zap}
+    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZADD ${KEYLIME_CLUSTER}_nodes_${_zname} ${_ts} "${_zelement}" >/dev/null 2>&1
+    announce "====> (nodeset manager) : node ${_zelement} added to sorted set ${KEYLIME_CLUSTER}_nodes_${_zname}" ${_zap}
+}
+
+function incr_node_in_set {
+    local _zname=$1
+    local _zelement=$2
+    local _zap=$3
+
+    if [[ -z ${_zelement} ]]
+    then
+        _zelement=$(get_element_name)
+    fi
+
+    if [[ -z ${_zap} ]]
+    then
+        _zap=1
+    fi
+
+    announce "====> (nodeset manager) : incrementing score on node ${_zelement} to sorted set ${KEYLIME_CLUSTER}_nodes_${_zname}" ${_zap}
+    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZINCRBY ${KEYLIME_CLUSTER}_nodes_${_zname} 1 "${_zelement}" >/dev/null 2>&1
+    announce "====> (nodeset manager) : node ${_zelement} score on sorted set incremented ${KEYLIME_CLUSTER}_nodes_${_zname}" ${_zap}
+}
+
+function del_node_from_set {
+    local _zname=$1
+    local _zelement=$2
+    local _zap=$3
+
+    if [[ -z ${_zelement} ]]
+    then
+        _zelement=$(get_element_name)
+    fi
+    _zelement=$(get_node_info ${_zelement})
+
+    if [[ -z ${_zap} ]]
+    then
+        _zap=1
+    fi
+
+    announce "====> (nodeset manager) : removing node ${_zelement} to sorted set ${KEYLIME_CLUSTER}_nodes_${_zname}" ${_zap}
+    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZREM ${KEYLIME_CLUSTER}_nodes_${_zname} "${_zelement}" >/dev/null 2>&1
+    announce "====> (nodeset manager) : node ${_zelement} removed from sorted set ${KEYLIME_CLUSTER}_nodes_${_zname}" ${_zap}
+}
+
+function count_nodes_in_set {
+    local _zname=$1
+    local _zap=$2
+
+    if [[ -z ${_zap} ]]
+    then
+        _zap=1
+    fi
+
+    announce "====> (nodeset manager) : counting nodes on sorted set ${KEYLIME_CLUSTER}_nodes_${_zname}" ${_zap}
+    redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZCARD ${KEYLIME_CLUSTER}_nodes_${_zname}
+    announce "====> (nodeset manager) : counted nodes on sorted set ${KEYLIME_CLUSTER}_nodes_${_zname}" ${_zap}    
+}
+
+function list_nodes_in_set {
+    local _zname=$1
+    local _zap=$2
+
+    if [[ -z ${_zap} ]]
+    then
+        _zap=1
+    fi
+
+    announce "====> (nodeset manager) : list nodes on sorted set ${KEYLIME_CLUSTER}_nodes_${_zname}" ${_zap}
+    redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZRANGE ${KEYLIME_CLUSTER}_nodes_${_zname} 0 -1
+    announce "====> (nodeset manager) : list nodes on sorted set ${KEYLIME_CLUSTER}_nodes_${_zname}" ${_zap}    
+}
+
+function is_node_in_set {
+    local _zname=$1
+    local _zelement=$2
+
+    if [[ -z ${_zelement} ]]
+    then
+        _zelement=$(get_element_name)
+    fi
+
+    _rank=$(redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZRANK ${KEYLIME_CLUSTER}_nodes_${_zname} ${_zelement})
+    if [[ -z ${_rank} ]]
+    then
+        return 1
+    else 
+        return 0
+    fi
+}
+
+function node_list {
+    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw ZRANGE ${KEYLIME_CLUSTER}_nodes_${KEYLIME_MASTER_NODE_LIST} 0 -1
+}
+
+function get_node_info {
+    local _identifier=${1}
+
+    if [[ $(echo -n "${_identifier}" | tr -cd '/' | wc -c) -lt 3 ]]
+    then
+        node_list | grep "${_identifier}"
+    else
+        echo "${_identifier}"
+    fi
+}
+
+function publish_agent {
+    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT PUBLISH ${KEYLIME_CLUSTER}_agents AGENT-$(get_element_name)
+}
+
+function get_certs_dir {
+    if [[ -z $KEYLIME_CLOUD_VERIFIER_TLS_DIR ]]
+    then
+        export KEYLIME_CLOUD_VERIFIER_TLS_DIR="generate"
+    fi
+    
+    if [[ $KEYLIME_CLOUD_VERIFIER_TLS_DIR == "generate" ]]
+    then
+        KEYLIME_CERTS_DIR["verifier","verifier"]=/var/lib/keylime/cv_ca/
+        export KEYLIME_CERTS_ROLE="verifier"
+    else
+        KEYLIME_CERTS_DIR["verifier","verifier"]=$KEYLIME_CLOUD_VERIFIER_TLS_DIR
+        export KEYLIME_CERTS_ROLE="verifier"    
+    fi
+    
+#--------------------------------------------------------------
+    if [[ -z $KEYLIME_REGISTRAR_TLS_DIR ]]
+    then
+        export KEYLIME_REGISTRAR_TLS_DIR="CV"
+    fi
+    
+    if [[ $KEYLIME_REGISTRAR_TLS_DIR == "generate" ]]
+    then
+        KEYLIME_CERTS_DIR["registrar","registrar"]=/var/lib/keylime/reg_ca/
+        KEYLIME_CERTS_DIR["registrar","verifier"]=${KEYLIME_CERTS_DIR["verifier","verifier"]}    
+        export KEYLIME_CERTS_ROLE=$KEYLIME_CERTS_ROLE",registrar"
+    elif [[ $KEYLIME_REGISTRAR_TLS_DIR == "CV" ]]
+    then
+        KEYLIME_CERTS_DIR["registrar","registrar"]=/var/lib/keylime/cv_ca/
+        KEYLIME_CERTS_DIR["registrar","verifier"]=${KEYLIME_CERTS_DIR["verifier","verifier"]} 
+    else
+        KEYLIME_CERTS_DIR["registrar","registrar"]=$KEYLIME_REGISTRAR_TLS_DIR
+        KEYLIME_CERTS_DIR["registrar","verifier"]=${KEYLIME_CERTS_DIR["verifier","verifier"]}     
+        export KEYLIME_CERTS_ROLE=$KEYLIME_CERTS_ROLE",registrar"    
+    fi
+#--------------------------------------------------------------
+    if [[ -z $KEYLIME_TENANT_TLS_DIR ]]
+    then
+        export KEYLIME_TENANT_TLS_DIR="default"
+    fi
+    
+    if [[ $KEYLIME_TENANT_TLS_DIR == "default" ]]
+    then
+        KEYLIME_CERTS_DIR["deployer","verifier"]=/var/lib/keylime/cv_ca/
+        KEYLIME_CERTS_DIR["webapp","verifier"]=/var/lib/keylime/cv_ca/    
+    elif [[ $KEYLIME_TENANT_TLS_DIR == "CV" ]]
+    then
+        KEYLIME_CERTS_DIR["deployer","verifier"]=/var/lib/keylime/cv_ca/
+        KEYLIME_CERTS_DIR["webapp","verifier"]=/var/lib/keylime/cv_ca/        
+    else
+        KEYLIME_CERTS_DIR["deployer","verifier"]=$KEYLIME_TENANT_TLS_DIR
+        KEYLIME_CERTS_DIR["webapp","verifier"]=$KEYLIME_TENANT_TLS_DIR    
+    fi        
+#--------------------------------------------------------------
+    if [[ -z $KEYLIME_TENANT_REGISTRAR_TLS_DIR ]]
+    then
+        export KEYLIME_TENANT_REGISTRAR_TLS_DIR="CV"
+    fi
+    
+    if [[ $KEYLIME_TENANT_REGISTRAR_TLS_DIR == "default" ]]
+    then
+        KEYLIME_CERTS_DIR["deployer","registrar"]=/var/lib/keylime/reg_ca/
+        KEYLIME_CERTS_DIR["webapp","registrar"]=/var/lib/keylime/reg_ca/
+    elif [[ $KEYLIME_TENANT_REGISTRAR_TLS_DIR == "CV" ]]
+    then
+        KEYLIME_CERTS_DIR["deployer","registrar"]=/var/lib/keylime/cv_ca/
+        KEYLIME_CERTS_DIR["webapp","registrar"]=/var/lib/keylime/cv_ca/
+    else
+        KEYLIME_CERTS_DIR["deployer","registrar"]=$KEYLIME_TENANT_REGISTRAR_TLS_DIR
+        KEYLIME_CERTS_DIR["webapp","registrar"]=$KEYLIME_TENANT_REGISTRAR_TLS_DIR    
+    fi
+#--------------------------------------------------------------
+    if [[ -z $KEYLIME_CLOUD_VERIFIER_AGENT_MTLS_CERT ]]
+    then
+        export KEYLIME_CLOUD_VERIFIER_AGENT_MTLS_CERT="CV"
+    fi
+    
+    if [[ $KEYLIME_CLOUD_VERIFIER_AGENT_MTLS_CERT == "default" ]]
+    then
+        KEYLIME_CERTS_DIR["verifier","agent"]=/var/lib/keylime/cv_ca/
+    elif [[ $KEYLIME_CLOUD_VERIFIER_AGENT_MTLS_CERT == "CV" ]]
+    then
+        KEYLIME_CERTS_DIR["verifier","agent"]=/var/lib/keylime/cv_ca/
+    else
+        KEYLIME_CERTS_DIR["verifier","agent"]=$KEYLIME_CLOUD_VERIFIER_AGENT_MTLS_CERT
+    fi
+#--------------------------------------------------------------
+    if [[ -z $KEYLIME_TENANT_AGENT_MTLS_CERT ]]
+    then
+        export KEYLIME_TENANT_AGENT_MTLS_CERT="CV"
+    fi
+    
+    if [[ $KEYLIME_TENANT_AGENT_MTLS_CERT == "default" ]]
+    then
+        KEYLIME_CERTS_DIR["deployer","agent"]=/var/lib/keylime/cv_ca/
+    elif [[ $KEYLIME_CLOUD_VERIFIER_AGENT_MTLS_CERT == "CV" ]]
+    then
+        KEYLIME_CERTS_DIR["deployer","agent"]=/var/lib/keylime/cv_ca/
+    else
+        KEYLIME_CERTS_DIR["deployer","agent"]=$KEYLIME_TENANT_AGENT_MTLS_CERT
+    fi        
+#--------------------------------------------------------------
+
+    if [[ ${KEYLIME_CERTS_DIR["deployer","registrar"]} == ${KEYLIME_CERTS_DIR["deployer","verifier"]} ]]
+    then
+        KEYLIME_CERTS_DIR["deployer","deployer"]=${KEYLIME_CERTS_DIR["deployer","registrar"]}
+        KEYLIME_CERTS_DIR["registrar","deployer"]=${KEYLIME_CERTS_DIR["deployer","registrar"]}
+        KEYLIME_CERTS_DIR["verifier","deployer"]=${KEYLIME_CERTS_DIR["deployer","registrar"]}        
+        export KEYLIME_CERTS_ROLE="deployer"
+    fi
+
+    if [[ ${KEYLIME_CERTS_DIR["deployer","agent"]} == ${KEYLIME_CERTS_DIR["verifier","agent"]} ]]
+    then
+        KEYLIME_CERTS_DIR["agent","deployer"]=${KEYLIME_CERTS_DIR["deployer","agent"]}
+        KEYLIME_CERTS_DIR["agent","agent"]=${KEYLIME_CERTS_DIR["deployer","agent"]}        
+    fi
+}
+export -f get_certs_dir
+
+function feed_node_list() {
+    local count=0
+    for nodeinfo in $(node_list)
+    do
+        announce "==> (feed_node_list) : nodeinfo ${nodeinfo}"
+        redis-cli -h $KEYLIME_ASSET_DB_IP \
+                  -n $KEYLIME_ASSET_DB_ID \
+                  -p $KEYLIME_ASSET_DB_PORT \
+                  PUBLISH ${KEYLIME_CLUSTER}_agents AGENT-${nodeinfo} > /dev/null 2>&1
+        count=$((count+1))
+    done
+    announce "==> (feed_node_list) : added ${count} nodes"
+}
+
+function event_listen() {
+    announce "==> (event_listen) : subscribing to channel ${KEYLIME_CLUSTER}_agents"
+    touch /tmp/redis_read_running
+    stdbuf -oL redis-cli \
+           -h $KEYLIME_ASSET_DB_IP \
+           -n $KEYLIME_ASSET_DB_ID \
+           -p $KEYLIME_ASSET_DB_PORT \
+           subscribe ${KEYLIME_CLUSTER}_agents \
+        | xargs -n 1 --max-procs=${KEYLIME_DEPLOY_PARALLELISM} -i bash -c "$(declare -f) ; handle_agent_verification_request {}"
+}
+
+function klbutil_condition_node() {
+    sudo sysctl -w net.ipv4.neigh.default.gc_thresh1=4096 >/dev/null 2>&1
+    sudo sysctl -w net.ipv4.neigh.default.gc_thresh2=8192 >/dev/null 2>&1
+    sudo sysctl -w net.ipv4.neigh.default.gc_thresh3=16384 >/dev/null 2>&1
+    sudo sysctl -w net.core.somaxconn=16384 > /dev/null 2>&1
+    sudo sysctl -w net.ipv4.tcp_max_syn_backlog=16384 > /dev/null 2>&1
+
+    f=/etc/security/limits.conf
+    cat > $f <<EOF
+* soft memlock unlimited
+* hard memlock unlimited
+* soft nofile 65535
+* hard nofile 65535
+root hard nofile 65535
+root soft nofile 65535
+user hard nofile 65535
+user soft nofile 65535                                                                                                    
+EOF
+}
+
+# ######################################
+# assign an agent to a verifier, based on its host IP, host name and UUID.
+# we also allow agent registry based on just UUID, but this is O(N) because we scan the agent list.
+# ######################################
+
+function add_agent_to_verifier () {
+    local nodeinfo=${1}
+    local verbose=${2}
+
+    if [[ -z $verbose ]]
+    then
+        verbose=0
+    fi
+
+    local t0=$(obtain_timestamp)
+    nodeinfo=$(get_node_info $nodeinfo)
+
+    #announce "==> (add_agent_to_verifier) : received nodeinfo ${nodeinfo}."
+
+    local hostip=$(echo ${nodeinfo} | cut -d '/' -f 1)
+    local hostname=$(echo ${nodeinfo} | cut -d '/' -f 2)
+    local hostuuid=$(echo ${nodeinfo} | cut -d '/' -f 3)
+    local verifierip=$(echo ${nodeinfo} | cut -d '/' -f 4)
+
+    get_verifier $hostuuid ${verbose}
+    verifierip=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP
+
+    # ##################
+    # ignore nodes not in the deploy list -- SUPERFLUOUS since an agent cannot get on the worklist without this check
+    # ##################
+    #is_node_in_set agent_should_deploy ${nodeinfo}
+    #if [[ $? -ne 0 ]]
+    #then
+    #    announce "==> (add_agent_to_verifier) : ${hostuuid} at hostname=${hostname}/IP=${hostip} is not in agent_should_deploy. Ignoring."
+    #    return 0
+    #fi
+
+    # ##################
+    # ignore agents that are already active, transiting or failed.
+    # ##################    
+    if grep -q ${hostuuid} ${KEYLIME_BULKINFO_FILE}
+    then
+        announce "==> (add_agent_to_verifier) : ${hostuuid}/${hostip} is already active. Ignoring."
+        return 0
+    fi
+
+    # ##################
+    # ignore agents that are not at least registered -- SUPERFLUOUS
+    # ##################
+    #if ! grep -q ${hostuuid} ${KEYLIME_REGLIST_FILE}
+    #then
+    #    announce "==> (add_agent_to_verifier) : ${hostuuid}/${hostuuid} is not registered. Ignoring."
+    #    return 0
+    #fi
+
+    # ##################
+    # start composing a command line for keylime tenant
+    # ##################
+    
+    CMDLINE="/usr/local/bin/keylime_tenant"
+    CMDLINE="$CMDLINE -c update"
+    CMDLINE="$CMDLINE -t $hostip"
+    CMDLINE="$CMDLINE -v $verifierip"
+    CMDLINE="$CMDLINE -u $hostuuid"
+    # Temporary, should be removed once we move to the new code
+    keylime_tenant --help 2>&1 | grep "\-\-no-verifier-check" > /dev/null 2>&1
+    if [[ $? -eq 0 ]]
+    then
+        CMDLINE="$CMDLINE --no-verifier-check"
+    fi
+    CMDLINE="$CMDLINE --cert /var/lib/keylime/ca/${hostuuid}"
+
+    # ##################
+    # handle measured boot
+    # ##################
+
+    is_node_in_set agent_should_mb ${nodeinfo}
+    if [[ $? -eq 0 ]]
+    then
+        CMDLINE="$CMDLINE --mb_refstate /tmp/mb_refstate_${hostuuid}.txt"
+        get_node_mbref ${hostuuid} ${verbose}
+    fi
+
+    # ##################
+    # handle IMA 
+    # ##################
+    
+    is_node_in_set agent_should_ima ${nodeinfo}
+    if [[ $? -eq 0 ]]
+    then
+        CMDLINE="$CMDLINE --allowlist /tmp/whitelist_${hostuuid}.txt"
+        CMDLINE="$CMDLINE --exclude /tmp/excludelist_${hostuuid}.txt"
+
+        get_node_wl ${hostuuid} ${verbose}
+        get_node_el ${hostuuid} ${verbose}
+
+        if test -f /tmp/whitelist_${hostuuid}.txt && test -f /tmp/excludelist_${hostuuid}.txt
+        then
+            if [[ ${verbose} == 1 ]]
+            then
+                announce "==> (register_ima) : ${hostuuid} at hostname=${hostname}/IP=${hostip} whitelist has $(wc -l /tmp/whitelist_${hostuuid}.txt) entries"
+                announce "==> (register_ima) : ${hostuuid} at hostname=${hostname}/IP=${hostip} excludelist has $(wc -l /tmp/excludelist_${hostuuid}.txt) entries"
+            fi
+        else
+            if [[ ${verbose} == 1 ]]
+            then
+                announce "==> (register_ima) : Unable to find both whitelist and excludelist for ${hostuuid} at hostname=${hostname}/IP=${hostip}."
+                announce "==> (register_ima) : Replacing with empty allow list and all-permissive exclusion list."
+            fi
+            echo ".*" > /tmp/excludelist_${hostuuid}.txt
+            echo "" > /tmp/whitelist_${hostuuid}.txt
+        fi
+    fi
+
+    # ##################
+    # handle autorun
+    # ##################
+
+    is_node_in_set agent_should_autorun ${nodeinfo}
+    if [[ $? -eq 0 ]]
+    then
+        CMDLINE="$CMDLINE --include /tmp/autorun_${hostuuid}"
+        get_node_autorun ${hostuuid} ${verbose}
+    fi
+
+    if [[ ${KEYLIME_PCR_FAULT} -eq 1 ]]
+    then
+        CMDLINE="$CMDLINE --tpm_policy '{\"${KEYLIME_PCR_FAULT_NR}\":\"${KEYLIME_PCR_FAULT_VAL}\"}'"
+    fi
+
+    # ##################
+    # execute the keylime tenant update
+    # ##################
+
+    if [[ ${verbose} -eq  1 ]]
+    then 
+        announce "==> (add_agent_to_verifier) : adding agent ${hostuuid} at hostname=${hostname}/IP=${hostip}, to verifier ${verifierip}, with command \"$CMDLINE\""
+        echo "#!/bin/bash" > /tmp/debug_${hostname}_add
+        echo "$CMDLINE" >> /tmp/debug_${hostname}_add
+        chmod +x /tmp/debug_${hostname}_add
+        echo "#!/bin/bash" > /tmp/debug_${hostname}_status 
+        cat /tmp/debug_${hostname}_add | grep keylime_tenant | awk '{ print $1, $2, $3, $4, $5, $6, $7, $8, $9 }' | sed 's/-c update/-c status/g' >> /tmp/debug_${hostname}_status
+        chmod +x /tmp/debug_${hostname}_status
+        echo "#!/bin/bash" > /tmp/debug_${hostname}_del 
+        cat /tmp/debug_${hostname}_add | grep keylime_tenant | awk '{ print $1, $2, $3, $4, $5, $6, $7, $8, $9 }' | sed 's/-c update/-c delete/g' >> /tmp/debug_${hostname}_del
+        chmod +x /tmp/debug_${hostname}_del
+    fi
+
+    /usr/local/bin/ngkl_deployer_helper "$CMDLINE" $KEYLIME_USER_PWD > /dev/null 2>&1
+    if [[ $? -ne 0 ]]
+    then
+        announce "==> (add_agent_to_verifier) : ${hostuuid} at hostname=${hostname}/IP=${hostip}, verifier ${verifierip} FAILED, took $(obtain_timestamp $t0)"
+#        del_node_from_set agent_verifying ${nodeinfo}
+        return 1
+    else
+        announce "==> (add_agent_to_verifier) : ${hostuuid} at hostname=${hostname}/IP=${hostip}, verifier ${verifierip} SUCCESS, took $(obtain_timestamp $t0)"
+#        del_node_from_set agent_verifying ${nodeinfo}      
+        return 0
+    fi
+}
+
+# ######################################
+# unregister an agent. 
+# ######################################
+
+function remove_agent_from_verifier () {
+    local nodeinfo=${1}
+    local verbose=${2}
+
+    if [[ -z $verbose ]]
+    then
+        verbose=0
+    fi
+
+    #local t0=$(obtain_timestamp)
+    nodeinfo=$(get_node_info $nodeinfo)
+
+    local hostip=$(echo ${nodeinfo} | cut -d '/' -f 1)
+    local hostname=$(echo ${nodeinfo} | cut -d '/' -f 2)
+    local hostuuid=$(echo ${nodeinfo} | cut -d '/' -f 3)
+    local verifierip=$(echo ${nodeinfo} | cut -d '/' -f 4)
+
+    get_verifier $hostuuid
+    verifierip=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP
+
+    # ignore agents that are not active
+    if ! grep -q $hostuuid ${KEYLIME_BULKINFO_FILE}
+    then
+        announce "===> (remove_agent_from_verifier) : ${hostuuid} at hostname=${hostname}/IP=${hostip} was already inactive. Ignoring"
+        return
+    fi
+
+    CMDLINE="/usr/local/bin/keylime_tenant"
+    CMDLINE="$CMDLINE -c delete"
+    CMDLINE="$CMDLINE -v $verifierip"    
+    CMDLINE="$CMDLINE -t $hostip"
+    CMDLINE="$CMDLINE -u $hostuuid"
+
+    if [[ $verbose -eq 1 ]]
+    then
+        announce "===> (remove_agent_from_verifier) : ${hostuuid} at hostname=${hostname}/IP=${hostip}, to verifier ${verifierip}, with command \"$CMDLINE\""
+        echo "#!/bin/bash" > /tmp/debug_${hostname}_del
+        echo "$CMDLINE" >> /tmp/debug_${hostname}_del
+        chmod +x /tmp/debug_${hostname}_del
+    fi
+
+    $CMDLINE > /dev/null 2>&1
+    if [[ $? -ne 0 ]]
+    then
+        announce "===> (remove_agent_from_verifier) : ${hostuuid} at hostname=${hostname}/IP=${hostip}, verifier ${verifierip} FAILED"        
+    else
+        announce "===> (remove_agent_from_verifier) : ${hostuuid} at hostname=${hostname}/IP=${hostip}, verifier ${verifierip} SUCCESS"
+    fi
+}
+
+# ######################################
+# get a list of all registered agents
+# ######################################
+
+function get_agent_reglist() {
+    # total size of "reglist" output could be large, and that is why it has to be directed to a file
+    /usr/local/bin/keylime_tenant -c reglist 2>&1 | sed "s/'/\"/g" | sed '0,/ {/ s/ {/\n{/' | grep ^{ > ${KEYLIME_REGLIST_FILE}_raw
+    cat ${KEYLIME_REGLIST_FILE}_raw | jq '.results[] | values[]' > ${KEYLIME_REGLIST_FILE}_to_clean
+    cat ${KEYLIME_REGLIST_FILE}_to_clean | sed 's/"//g' > $KEYLIME_REGLIST_FILE
+
+    return 0
+}
+export -f get_agent_reglist
+
+# ######################################
+# get a list of all verified agents
+# ######################################
+
+function get_agent_verlist() {
+    # pick any verifier and ask for "bulkinfo" for all agents directing the output to a file.    
+    _cv=$(echo $KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP | cut -d ',' -f 1) 
+
+    # total size of "bulkinfo" output could be large, and that is why it has to be directed to a file
+    /usr/local/bin/keylime_tenant -c bulkinfo -v ${_cv} 2>&1 | grep ^{ > ${KEYLIME_BULKINFO_FILE}_raw 
+    cat ${KEYLIME_BULKINFO_FILE}_raw | jq 'to_entries[] | [.key, .value.operational_state, .value.verifier_ip, .value.last_event_id, .value.last_received_quote] | @csv' > ${KEYLIME_BULKINFO_FILE}_to_clean
+    cat ${KEYLIME_BULKINFO_FILE}_to_clean | sed 's^\\"^^g' | sed 's/"//g' > $KEYLIME_BULKINFO_FILE
+}
+export -f get_agent_verlist

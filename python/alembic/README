@@ -1,0 +1,25 @@
+https://alembic.sqlalchemy.org/en/latest/tutorial.html
+https://chat.openai.com/c/0cd6db52-9d1e-44f9-8fd1-b2e8847fa7d8
+1) pip install alembic
+2) alembic init alembic
+3) Modify .ini file to provide path for the database.
+4) Run alembic revision -m "create test table" from project/ to create .py file under alembic/version/.
+5) Modify the migration file with the code.
+from alembic import op
+import sqlalchemy as sa
+
+
+# Define the upgrade and downgrade functions
+def upgrade():
+    op.create_table(
+        'users',
+        sa.Column('id', sa.Integer, primary_key=True),
+        sa.Column('username', sa.String(length=50), nullable=False),
+        sa.Column('email', sa.String(length=255), nullable=False, unique=True)
+    )
+
+
+def downgrade():
+    op.drop_table('users')
+
+6) alembic upgrade head

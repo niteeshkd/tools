@@ -1,0 +1,1148 @@
+
+./hack/deploy/keylime-agent.yaml:
+
+./hack/ci/ssh-config:
+<=./hack/ci/travis_integration_test.sh:
+97:    cp -f ${TRAVIS_BUILD_DIR}/hack/ci/ssh-config                  ~/.ssh/config
+<=./hack/ci/travis_publish.sh:
+17:    cp -f ${TRAVIS_BUILD_DIR}/hack/ci/ssh-config                  ~/.ssh/config
+
+./hack/ci/travis_integration_test.sh:
+<=./hack/ci/travis.sh:
+22:. ${TRAVIS_BUILD_DIR}/hack/ci/travis_integration_test.sh
+45:        travis_integration_test
+
+./hack/ci/version.txt:
+
+./hack/ci/keys.tar.enc:
+<=./.travis.yml:
+44:- openssl aes-256-cbc -K $encrypted_0e27f27fd3b7_key -iv $encrypted_0e27f27fd3b7_iv -in hack/ci/keys.tar.enc -out hack/ci/keys.tar -d
+
+./hack/ci/travis_unit_test.sh:
+<=./hack/ci/travis.sh:
+21:. ${TRAVIS_BUILD_DIR}/hack/ci/travis_unit_test.sh
+42:        travis_unit_test
+
+./hack/ci/travis.sh:
+<=./hack/ci/ssh-config:
+17:     User travis
+<=./hack/ci/travis_integration_test.sh:
+17:# A private key for port forwarding to Ykt is provided by travis.
+81:    echo "    travis build         = ${TRAVIS_BUILD_NUMBER}"
+88:    #  * the travis private and public keys: for starting and accessing Demeter VMs
+<=./hack/ci/travis_deploy_key.pub:
+1:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDOP5+bpTLmcieYCy4STChDvyj5q8CC5sWOwaFRo6/iDzDGboMlmHXhymbT0SotbRSQj5XEkFWkSxncSMOpbF5g932xpl+F7DJKYQ3jKoFK7xYUA54yLTPzbL9Gmd9XJdrx4on+ZPpvbJia2mH0fTw/31BfR7FnwUl0AyQA3//R+lfF2SoPIeJkWKBBUb9ms1D+xWo6613cLYo47xAaVn6Mjse8HRLeNAyh95W0oSVpev5Edx6s3xw7mFQOhCNtwC19I+EfDiR/2V93ODet8i9nnoEE5TCRpIWzYWeJ9INlPdemkb09zl1TW21u1nWA81c1wdS2UUmpONIo35wPPXbh travis@travis
+<=./.travis.yml:
+19:    script: travis_wait 30 hack/ci/travis.sh linting
+24:    script: travis_wait 30 hack/ci/travis.sh build
+29:    script: hack/ci/travis.sh unit_test
+34:    script: hack/ci/travis.sh integration_test
+39:    script: hack/ci/travis.sh publish
+
+./hack/ci/build.yaml:
+
+./hack/ci/pipeline.yaml:
+
+./hack/ci/run-unit-tests.sh:
+
+./hack/ci/travis_deploy_key.pub:
+<=./hack/ci/travis_integration_test.sh:
+96:    cp -f ${TRAVIS_BUILD_DIR}/hack/ci/travis_deploy_key.pub       ~/.ssh/id_rsa.pub
+
+./hack/ci/travis_publish.sh:
+<=./hack/ci/travis.sh:
+23:. ${TRAVIS_BUILD_DIR}/hack/ci/travis_publish.sh
+
+./hack/ci/build-meta.yaml:
+
+./hack/ci/travis_build.sh:
+<=./hack/ci/travis.sh:
+20:. ${TRAVIS_BUILD_DIR}/hack/ci/travis_build.sh
+38:        travis_build
+51:            travis_build
+<=./hack/ci/build.yaml:
+74:    travis_build
+
+./hack/ci/travis_linting.sh:
+<=./hack/ci/travis.sh:
+19:. ${TRAVIS_BUILD_DIR}/hack/ci/travis_linting.sh
+35:        travis_linting
+
+./hack/ci/.ssh-config.swp:
+
+./Makefile:
+<=./hack/ci/travis_integration_test.sh:
+66:    # we pull most things from the Makefile.
+<=./README.md:
+428:and use it via the Makefile.
+
+./keylimesetup/ngkl_verifier.sh:
+<=./keylimesetup/ngkl_start.sh:
+144:        /usr/local/bin/ngkl_verifier
+
+./keylimesetup/ngkl_setup_tenant.sh:
+<=./keylimesetup/ngkl_start.sh:
+154:        /usr/local/bin/ngkl_setup_tenant    
+161:        /usr/local/bin/ngkl_setup_tenant
+177:        /usr/local/bin/ngkl_setup_tenant
+
+./keylimesetup/ngkl_build_config.py:
+<=./keylimesetup/ngkl_registrar.sh:
+38:    /usr/local/bin/ngkl_build_config
+<=./keylimesetup/ngkl_agent.sh:
+30:    /usr/local/bin/ngkl_build_config
+<=./keylimesetup/ngkl_start.sh:
+70:/usr/local/bin/ngkl_build_config
+
+./keylimesetup/ngkl_assetdb.sh:
+<=./keylimesetup/ngkl_start.sh:
+173:        /usr/local/bin/ngkl_assetdb
+
+./keylimesetup/ngkl_status_pollster.sh:
+<=./keylimesetup/ngkl_deployer.sh:
+103:tmux send-keys -t spoll "/usr/local/bin/ngkl_status_pollster" Enter
+
+./keylimesetup/ngkl_generate_certificates.sh:
+<=./keylimesetup/ngkl_start.sh:
+160:        /usr/local/bin/ngkl_generate_certificates
+
+./keylimesetup/ngkl_fail.sh:
+
+./keylimesetup/ngkl_deployer.sh:
+<=./keylimesetup/ngkl_start.sh:
+162:        while true ; do /usr/local/bin/ngkl_deployer ; sleep 10 ; done
+
+./keylimesetup/ngkl_delete.sh:
+
+./keylimesetup/klbutil:
+<=./keylimesetup/ngkl_verifier.sh:
+4:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/ngkl_setup_tenant.sh:
+4:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/ngkl_assetdb.sh:
+4:. /opt/keylimebootstrap/bin/klbutil
+17:tmux send-keys -t pman "source ./opt/keylimebootstrap/bin/klbutil" Enter
+<=./keylimesetup/ngkl_status_pollster.sh:
+4:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/ngkl_generate_certificates.sh:
+4:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/ngkl_fail.sh:
+4:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/ngkl_deployer.sh:
+5:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/ngkl_delete.sh:
+5:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/seeder_wl_manage.sh:
+4:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/ngkl_get_deployment_opt.sh:
+4:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/ngkl_test.sh:
+5:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/ngkl_toggle_deployment_opt.sh:
+4:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/ngkl_check.sh:
+5:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/ngkl_process_manager.sh:
+4:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/ngkl_webapp.sh:
+4:. /opt/keylimebootstrap/bin/klbutil
+17:tmux send-keys -t pman "source ./opt/keylimebootstrap/bin/klbutil" Enter
+<=./keylimesetup/ngkl_list.sh:
+5:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/ngkl_disable_deployment_opt.sh:
+4:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/ngkl_registrar.sh:
+4:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/seeder_ek_manage.sh:
+4:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/seeder_autorun_manage.sh:
+4:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/ngkl_agent.sh:
+13:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/seeder_mb_manage.sh:
+4:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/ngkl_seeder.sh:
+4:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/ngkl_retry.sh:
+5:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/ngkl_enable_deployment_opt.sh:
+4:. /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/ngkl_setup_keylime_container.sh:
+35:if [[ -f /usr/local/bin/klbutil ]]
+37:    rm -rf /usr/local/bin/klbutil.sh
+39:    mv /usr/local/bin/klbutil /opt/keylimebootstrap/bin/klbutil
+<=./keylimesetup/ngkl_start.sh:
+16:. /opt/keylimebootstrap/bin/klbutil
+
+./keylimesetup/seeder_wl_manage.sh:
+<=./keylimesetup/ngkl_seeder.sh:
+29:    /usr/local/bin/seeder_wl_manage -s ${KEYLIME_ASSET_DB_IP},${KEYLIME_ASSET_DB_ID},${KEYLIME_ASSET_DB_PORT} -c || exit 1
+
+./keylimesetup/ngkl_jira.sh:
+<=./keylimesetup/ngkl_start.sh:
+168:        /usr/local/bin/ngkl_jira
+
+./keylimesetup/ngkl_deployer_helper.sh:
+<=./keylimesetup/ngkl_deployer.sh:
+18:    /usr/local/bin/ngkl_deployer_helper "/usr/local/bin/keylime_ca --command init" $KEYLIME_USER_PWD
+<=./keylimesetup/klbutil:
+1157:            /usr/local/bin/ngkl_deployer_helper "keylime_ca -d ${_cert_dir} --command init" $KEYLIME_USER_PWD > /dev/null 2>&1 
+1158:            /usr/local/bin/ngkl_deployer_helper "keylime_ca -d ${_cert_dir} --command create --name $(hostname -s)" $KEYLIME_USER_PWD > /dev/null 2>&1
+1159:            /usr/local/bin/ngkl_deployer_helper "keylime_ca -d ${_cert_dir} --command create --name client" $KEYLIME_USER_PWD > /dev/null 2>&1
+1873:    /usr/local/bin/ngkl_deployer_helper "$CMDLINE" $KEYLIME_USER_PWD > /dev/null 2>&1
+<=./keylimesetup/ngkl_agent.sh:
+44:    /usr/local/bin/ngkl_deployer_helper "keylime_ca -d ${_cert_dir} --command init" $KEYLIME_USER_PWD > /dev/null 2>&1 
+
+./keylimesetup/ngkl_get_deployment_opt.sh:
+
+./keylimesetup/ngkl_test.sh:
+
+./keylimesetup/ek_check.sh:
+<=./keylimesetup/ngkl_setup_keylime_container.sh:
+18:make_executable "/usr/local/bin/ek_check.sh"
+<=./util/undercloud/keylimecontainer-config:
+94:        'tenant_ek_check_script' :                   '/usr/local/bin/ek_check',
+
+./keylimesetup/ngkl_alembic_fixup.py:
+<=./keylimesetup/ngkl_start.sh:
+27:/usr/local/bin/ngkl_alembic_fixup.py || true
+
+./keylimesetup/ngkl_toggle_deployment_opt.sh:
+
+./keylimesetup/ngkl_check.sh:
+<=./keylimesetup/ngkl_test.sh:
+161:ngkl_check f
+
+./keylimesetup/data/ima_exclude.txt:
+<=./keylimesetup/klbutil:
+10:export KEYLIME_IMA_EXCLUDELIST=${KEYLIME_IMA_EXCLUDELIST:-/ima_exclude.txt}
+
+./keylimesetup/data/ima-policy:
+<=./keylimesetup/ngkl_seeder.sh:
+14:    cat /ima-policy > /sys/kernel/security/ima/policy
+
+./keylimesetup/ngkl_clone.sh:
+<=./Makefile:
+82:	cp -f keylimesetup/ngkl_clone.sh util/Docker/rustagent && \
+90:	rm -f ngkl_clone.sh
+<=./util/Docker/rustagent/Dockerfile:
+29:ADD ngkl_clone.sh /usr/local/bin/ngkl_clone
+30:RUN /usr/local/bin/ngkl_clone ${rstagtr} ${rstagtb} ~/.ssh/github_token ${rstaggp}
+<=./Dockerfile.in:
+31:ADD keylimesetup/ngkl_clone.sh /usr/local/bin/ngkl_clone
+32:RUN /usr/local/bin/ngkl_clone ${kcgr} ${kcgb} ~/.ssh/github_token ${kcgp}
+<=./prepare.sh:
+159:cp -f keylimesetup/ngkl_clone.sh util/Docker/rustagent
+171:    rm -f ngkl_clone.sh    
+174:rm -f ngkl_clone.sh
+
+./keylimesetup/ngkl_process_manager.sh:
+<=./keylimesetup/ngkl_verifier.sh:
+28:tmux send-keys -t pman "/usr/local/bin/ngkl_process_manager" Enter
+<=./keylimesetup/ngkl_registrar.sh:
+48:tmux send-keys -t pman "/usr/local/bin/ngkl_process_manager" Enter
+<=./keylimesetup/ngkl_agent.sh:
+50:tmux send-keys -t pman "/usr/local/bin/ngkl_process_manager" Enter
+
+./keylimesetup/ngkl_webapp.sh:
+<=./keylimesetup/ngkl_start.sh:
+155:        /usr/local/bin/ngkl_webapp
+
+./keylimesetup/ngkl_list.sh:
+
+./keylimesetup/revocation_examples/local_action_revocation_record.py:
+<=./keylimesetup/revocation_examples/action_list:
+1:local_action_revocation_record
+
+./keylimesetup/revocation_examples/action_list:
+
+./keylimesetup/old/keylime_kubernetes_setup.sh:
+
+./keylimesetup/old/install.sh:
+<=./hack/ci/travis_integration_test.sh:
+26:    sudo apt-get -y install python3-pip python3-setuptools > /dev/null 2>&1
+27:    sudo pip3 install yq pyyaml redis signify==0.3.0 > /dev/null 2>&1
+<=./keylimesetup/data/ima_exclude.txt:
+442:/usr/bin/install
+<=./tests/linter/Dockerfile:
+4:RUN apt-get -y install \
+9:RUN apt-get -y install \
+12:RUN pip install pylint
+<=./tests/unittests/Dockerfile:
+4:RUN apt-get -y install \
+<=./util/debian/preinst:
+6:    install|upgrade)
+<=./util/Docker/tpm2/Dockerfile:
+7:dnf -y install git openssh-clients && \
+21:RUN dnf -y install autoconf automake libtool autoconf-archive
+22:RUN dnf -y install openssl-devel uuid-devel libuuid-devel libgcrypt-devel glibc-devel json-c-devel libcurl-devel
+34:RUN cd /KL/tpm2-tss && make clean && make && make install
+45:RUN cd /KL/tpm2-tools && make install
+<=./util/Docker/rustagent/Dockerfile:
+18:#RUN dnf install -y rust cargo czmq-devel libarchive-devel
+<=./util/Docker/ibmextras/Dockerfile:
+7:dnf -y install git openssh-clients && \
+21:RUN dnf -y install autoconf automake libtool
+22:RUN dnf -y install openssl-devel
+<=./util/Docker/base/Dockerfile:
+63:  dnf -y install ${PKGS_DEPS}
+65:RUN dnf -y install golang-github-cloudflare-cfssl-1.5.0-2.fc34.x86_64
+73:RUN pip3 install psutil packaging atlassian-python-api openstacksdk signify==0.3.0 lark rfc3161ng jinja2
+<=./util/undercloud/docker/Dockerfile:
+5:# install packages
+6:RUN apt-get -y update && apt-get -y --no-install-recommends install \
+9:RUN pip3 install PyYAML
+10:RUN pip3 install redis
+11:RUN pip3 install wheel
+12:RUN pip3 install setuptools
+13:RUN pip3 install signify==0.3.0
+27:RUN apt install -y libnss-wrapper openssh-client
+31:# install KLC binaries
+<=./Dockerfile.in:
+109:RUN cd /KL/keylime && python3 setup.py install
+131:# RUN cd /KL/tpm2-pytss; export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig; python3 -m pip install -e .
+<=./README.md:
+91:apt install keylimecontainer-uc
+347:the actions of the post-install scripts.
+<=./.travis.yml:
+47:- sudo apt-get -y install sshpass rsync python3 git wget curl python-dev python-pip python3-pip genisoimage fakeroot debhelper dh-systemd devscripts sharutils python3-setuptools
+48:- sudo pip3 install yq pyyaml redis signify==0.3.0
+
+./keylimesetup/ngkl_disable_deployment_opt.sh:
+<=./keylimesetup/ngkl_test.sh:
+31:        ngkl_disable_deployment_opt ${nodeinfo} mb ${_readonly}
+32:        ngkl_disable_deployment_opt ${nodeinfo} ima ${_readonly}
+33:        ngkl_disable_deployment_opt ${nodeinfo} autorun ${_readonly}
+
+./keylimesetup/ngkl_registrar.sh:
+<=./keylimesetup/ngkl_start.sh:
+149:        /usr/local/bin/ngkl_registrar
+
+./keylimesetup/seeder_ek_manage.sh:
+<=./keylimesetup/ngkl_seeder.sh:
+28:    /usr/local/bin/seeder_ek_manage -s ${KEYLIME_ASSET_DB_IP},${KEYLIME_ASSET_DB_ID},${KEYLIME_ASSET_DB_PORT} || exit 1    
+
+./keylimesetup/seeder_autorun_manage.sh:
+<=./keylimesetup/ngkl_seeder.sh:
+31:    /usr/local/bin/seeder_autorun_manage -s ${KEYLIME_ASSET_DB_IP},${KEYLIME_ASSET_DB_ID},${KEYLIME_ASSET_DB_PORT} || exit 1
+
+./keylimesetup/seeder_mbref.py:
+<=./keylimesetup/seeder_mb_manage.sh:
+95:                    MBREF=$(/usr/local/bin/seeder_mbref --shim $shim --grub $grub --vmlinuz $vmlinuz --initrd $initrd --tag "${tag}")
+
+./keylimesetup/ngkl_agent.sh:
+<=./keylimesetup/ngkl_start.sh:
+129:        while true; do /usr/local/bin/ngkl_agent ; sleep 10 ; done
+139:        while true ; do /usr/local/bin/ngkl_agent ; sleep 10 ; done
+
+./keylimesetup/tpm2_ls.sh:
+<=./keylimesetup/old/install.sh:
+55:cat <<EOF >>/usr/local/bin/tpm2_ls
+98:chmod +x /usr/local/bin/tpm2_ls
+<=./keylimesetup/ngkl_setup_keylime_container.sh:
+19:make_executable "/usr/local/bin/tpm2_ls.sh"
+
+./keylimesetup/ngkl_jira_alert.py:
+<=./keylimesetup/ngkl_jira.sh:
+75:# mostly just formats the comment then calls ngkl_jira_alert.
+91:    if ! ngkl_jira_alert -u ${KEYLIME_JIRA_URL} \
+121:    local output=$(ngkl_jira_alert -u ${KEYLIME_JIRA_URL} \
+132:    if ! ngkl_jira_alert -u ${KEYLIME_JIRA_URL} \
+
+./keylimesetup/seeder_mb_manage.sh:
+<=./keylimesetup/ngkl_seeder.sh:
+30:    /usr/local/bin/seeder_mb_manage -s ${KEYLIME_ASSET_DB_IP},${KEYLIME_ASSET_DB_ID},${KEYLIME_ASSET_DB_PORT} || exit 1
+
+./keylimesetup/autorun.sh:
+#Warning: same basename is found with the following files.
+./util/undercloud/docker/autorun.sh
+<=./hack/ci/travis_integration_test.sh:
+155:            KEYLIME_AUTORUN=${TRAVIS_BUILD_DIR}/util/undercloud/docker/autorun.sh \
+<=./keylimesetup/klbutil:
+1370:    announce "====> (autorun manager) : storing autorun script for node $KEYLIME_CLOUD_AGENT_AGENT_UUID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+1371:    cat /usr/local/bin/autorun | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_autorun_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+1372:    announce "====> (autorun manager) : autorun script for node $KEYLIME_CLOUD_AGENT_AGENT_UUID stored on Asset Database ${KEYLIME_ASSET_DB_IP}"
+1378:    if [[ ${verbose} == 1 ]] ; then announce "====> (autorun manager) : getting autorun script for node ${hostuuid} on Asset Database ${KEYLIME_ASSET_DB_IP}" ; fi
+1381:        if [[ ${verbose} == 1 ]] ; then announce "======> (autorun manager) : adding contents of the autorun script for node ${hostuuid} on Asset Database ${KEYLIME_ASSET_DB_IP}" ; fi
+1383:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_autorun_${hostuuid} > /tmp/autorun_${hostuuid}/autorun.sh
+1384:        chmod +x /tmp/autorun_${hostuuid}/autorun.sh
+1386:    if [[ ${verbose} == 1 ]] ; then announce "====> (autorun manager) : contents of the autorun script for node ${hostuuid} extracted from Asset Database ${KEYLIME_ASSET_DB_IP}" ; fi
+1840:    # handle autorun
+<=./keylimesetup/ngkl_get_deployment_opt.sh:
+8:    echo "$0 <agent> <deploy|ima|mb|autorun>"
+<=./keylimesetup/ngkl_test.sh:
+33:        ngkl_disable_deployment_opt ${nodeinfo} autorun ${_readonly}
+58:            ngkl_enable_deployment_opt ${nodeinfo} autorun ${_readonly}
+<=./keylimesetup/ngkl_toggle_deployment_opt.sh:
+8:    echo "$0 <agent> <deploy|ima|mb|autorun>"
+<=./keylimesetup/old/keylime_kubernetes_setup.sh:
+63:            echo '#!/bin/bash' > /etc/kubebootstrap/nodes/$hostname/autorun.sh
+64:            echo "cp -f /var/lib/keylime/secure/unzipped/kubebootstrap /etc/default/kubebootstrap" >> /etc/kubebootstrap/nodes/$hostname/autorun.sh
+65:            echo "systemctl restart kubebootstrap" >> /etc/kubebootstrap/nodes/$hostname/autorun.sh            
+66:            echo "exit 0" >> /etc/kubebootstrap/nodes/$hostname/autorun.sh
+<=./keylimesetup/ngkl_disable_deployment_opt.sh:
+8:    echo "$0 <agent> <deploy|ima|mb|autorun>"
+<=./keylimesetup/seeder_autorun_manage.sh:
+36:    announce "==> (autorun manager): KEYLIME_ASSET_DB not defined. Exiting."
+48:    announce "==> (autorun manager): unable to find node UUID in /etc/default/keylime. Exiting."
+<=./keylimesetup/ngkl_enable_deployment_opt.sh:
+8:    echo "$0 <agent> <deploy|ima|mb|autorun>"
+<=./keylimesetup/ngkl_setup_keylime_container.sh:
+20:make_executable "/usr/local/bin/autorun.sh"
+<=./tests/unittests/run_klop_tests.sh:
+37:cat > /tmp/autorun.txt <<EOF
+354:# autorun tests
+357:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml autorun set /tmp/autorun.txt > /dev/null 2>&1
+358:check_value test_autorun_${nodeuuid} "#autorun_test_string" "autorun test"
+<=./tests/unittests/run_ecb_tests.sh:
+61:cat > /tmp/autorun.txt <<EOF
+67:export KEYLIME_AUTORUN=/tmp/autorun.txt
+<=./util/debian/changelog.in:
+28:  * Adding keylime-op command to set autorun scripts on agents to execute when attestation starts.
+<=./util/undercloud/docker/ecb-apply.sh:
+465:  CMDLINE_PREFIX="keylime-op -u $UNDERCLOUD_FILE -m $MZONE_FILE autorun set"
+<=./util/undercloud/docker/Dockerfile:
+36:WORKDIR /keylime-autorun
+37:ADD docker/autorun.sh .
+73:# path to autorun script
+74:ENV KEYLIME_AUTORUN=/keylime-autorun/autorun.sh
+<=./util/undercloud/attest_start:
+22:# attest_refstate_autorun_file: autorun file to submit.
+257:	    keylime-op -u ${uc} -m ${mz} autorun set ${attest_refstate_autorun_file}
+<=./util/undercloud/keylime-op:
+442:# # autorun
+446:    add parsing for command: autorun
+449:        "autorun", help="commands related to Keylime autorun script"
+453:        "set", help="set autorun script file"
+467:    operations for command: autorun
+478:    "autorun": {"parser": parser_cmd_autorun, "op": op_autorun},
+544:    if args.command in ["attestation", "ek", "autorun", "mba", "ima"]:
+977:    set an autorun script to run next time when attestation starts
+993:                print(f"Unsetting autorun script for {nodestring}")
+997:                print(f"Setting autorun script {script.name} for {nodestring}")
+
+./keylimesetup/ngkl_seeder.sh:
+<=./keylimesetup/ngkl_start.sh:
+133:        /usr/local/bin/ngkl_seeder
+138:        /usr/local/bin/ngkl_seeder
+
+./keylimesetup/ngkl_retry.sh:
+
+./keylimesetup/ngkl_enable_deployment_opt.sh:
+<=./keylimesetup/ngkl_test.sh:
+40:            ngkl_enable_deployment_opt ${nodeinfo} mb ${_readonly}
+49:            ngkl_enable_deployment_opt ${nodeinfo} ima ${_readonly}
+58:            ngkl_enable_deployment_opt ${nodeinfo} autorun ${_readonly}
+
+./keylimesetup/ngkl_setup_keylime_container.sh:
+<=./Dockerfile.in:
+125:RUN  /usr/local/bin/ngkl_setup_keylime_container.sh
+
+./keylimesetup/ngkl_start.sh:
+<=./Dockerfile.in:
+133:RUN ["chmod", "+x", "/usr/local/bin/ngkl_start"]
+134:ENTRYPOINT ["/usr/local/bin/ngkl_start"]
+
+./other_certs/tsa_cert1.pem:
+
+./other_certs/tsa.crt:
+
+./other_certs/tsaca.pem:
+
+./other_certs/cacert.pem:
+
+./tpm_certs/IFX_RSA_34I.pem:
+
+./tpm_certs/VE_cert.pem:
+
+./tpm_certs/IFX_RSA_042.pem:
+
+./tpm_certs/IFX_ECC_042.pem:
+
+./tests/linter/pylintrc:
+<=./tests/linter/run_linter.sh:
+9:pylint --rcfile=/root/.pylintrc $1
+<=./tests/linter/Dockerfile:
+16:ADD tests/linter/pylintrc /root/.pylintrc
+
+./tests/linter/run_linter.sh:
+<=./tests/linter/Dockerfile:
+17:ADD tests/linter/run_linter.sh /run_linter.sh
+19:ENTRYPOINT ["/run_linter.sh", "/usr/local/bin/keylime-op"]
+
+./tests/linter/Dockerfile:
+#Warning: same basename is found with the following files.
+./tests/unittests/Dockerfile
+./util/Docker/tpm2/Dockerfile
+./util/Docker/rustagent/Dockerfile
+./util/Docker/ibmextras/Dockerfile
+./util/Docker/base/Dockerfile
+./util/undercloud/docker/Dockerfile
+<=./Makefile:
+102:	cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_BRANCH}^g"> Dockerfile ;
+120:	docker build . -f tests/unittests/Dockerfile -t keylime-op-unittests && \
+127:	docker build . -f tests/linter/Dockerfile -t keylime-op-linter && \
+142:	-f util/undercloud/docker/Dockerfile \
+<=./prepare.sh:
+198:    cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_CONTAINER_TAG3}^g" > Dockerfile
+200:    cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^#^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_CONTAINER_TAG3}^g" > Dockerfile
+
+./tests/integration/ci_integration_test.sh:
+<=./hack/ci/travis_integration_test.sh:
+140:    ${TRAVIS_BUILD_DIR}/tests/integration/ci_integration_test.sh \
+
+./tests/integration/ecb_test.sh:
+<=./hack/ci/travis_integration_test.sh:
+156:            ${TRAVIS_BUILD_DIR}/tests/integration/ecb_test.sh \
+
+./tests/integration/env.json:
+#Warning: same basename is found with the following files.
+./util/undercloud/docker/env.json
+<=./hack/ci/travis_integration_test.sh:
+61:    local eyaml=${TRAVIS_BUILD_DIR}/env.json
+<=./tests/integration/ecb_test.sh:
+25:export eyaml=env.json
+<=./util/undercloud/docker/Dockerfile:
+40:ADD docker/env.json ${EYAML_DEFAULT_FOLDER}
+51:ENV EYAML=/tmp/misc/env.json
+52:ENV EYAML_DEFAULT=/etc/default/env.json
+
+./tests/integration/kmbref.json:
+<=./hack/ci/travis_integration_test.sh:
+143:                       -k ${TRAVIS_BUILD_DIR}/tests/integration/kmbref.json \
+<=./tests/integration/ci_integration_test.sh:
+220:export kmbref=kmbref.json
+
+./tests/unittests/run_tests.sh:
+<=./tests/unittests/Dockerfile:
+19:ADD tests/unittests/run_tests.sh /run_tests.sh
+21:ENTRYPOINT ["/run_tests.sh"]
+
+./tests/unittests/run_klop_tests.sh:
+<=./tests/unittests/run_tests.sh:
+3:./run_klop_tests.sh || exit 1
+<=./tests/unittests/Dockerfile:
+17:ADD tests/unittests/run_klop_tests.sh /run_klop_tests.sh
+
+./tests/unittests/Dockerfile:
+#Warning: same basename is found with the following files.
+./tests/linter/Dockerfile
+./util/Docker/tpm2/Dockerfile
+./util/Docker/rustagent/Dockerfile
+./util/Docker/ibmextras/Dockerfile
+./util/Docker/base/Dockerfile
+./util/undercloud/docker/Dockerfile
+<=./Makefile:
+102:	cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_BRANCH}^g"> Dockerfile ;
+120:	docker build . -f tests/unittests/Dockerfile -t keylime-op-unittests && \
+127:	docker build . -f tests/linter/Dockerfile -t keylime-op-linter && \
+142:	-f util/undercloud/docker/Dockerfile \
+<=./prepare.sh:
+198:    cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_CONTAINER_TAG3}^g" > Dockerfile
+200:    cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^#^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_CONTAINER_TAG3}^g" > Dockerfile
+
+./tests/unittests/run_ecb_tests.sh:
+<=./tests/unittests/run_tests.sh:
+4:./run_ecb_tests.sh
+<=./tests/unittests/Dockerfile:
+18:ADD tests/unittests/run_ecb_tests.sh /run_ecb_tests.sh
+
+./manifest.json:
+<=./hack/ci/travis_integration_test.sh:
+33:    local pinv=$(jq -r .testing.platforminventory ${TRAVIS_BUILD_DIR}/manifest.json)
+34:    local pinv_branch=$(jq -r .testing.platforminventory_branch ${TRAVIS_BUILD_DIR}/manifest.json)
+55:    local cluster=${TRAVIS_BUILD_DIR}/PIF/$(jq -r .testing.cluster ${TRAVIS_BUILD_DIR}/manifest.json)
+57:    local mzfile=${TRAVIS_BUILD_DIR}/PIF/$(jq -r .testing.mzone ${TRAVIS_BUILD_DIR}/manifest.json)
+59:    local ucfile=${TRAVIS_BUILD_DIR}/PIF/$(jq -r .testing.mzone ${TRAVIS_BUILD_DIR}/manifest.json)
+62:    jq -r .enforcement_config_release.eyaml ${TRAVIS_BUILD_DIR}/manifest.json > $eyaml
+<=./Makefile:
+7:ECB_VERSION                          = $(shell jq -r .enforcement_config_release.version $(PWD)/manifest.json)
+8:ECB_GIT_REFSTATES                    = $(shell jq -r .enforcement_config_release.refstates $(PWD)/manifest.json)
+9:KEYLIME_CONTAINER_VERSION            = $(shell jq -r .keylimecontainer.version $(PWD)/manifest.json)
+12:KEYLIME_CODE_GIT_BRANCH              = $(shell jq -r .keylime.branch    $(PWD)/manifest.json)
+13:KEYLIME_CODE_GIT_REPO                = $(shell jq -r .keylime.repo      $(PWD)/manifest.json)
+14:KEYLIME_CODE_GITHUB_PR               = $(shell jq -r .keylime.pr      $(PWD)/manifest.json)
+15:KEYLIME_IBMEXTRAS_CODE_GIT_BRANCH    = $(shell jq -r .ibmextras.branch  $(PWD)/manifest.json)
+16:KEYLIME_TPM2_TOOLS_GIT_BRANCH        = $(shell jq -r .tpm2_tools.branch $(PWD)/manifest.json)
+17:KEYLIME_TPM2_TSS_GIT_BRANCH          = $(shell jq -r .tpm2_tss.branch   $(PWD)/manifest.json)
+18:KEYLIME_TPM2_PYTSS_GIT_BRANCH        = $(shell jq -r .tpm2_pytss.branch $(PWD)/manifest.json)
+19:KEYLIME_RUSTAGENT_REPO               = $(shell jq -r .rustagent.repo    $(PWD)/manifest.json)
+20:KEYLIME_RUSTAGENT_BRANCH             = $(shell jq -r .rustagent.branch  $(PWD)/manifest.json)
+21:KEYLIME_RUSTAGENT_GITHUB_PR          = $(shell jq -r .rustagent.pr  $(PWD)/manifest.json)
+22:KEYLIME_CONTAINERPACKAGE_VERSION     = $(shell jq -r .keylimecontainerpackage.version $(PWD)/manifest.json)
+60:	@jq -r . $(PWD)/manifest.json > /dev/null 2>&1
+<=./prepare.sh:
+39:export KEYLIME_TPM2_TOOLS_GIT_BRANCH=${KEYLIME_TPM2_TOOLS_GIT_BRANCH:-$(jq -r .tpm2_tools.branch $DEMETER_DIR/manifest.json)}
+40:export KEYLIME_TPM2_TSS_GIT_BRANCH=${KEYLIME_TPM2_TSS_GIT_BRANCH:-$(jq -r .tpm2_tss.branch $DEMETER_DIR/manifest.json)}
+41:export KEYLIME_TPM2_PYTSS_GIT_BRANCH=${KEYLIME_TPM2_PYTSS_GIT_BRANCH:-$(jq -r .tpm2_pytss.branch $DEMETER_DIR/manifest.json)}
+43:export KEYLIME_RUSTAGENT_REPO=${KEYLIME_RUSTAGENT_REPO:-$(jq -r .rustagent.repo $DEMETER_DIR/manifest.json)}
+44:export KEYLIME_RUSTAGENT_BRANCH=${KEYLIME_RUSTAGENT_BRANCH:-$(jq -r .rustagent.branch $DEMETER_DIR/manifest.json)}
+
+./keylime_reconfigure.sh:
+<=./Makefile:
+211:	echo "Copying in keylime_reconfigure.sh" && \
+212:	sudo cp -f keylime_reconfigure.sh /vmount/usr/local/bin && \
+
+./util/keylime_deploy.py:
+
+./util/debian/install:
+<=./hack/ci/travis_integration_test.sh:
+26:    sudo apt-get -y install python3-pip python3-setuptools > /dev/null 2>&1
+27:    sudo pip3 install yq pyyaml redis signify==0.3.0 > /dev/null 2>&1
+<=./keylimesetup/data/ima_exclude.txt:
+442:/usr/bin/install
+<=./keylimesetup/old/install.sh:
+13:apt-get -y install autoconf-archive libcmocka0 libcmocka-dev procps iproute2 build-essential
+14:apt-get -y install git pkg-config gcc libtool automake libssl-dev uthash-dev autoconf doxygen libltdl-dev libjson-c-dev libgcrypt-dev libcurl4-openssl-dev
+19:make install
+23:apt-get -y install automake libtool autoconf autoconf-archive gcc pkg-config uuid uuid-dev
+24:apt-get -y install liburiparser-dev libgcrypt20-dev libglib2.0-dev libcurl4-openssl-dev
+36:#make install
+46:make install
+100:apt-get install -y python3-pip golang-cfssl
+101:apt-get install -y libssl-dev swig python3-dev gcc
+102:pip install -i https://pypi.python.org/simple/ yq
+104:apt install build-essential libssl-dev swig python3-pip python3-dev; pip3 install m2crypto tornado simplejson zmq
+107:python3 setup.py install
+<=./tests/linter/Dockerfile:
+4:RUN apt-get -y install \
+9:RUN apt-get -y install \
+12:RUN pip install pylint
+<=./tests/unittests/Dockerfile:
+4:RUN apt-get -y install \
+<=./util/debian/preinst:
+6:    install|upgrade)
+<=./util/Docker/tpm2/Dockerfile:
+7:dnf -y install git openssh-clients && \
+21:RUN dnf -y install autoconf automake libtool autoconf-archive
+22:RUN dnf -y install openssl-devel uuid-devel libuuid-devel libgcrypt-devel glibc-devel json-c-devel libcurl-devel
+34:RUN cd /KL/tpm2-tss && make clean && make && make install
+45:RUN cd /KL/tpm2-tools && make install
+<=./util/Docker/rustagent/Dockerfile:
+18:#RUN dnf install -y rust cargo czmq-devel libarchive-devel
+<=./util/Docker/ibmextras/Dockerfile:
+7:dnf -y install git openssh-clients && \
+21:RUN dnf -y install autoconf automake libtool
+22:RUN dnf -y install openssl-devel
+<=./util/Docker/base/Dockerfile:
+63:  dnf -y install ${PKGS_DEPS}
+65:RUN dnf -y install golang-github-cloudflare-cfssl-1.5.0-2.fc34.x86_64
+73:RUN pip3 install psutil packaging atlassian-python-api openstacksdk signify==0.3.0 lark rfc3161ng jinja2
+<=./util/undercloud/docker/Dockerfile:
+5:# install packages
+6:RUN apt-get -y update && apt-get -y --no-install-recommends install \
+9:RUN pip3 install PyYAML
+10:RUN pip3 install redis
+11:RUN pip3 install wheel
+12:RUN pip3 install setuptools
+13:RUN pip3 install signify==0.3.0
+27:RUN apt install -y libnss-wrapper openssh-client
+31:# install KLC binaries
+<=./Dockerfile.in:
+109:RUN cd /KL/keylime && python3 setup.py install
+131:# RUN cd /KL/tpm2-pytss; export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig; python3 -m pip install -e .
+<=./README.md:
+91:apt install keylimecontainer-uc
+347:the actions of the post-install scripts.
+<=./.travis.yml:
+47:- sudo apt-get -y install sshpass rsync python3 git wget curl python-dev python-pip python3-pip genisoimage fakeroot debhelper dh-systemd devscripts sharutils python3-setuptools
+48:- sudo pip3 install yq pyyaml redis signify==0.3.0
+
+./util/debian/postrm:
+
+./util/debian/compat:
+
+./util/debian/control:
+<=./util/keylime_deploy.py:
+129:    for _role in ["master", "control", "compute"] : 
+160:    for _role in ["master", "control", "compute"] : 
+196:    for _role in ["master", "control", "compute"] : 
+207:    for _role in ["master", "control", "compute"] : 
+<=./util/undercloud/file_attestation_allowlist.py:
+44:                        default="master,control,compute,edge",
+46:                             ", drawn from {master, control, compute, edge}"
+47:                             " (default is 'master,control,compute,edge')")
+203:    unexpected = kinds - {'master', 'control', 'compute', 'edge'}
+207:    for section in ('master', 'control', 'compute'):
+237:                for kind in ('master', 'control', 'compute'):
+<=./util/undercloud/keylime-op:
+32:        "attestation", help="commands to control attestation"
+155:        "mba", help="commands to control measured-boot attestation"
+328:        "ima", help="commands to control IMA parameters (e.g. allowlist)"
+514:        help="node kinds: comma separated list of <compute|control|master|storage>_node",
+670:# part 1: direct control of keylime
+687:    # list through all kinds of nodes (compute, master, control, storage)
+<=./README.md:
+49:    control: true
+248:                        on, drawn from {master, control, compute, edge} (default is
+249:                        'master,control,compute,edge')
+285:                        on, drawn from {master, control, compute, edge} (default is
+286:                        'master,control,compute,edge')
+317:                        on, drawn from {master, control, compute, edge} (default is
+318:                        'master,control,compute,edge')
+
+./util/debian/changelog.in:
+<=./Makefile:
+133:	cat debian/changelog.in | \
+
+./util/debian/rules:
+
+./util/debian/postinst:
+
+./util/debian/preinst:
+
+./util/list_files_xref.sh:
+
+./util/Docker/tpm2/Dockerfile:
+#Warning: same basename is found with the following files.
+./tests/linter/Dockerfile
+./tests/unittests/Dockerfile
+./util/Docker/rustagent/Dockerfile
+./util/Docker/ibmextras/Dockerfile
+./util/Docker/base/Dockerfile
+./util/undercloud/docker/Dockerfile
+<=./Makefile:
+102:	cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_BRANCH}^g"> Dockerfile ;
+120:	docker build . -f tests/unittests/Dockerfile -t keylime-op-unittests && \
+127:	docker build . -f tests/linter/Dockerfile -t keylime-op-linter && \
+142:	-f util/undercloud/docker/Dockerfile \
+<=./prepare.sh:
+198:    cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_CONTAINER_TAG3}^g" > Dockerfile
+200:    cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^#^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_CONTAINER_TAG3}^g" > Dockerfile
+
+./util/Docker/rustagent/Dockerfile:
+#Warning: same basename is found with the following files.
+./tests/linter/Dockerfile
+./tests/unittests/Dockerfile
+./util/Docker/tpm2/Dockerfile
+./util/Docker/ibmextras/Dockerfile
+./util/Docker/base/Dockerfile
+./util/undercloud/docker/Dockerfile
+<=./Makefile:
+102:	cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_BRANCH}^g"> Dockerfile ;
+120:	docker build . -f tests/unittests/Dockerfile -t keylime-op-unittests && \
+127:	docker build . -f tests/linter/Dockerfile -t keylime-op-linter && \
+142:	-f util/undercloud/docker/Dockerfile \
+<=./prepare.sh:
+198:    cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_CONTAINER_TAG3}^g" > Dockerfile
+200:    cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^#^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_CONTAINER_TAG3}^g" > Dockerfile
+
+./util/Docker/ibmextras/Dockerfile:
+#Warning: same basename is found with the following files.
+./tests/linter/Dockerfile
+./tests/unittests/Dockerfile
+./util/Docker/tpm2/Dockerfile
+./util/Docker/rustagent/Dockerfile
+./util/Docker/base/Dockerfile
+./util/undercloud/docker/Dockerfile
+<=./Makefile:
+102:	cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_BRANCH}^g"> Dockerfile ;
+120:	docker build . -f tests/unittests/Dockerfile -t keylime-op-unittests && \
+127:	docker build . -f tests/linter/Dockerfile -t keylime-op-linter && \
+142:	-f util/undercloud/docker/Dockerfile \
+<=./prepare.sh:
+198:    cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_CONTAINER_TAG3}^g" > Dockerfile
+200:    cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^#^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_CONTAINER_TAG3}^g" > Dockerfile
+
+./util/Docker/base/Dockerfile:
+#Warning: same basename is found with the following files.
+./tests/linter/Dockerfile
+./tests/unittests/Dockerfile
+./util/Docker/tpm2/Dockerfile
+./util/Docker/rustagent/Dockerfile
+./util/Docker/ibmextras/Dockerfile
+./util/undercloud/docker/Dockerfile
+<=./Makefile:
+102:	cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_BRANCH}^g"> Dockerfile ;
+120:	docker build . -f tests/unittests/Dockerfile -t keylime-op-unittests && \
+127:	docker build . -f tests/linter/Dockerfile -t keylime-op-linter && \
+142:	-f util/undercloud/docker/Dockerfile \
+<=./prepare.sh:
+198:    cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_CONTAINER_TAG3}^g" > Dockerfile
+200:    cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^#^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_CONTAINER_TAG3}^g" > Dockerfile
+
+./util/undercloud/keylimecontainer-cleanup:
+<=./util/debian/install:
+3:undercloud/keylimecontainer-cleanup              /usr/bin
+<=./util/undercloud/README:
+4:* keylimecontainer-cleanup: kills all docker containers for
+
+./util/undercloud/file-attestation-allowlist:
+<=./README.md:
+294:### The file-attestation-allowlist script
+297:(.venv) (base) mspreitz@mjs12 undercloud % ./file-attestation-allowlist -h
+
+./util/undercloud/bundle_files_cache.py:
+<=./util/undercloud/file_attestation_allowlist.py:
+12:import bundle_files_cache
+99:                bundle_files_cache.cached_get(rc, bundle, args.debug)
+<=./util/undercloud/bundle-files-cache:
+4:python3 -m bundle_files_cache "$@"
+
+./util/undercloud/docker/enforcement-config.sh:
+<=./hack/ci/travis_publish.sh:
+64:    local name="enforcement-config-release"
+86:    local name="enforcement-config-release"
+<=./hack/ci/travis_build.sh:
+7:#   - enforcement-config-release:${ecb_commit}
+<=./Makefile:
+140:	docker build -t enforcement-config-release:${KEYLIME_CONTAINER_COMMIT} \
+144:	docker tag enforcement-config-release:${KEYLIME_CONTAINER_COMMIT} enforcement-config-release:latest
+154:ECB_ARTIFACTORY_IMAGE_NAME           = ${KEYLIME_CONTAINER_ARTIFACTORY_REPO}/${ECB_PATH}/${ECB_PREFIX}enforcement-config-release
+174:	docker tag enforcement-config-release:${KEYLIME_CONTAINER_COMMIT} ${ECB_ARTIFACTORY_IMAGE_NAME}:$${ecb_tag} && \
+175:	docker tag enforcement-config-release:${KEYLIME_CONTAINER_COMMIT} ${ECB_ARTIFACTORY_IMAGE_NAME}:latest && \
+<=./tests/integration/ecb_test.sh:
+42:    for b in enforcement-config.sh
+77:    (cd $ecbpath && ./enforcement-config.sh -v --phase stop)
+81:    (cd $ecbpath && ./enforcement-config.sh -v --phase commit)
+<=./tests/unittests/Dockerfile:
+11:ADD util/undercloud/docker/enforcement-config.sh /ecb/enforcement-config.sh
+<=./tests/unittests/run_ecb_tests.sh:
+80:    for b in enforcement-config.sh
+186:    (cd ${ECB_PATH} && ./enforcement-config.sh -v --phase ${phase} > /dev/null 2> /dev/null)
+<=./util/undercloud/docker/Dockerfile:
+47:ADD docker/enforcement-config.sh /
+48:ENTRYPOINT ["/enforcement-config.sh"]
+
+./util/undercloud/docker/ecb-apply.sh:
+<=./tests/unittests/Dockerfile:
+12:ADD util/undercloud/docker/ecb-apply-patch.py /ecb/ecb-apply-patch.py
+13:ADD util/undercloud/docker/ecb-apply.sh /ecb/ecb-apply.sh
+<=./util/undercloud/docker/enforcement-config.sh:
+122:./ecb-apply-patch.py $CMDLINE_PREFIX --eyaml $EYAML_FILE $PHASE
+<=./util/undercloud/docker/ecb-apply-patch.py:
+82:        cmd = "./ecb-apply.sh "
+91:                sys.exit("ecb-apply was terminated by signal {}".format(-retcode))
+93:                sys.exit("ecb-apply returned non-zero code: {}".format(retcode))
+95:            print("ecb-apply execution failed:", e, file=sys.stderr)
+96:            sys.exit("ecb-apply execution failed")
+<=./util/undercloud/docker/Dockerfile:
+45:ADD docker/ecb-apply-patch.py .
+46:ADD docker/ecb-apply.sh .
+
+./util/undercloud/docker/env.json:
+#Warning: same basename is found with the following files.
+./tests/integration/env.json
+<=./hack/ci/travis_integration_test.sh:
+61:    local eyaml=${TRAVIS_BUILD_DIR}/env.json
+<=./tests/integration/ecb_test.sh:
+25:export eyaml=env.json
+<=./util/undercloud/docker/Dockerfile:
+40:ADD docker/env.json ${EYAML_DEFAULT_FOLDER}
+51:ENV EYAML=/tmp/misc/env.json
+52:ENV EYAML_DEFAULT=/etc/default/env.json
+
+./util/undercloud/docker/ecb-apply-patch.py:
+<=./tests/unittests/Dockerfile:
+12:ADD util/undercloud/docker/ecb-apply-patch.py /ecb/ecb-apply-patch.py
+<=./util/undercloud/docker/enforcement-config.sh:
+122:./ecb-apply-patch.py $CMDLINE_PREFIX --eyaml $EYAML_FILE $PHASE
+<=./util/undercloud/docker/Dockerfile:
+45:ADD docker/ecb-apply-patch.py .
+
+./util/undercloud/docker/utils.sh:
+<=./tests/unittests/Dockerfile:
+14:ADD util/undercloud/docker/utils.sh /ecb/utils.sh
+<=./util/undercloud/docker/enforcement-config.sh:
+3:source ./utils.sh
+<=./util/undercloud/docker/ecb-apply.sh:
+3:source ./utils.sh
+53:# utils
+130:# utils
+<=./util/undercloud/docker/Dockerfile:
+44:ADD docker/utils.sh .
+
+./util/undercloud/docker/autorun.sh:
+#Warning: same basename is found with the following files.
+./keylimesetup/autorun.sh
+<=./hack/ci/travis_integration_test.sh:
+155:            KEYLIME_AUTORUN=${TRAVIS_BUILD_DIR}/util/undercloud/docker/autorun.sh \
+<=./keylimesetup/klbutil:
+1370:    announce "====> (autorun manager) : storing autorun script for node $KEYLIME_CLOUD_AGENT_AGENT_UUID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+1371:    cat /usr/local/bin/autorun | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_autorun_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+1372:    announce "====> (autorun manager) : autorun script for node $KEYLIME_CLOUD_AGENT_AGENT_UUID stored on Asset Database ${KEYLIME_ASSET_DB_IP}"
+1378:    if [[ ${verbose} == 1 ]] ; then announce "====> (autorun manager) : getting autorun script for node ${hostuuid} on Asset Database ${KEYLIME_ASSET_DB_IP}" ; fi
+1381:        if [[ ${verbose} == 1 ]] ; then announce "======> (autorun manager) : adding contents of the autorun script for node ${hostuuid} on Asset Database ${KEYLIME_ASSET_DB_IP}" ; fi
+1383:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_autorun_${hostuuid} > /tmp/autorun_${hostuuid}/autorun.sh
+1384:        chmod +x /tmp/autorun_${hostuuid}/autorun.sh
+1386:    if [[ ${verbose} == 1 ]] ; then announce "====> (autorun manager) : contents of the autorun script for node ${hostuuid} extracted from Asset Database ${KEYLIME_ASSET_DB_IP}" ; fi
+1840:    # handle autorun
+<=./keylimesetup/ngkl_get_deployment_opt.sh:
+8:    echo "$0 <agent> <deploy|ima|mb|autorun>"
+<=./keylimesetup/ngkl_test.sh:
+33:        ngkl_disable_deployment_opt ${nodeinfo} autorun ${_readonly}
+58:            ngkl_enable_deployment_opt ${nodeinfo} autorun ${_readonly}
+<=./keylimesetup/ngkl_toggle_deployment_opt.sh:
+8:    echo "$0 <agent> <deploy|ima|mb|autorun>"
+<=./keylimesetup/old/keylime_kubernetes_setup.sh:
+63:            echo '#!/bin/bash' > /etc/kubebootstrap/nodes/$hostname/autorun.sh
+64:            echo "cp -f /var/lib/keylime/secure/unzipped/kubebootstrap /etc/default/kubebootstrap" >> /etc/kubebootstrap/nodes/$hostname/autorun.sh
+65:            echo "systemctl restart kubebootstrap" >> /etc/kubebootstrap/nodes/$hostname/autorun.sh            
+66:            echo "exit 0" >> /etc/kubebootstrap/nodes/$hostname/autorun.sh
+<=./keylimesetup/ngkl_disable_deployment_opt.sh:
+8:    echo "$0 <agent> <deploy|ima|mb|autorun>"
+<=./keylimesetup/seeder_autorun_manage.sh:
+36:    announce "==> (autorun manager): KEYLIME_ASSET_DB not defined. Exiting."
+48:    announce "==> (autorun manager): unable to find node UUID in /etc/default/keylime. Exiting."
+<=./keylimesetup/ngkl_enable_deployment_opt.sh:
+8:    echo "$0 <agent> <deploy|ima|mb|autorun>"
+<=./keylimesetup/ngkl_setup_keylime_container.sh:
+20:make_executable "/usr/local/bin/autorun.sh"
+<=./tests/unittests/run_klop_tests.sh:
+37:cat > /tmp/autorun.txt <<EOF
+354:# autorun tests
+357:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml autorun set /tmp/autorun.txt > /dev/null 2>&1
+358:check_value test_autorun_${nodeuuid} "#autorun_test_string" "autorun test"
+<=./tests/unittests/run_ecb_tests.sh:
+61:cat > /tmp/autorun.txt <<EOF
+67:export KEYLIME_AUTORUN=/tmp/autorun.txt
+<=./util/debian/changelog.in:
+28:  * Adding keylime-op command to set autorun scripts on agents to execute when attestation starts.
+<=./util/undercloud/docker/ecb-apply.sh:
+465:  CMDLINE_PREFIX="keylime-op -u $UNDERCLOUD_FILE -m $MZONE_FILE autorun set"
+<=./util/undercloud/docker/Dockerfile:
+36:WORKDIR /keylime-autorun
+37:ADD docker/autorun.sh .
+73:# path to autorun script
+74:ENV KEYLIME_AUTORUN=/keylime-autorun/autorun.sh
+<=./util/undercloud/attest_start:
+22:# attest_refstate_autorun_file: autorun file to submit.
+257:	    keylime-op -u ${uc} -m ${mz} autorun set ${attest_refstate_autorun_file}
+<=./util/undercloud/keylime-op:
+442:# # autorun
+446:    add parsing for command: autorun
+449:        "autorun", help="commands related to Keylime autorun script"
+453:        "set", help="set autorun script file"
+467:    operations for command: autorun
+478:    "autorun": {"parser": parser_cmd_autorun, "op": op_autorun},
+544:    if args.command in ["attestation", "ek", "autorun", "mba", "ima"]:
+977:    set an autorun script to run next time when attestation starts
+993:                print(f"Unsetting autorun script for {nodestring}")
+997:                print(f"Setting autorun script {script.name} for {nodestring}")
+
+./util/undercloud/docker/Dockerfile:
+#Warning: same basename is found with the following files.
+./tests/linter/Dockerfile
+./tests/unittests/Dockerfile
+./util/Docker/tpm2/Dockerfile
+./util/Docker/rustagent/Dockerfile
+./util/Docker/ibmextras/Dockerfile
+./util/Docker/base/Dockerfile
+<=./Makefile:
+102:	cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_BRANCH}^g"> Dockerfile ;
+120:	docker build . -f tests/unittests/Dockerfile -t keylime-op-unittests && \
+127:	docker build . -f tests/linter/Dockerfile -t keylime-op-linter && \
+142:	-f util/undercloud/docker/Dockerfile \
+<=./prepare.sh:
+198:    cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_CONTAINER_TAG3}^g" > Dockerfile
+200:    cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^#^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_CONTAINER_TAG3}^g" > Dockerfile
+
+./util/undercloud/keylimecontainer-config:
+<=./hack/ci/travis_integration_test.sh:
+6:# * run keylimecontainer-config and keylimecontainer-setup to start keylime
+<=./util/debian/install:
+2:undercloud/keylimecontainer-config               /usr/bin
+<=./util/undercloud/README:
+7:* keylimecontainer-config -u <undercloudfile> [-f <configfile>] reads
+<=./README.md:
+97:keylimecontainer-config -u undercloud.yml
+
+./util/undercloud/file_attestation_allowlist.py:
+<=./util/undercloud/file-attestation-allowlist:
+4:python3 -m file_attestation_allowlist "$@"
+<=./README.md:
+298:usage: file_attestation_allowlist.py [-h] [-d] [-m MZONE] [--uuid UUID] [--kinds KINDS]
+
+./util/undercloud/README:
+
+./util/undercloud/keylimecontainer-setup:
+<=./hack/ci/travis_integration_test.sh:
+6:# * run keylimecontainer-config and keylimecontainer-setup to start keylime
+<=./util/debian/install:
+1:undercloud/keylimecontainer-setup                /usr/bin
+<=./util/undercloud/README:
+12:* keylimecontainer-setup -- pulls the docker image specified by
+<=./README.md:
+103:keylimecontainer-setup
+
+./util/undercloud/bundle-files-cache:
+<=./README.md:
+323:### The bundle-files-cache script
+436:(.venv) (base) mspreitz@mjs12 undercloud % ./bundle-files-cache -h
+
+./util/undercloud/attest_start:
+<=./util/debian/install:
+5:undercloud/attest_start                          /usr/bin
+
+./util/undercloud/keylime-op:
+<=./Makefile:
+119:	@echo "Running unit tests for keylime-op" ; \
+120:	docker build . -f tests/unittests/Dockerfile -t keylime-op-unittests && \
+123:		--env GHE_REFSTATES_DEPLOY_KEY=/deploy_key_refstates keylime-op-unittests
+126:	@echo "Running linter for keylime-op" ; \
+127:	docker build . -f tests/linter/Dockerfile -t keylime-op-linter && \
+128:	docker run keylime-op-linter
+<=./keylimesetup/ngkl_jira.sh:
+26:#    (a) empty (watch all nodes, issue keylime-op commands without an mzone argument)
+168:    local CMDLINE="keylime-op"
+179:    # account for keylime-op not running correctly at all
+<=./tests/linter/pylintrc:
+3:# disabled C0103: "keylime-op is not snake_case"
+<=./tests/linter/Dockerfile:
+14:ADD util/undercloud/keylime-op /usr/local/bin/keylime-op
+19:ENTRYPOINT ["/run_linter.sh", "/usr/local/bin/keylime-op"]
+<=./tests/integration/ci_integration_test.sh:
+8:    echo "           <extrapath> is a PATH add-on to find keylime-op"
+18:    for tool in keylime-op
+36:# check whether keylime-op is capable of talking to assetdb
+51:        keylime-op -u ${ucfile} -m ${mzfile} status > /dev/null 2>&1
+53:        echo "        wait: try ${count}/${maxcount}: keylime-op status=${status1}"
+85:    keylime-op -u ${ucfile} -m ${mzfile} attestation deactivate > /dev/null 2>&1
+86:    if [[ $? != 0 ]] ; then echo "    keylime-op attestation deactivate FAILED." ; return 1 ; fi
+87:    keylime-op -u ${ucfile} -m ${mzfile} attestation wait --wait-pass inactive --wait-fail none
+88:    if [[ $? != 0 ]] ; then echo "    keylime-op attestation wait FAILED." ; return 1 ; fi
+109:    keylime-op -u ${ucfile} -m ${mzfile} attestation deactivate > /dev/null 2>&1
+110:    if [[ $? != 0 ]] ; then echo "    keylime-op attestation deactivate FAILED." ; return 1 ; fi
+111:    keylime-op -u ${ucfile} -m ${mzfile} attestation wait --wait-pass inactive --wait-fail none
+112:    if [[ $? != 0 ]] ; then echo "    keylime-op attestation wait FAILED." ; return 1 ; fi
+115:    keylime-op -u ${ucfile} -m ${mzfile} mba bundle clear
+116:    keylime-op -u ${ucfile} -m ${mzfile} mba bios clear
+117:    keylime-op -u ${ucfile} -m ${mzfile} mba sb clear
+118:    if [[ $? != 0 ]] ; then echo "    keylime-op command FAILED." ; return 1 ; fi
+121:    keylime-op -u ${ucfile} -m ${mzfile} attestation activate ident > /dev/null 2>&1
+122:    if [[ $? != 0 ]] ; then echo "    keylime-op command FAILED." ; return 1 ; fi
+125:    keylime-op -u ${ucfile} -m ${mzfile} attestation wait --wait-pass verified --wait-fail failed
+126:    if [[ $? != 0 ]] ; then echo "    keylime-op attestation wait FAILED." ; return 1 ; fi
+150:    keylime-op -u ${ucfile} -m ${mzfile} attestation deactivate > /dev/null 2>&1
+151:    if [[ $? != 0 ]] ; then echo "    keylime-op attestation deactivate FAILED." ; return 1 ; fi
+152:    keylime-op -u ${ucfile} -m ${mzfile} attestation wait --wait-pass inactive --wait-fail none
+153:    if [[ $? != 0 ]] ; then echo "    keylime-op attestation wait FAILED." ; return 1 ; fi
+156:    keylime-op -u ${ucfile} -m ${mzfile} mba bundle clear > /dev/null 2>&1
+159:    echo "${mbref}" | keylime-op -u ${ucfile} -m ${mzfile} mba bundle append - > /dev/null 2>&1
+162:    keylime-op -u ${ucfile} -m ${mzfile} mba sb ${sbstatus} > /dev/null 2>&1
+166:    keylime-op -u ${ucfile} -m ${mzfile} attestation activate mb > /dev/null 2>&1
+167:    if [[ $? != 0 ]] ; then echo "    keylime-op command FAILED." ; return 1 ; fi
+170:    keylime-op -u ${ucfile} -m ${mzfile} attestation wait --wait-pass ${pass} --wait-fail ${fail}
+171:    if [[ $? != 0 ]] ; then echo "    keylime-op attestation wait FAILED." ; return 1 ; fi
+<=./tests/integration/ecb_test.sh:
+9:    echo "           <extrapath> is a PATH add-on to find keylime-op"
+56:    for tool in keylime-op
+<=./tests/unittests/run_klop_tests.sh:
+150:    keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml status | jq -r .
+158:    local actualstatus=$(keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml status | jq -r .concise.status)
+177:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml attestation remove >/dev/null 2>&1
+184:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml attestation add > /dev/null 2>&1
+191:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml attestation remove > /dev/null 2>&1
+198:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml attestation deactivate > /dev/null 2>&1
+208:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml attestation activate ident > /dev/null 2>&1
+210:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml attestation deactivate > /dev/null 2>&1
+216:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml attestation activate mb > /dev/null 2>&1
+218:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml attestation deactivate > /dev/null 2>&1
+224:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml attestation activate ima > /dev/null 2>&1
+226:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml attestation deactivate > /dev/null 2>&1
+232:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml attestation activate mb > /dev/null 2>&1
+235:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml attestation deactivate > /dev/null 2>&1
+241:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml mba sb on > /dev/null 2>&1
+244:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml mba sb off > /dev/null 2>&1
+247:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml mba sb allow > /dev/null 2>&1
+250:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml mba sb clear > /dev/null 2>&1
+260:echo ${refstate1} | keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml mba bundle append - > /dev/null 2>&1
+261:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml mba bundle clear > /dev/null 2>&1
+268:echo "${refstate1}" | keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml mba bundle append -  > /dev/null 2>&1
+275:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml mba bundle clear > /dev/null 2>&1
+276:echo "[ ${refstate1} ]" | keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml mba bundle append - > /dev/null 2>&1
+284:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml mba bundle clear > /dev/null 2>&1
+285:echo "[ ${refstate1} ]" | keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml mba bundle append - > /dev/null 2>&1
+286:echo ${refstate2} | keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml mba bundle append - > /dev/null 2>&1
+293:echo ${refstate2} | keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml mba bundle remove - > /dev/null 2>&1
+300:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml mba bundle clear > /dev/null 2>&1
+301:echo "[ ${refstate2} ]" | keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml mba bundle set - > /dev/null 2>&1
+308:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml mba sb on > /dev/null 2>&1
+309:echo "[ ${refstate1} ]" | keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml mba bundle append - > /dev/null 2>&1
+310:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml mba all clear > /dev/null 2>&1
+318:echo "eXcLuDeLiSt" | keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml ima excludelist set - > /dev/null 2>&1
+325:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml ima excludelist clear > /dev/null 2>&1
+332:echo "value1" | keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml ima allowlist append - > /dev/null 2>&1
+333:echo "value2" | keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml ima allowlist append - > /dev/null 2>&1
+340:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml ima allowlist clear > /dev/null 2>&1
+347:echo "value1" | keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml ima allowlist append - > /dev/null 2>&1
+348:echo "value2" | keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml ima allowlist append - > /dev/null 2>&1
+349:echo "value3" | keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml ima allowlist set - >/dev/null 2>&1
+357:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml autorun set /tmp/autorun.txt > /dev/null 2>&1
+369:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml attestation remove > /dev/null 2>&1
+376:keylime-op -u /tmp/undercloud.yml -m /tmp/mzone.yml attestation add > /dev/null 2>&1
+<=./tests/unittests/Dockerfile:
+9:ADD util/undercloud/keylime-op /usr/local/bin/keylime-op
+<=./util/debian/install:
+4:undercloud/keylime-op                            /usr/bin
+<=./util/debian/changelog.in:
+28:  * Adding keylime-op command to set autorun scripts on agents to execute when attestation starts.
+<=./util/undercloud/docker/ecb-apply.sh:
+38:# env configuration for keylime-op wait
+422:  run "keylime-op -u $UNDERCLOUD_FILE -m $MZONE_FILE \
+434:  CMDLINE_PREFIX="keylime-op -u $UNDERCLOUD_FILE -m $MZONE_FILE mba bios clear"
+455:  run "echo '${refstate}' | keylime-op -u $UNDERCLOUD_FILE -m $MZONE_FILE mba bundle ${op} -"
+459:  CMDLINE_PREFIX="keylime-op -u $UNDERCLOUD_FILE -m $MZONE_FILE mba bundle clear"
+465:  CMDLINE_PREFIX="keylime-op -u $UNDERCLOUD_FILE -m $MZONE_FILE autorun set"
+467:  CMDLINE_PREFIX="keylime-op -u $UNDERCLOUD_FILE -m $MZONE_FILE attestation activate mb"
+472:  CMDLINE_PREFIX="keylime-op -u $UNDERCLOUD_FILE -m $MZONE_FILE attestation deactivate"
+477:  CMDLINE_PREFIX="keylime-op -u $UNDERCLOUD_FILE -m $MZONE_FILE mba sb on"
+486:  keylime-op -u $UNDERCLOUD_FILE -m $MZONE_FILE attestation wait $KEYLIMEOP_OPTS \
+491:  keylime-op -u $UNDERCLOUD_FILE -m $MZONE_FILE attestation wait $KEYLIMEOP_OPTS \
+<=./util/undercloud/docker/Dockerfile:
+33:ADD keylime-op .
+<=./util/undercloud/attest_start:
+219:	keylime-op -u ${uc} -m ${mz} attestation deactivate > /dev/null 2>&1
+227:	keylime-op -u ${uc} -m ${mz} attestation wait --wait-pass inactive --wait-fail= --wait-interval=10 --wait-maxcount=3 > /dev/null 2>&1
+228:	local final_state=$(keylime-op -u ${uc} -m ${mz} status | jq -r .concise.status)
+232:	    keylime-op -u ${uc} -m ${mz} attestation remove > /dev/null 2>&1
+246:	    echo "${attest_refstate_ve}" | keylime-op -u ${uc} -m ${mz} mba bundle set -
+247:	    keylime-op -u ${uc} -m ${mz} mba bios clear
+248:	    keylime-op -u ${uc} -m ${mz} mba sb ${attest_state_sb}
+251:	    echo "${attest_refstate_bundle}" | keylime-op -u ${uc} -m ${mz} mba bundle set -
+252:	    echo "${attest_refstate_firmware}" | keylime-op -u ${uc} -m ${mz} mba bios set -
+253:	    keylime-op -u ${uc} -m ${mz} mba sb ${attest_state_sb}
+257:	    keylime-op -u ${uc} -m ${mz} autorun set ${attest_refstate_autorun_file}
+266:	keylime-op -u ${uc} -m ${mz} attestation activate mb > /dev/null 2>&1
+273:	keylime-op -u ${uc} -m ${mz} attestation wait --wait-pass verified --wait-fail failed --wait-interval=10 --wait-maxcount=6 > /dev/null 2>&1
+274:	local final_state=$(keylime-op -u ${uc} -m ${mz} status | jq -r .concise.status)
+<=./Dockerfile.in:
+124:ADD  util/undercloud/keylime-op  /usr/local/bin/keylime-op
+<=./README.md:
+128:The KLC package includes `keylime-op`, that is the central utility to interact with the cloud. Before activating Keylime, take a look to the current status:
+131:keylime-op -u undercloud.yml -m mzone.yml summary
+149:keylime-op -u undercloud.yml -m mzone.yml mba sb-on
+165:keylime-op -u undercloud.yml -m mzone.yml activate
+182:### The keylime-op script
+184:The `keylime-op` utility provides the `anomalies` operation to quickly check for misbehaving agent nodes:
+187:keylime-op -u undercloud.yml -m mzone.yml anomalies
+193:keylime-op -u undercloud.yml -m mzone.yml status
+
+./Dockerfile.in:
+<=./Makefile:
+102:	cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_BRANCH}^g"> Dockerfile ;
+<=./prepare.sh:
+198:    cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_CONTAINER_TAG3}^g" > Dockerfile
+200:    cat Dockerfile.in | sed 's^%%BUILD_KEYLIME_EXTRAS%%^#^g' | sed "s^%%BUILD_KEYLIME_RUSTAGENT_TAG%%^${KEYLIME_RUSTAGENT_CONTAINER_TAG3}^g" > Dockerfile
+
+./README.md:
+#Warning: same basename is found with the following files.
+./data/README.md
+
+./data/binary_bios_measurements.swtpm2:
+
+./data/README.md:
+#Warning: same basename is found with the following files.
+./README.md
+
+./data/binary_bios_measurements.hwtpm2:
+<=./data/README.md:
+3:binary_bios_measurements.hwtpm2: Binary log generated from a hardware TPM2.0 device
+9:> tpm2_eventlog /KL/data/binary_bios_measurements.hwtpm2
+16:> tsseventextend -if /KL/data/binary_bios_measurements.hwtpm2 -sim -v 
+
+./prepare.sh:
+<=./util/undercloud/docker/Dockerfile:
+26:#  prepare access to refstates git
+
+./.travis.yml:

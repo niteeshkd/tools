@@ -1,0 +1,2 @@
+openssl-libs.x86_64                       1:3.0.2-4.fc36               @anaconda
+sqlite-libs.x86_64                        3.36.0-5.fc36                @anaconda

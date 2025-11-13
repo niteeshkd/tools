@@ -1,0 +1,517 @@
+==============================KEYLIME_ASSET_DB_ID============================
+ek_check.sh:31:    redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT GET ${KEYLIME_CLUSTER}_${_type}_${_uuid} > ${_file}
+ek_check.sh:37:    local x=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT exists ${KEYLIME_CLUSTER}_${_type}_${_uuid})
+ek_check.sh:45:    cat ${_file} | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_${_type}_${_uuid} > /dev/null 2>&1
+klbutil.sh:129:    if [[ -z $KEYLIME_ASSET_DB_IP || -z $KEYLIME_ASSET_DB_ID || -z $KEYLIME_ASSET_DB_PORT ]]
+klbutil.sh:184:    _TS=$(redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT time)
+klbutil.sh:190:            redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT zadd ${KEYLIME_CLUSTER}_${KEYLIME_NODE_NAME}_events ${_TS} "${MESSAGE} : ${_TS}" >/dev/null 2>&1       
+klbutil.sh:192:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT publish keylime "${_PREFIX}${MESSAGE}" >/dev/null 2>&1
+klbutil.sh:444:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT zrange ${KEYLIME_CLUSTER}_${_nodename}_events
+klbutil.sh:804:        redis-cli -h ${KEYLIME_ASSET_DB_IP} -n ${KEYLIME_ASSET_DB_ID} -p ${KEYLIME_ASSET_DB_PORT} set ${rediskey} ${timestamp} > /dev/null 2>&1
+klbutil.sh:807:        local t1=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT get ${rediskey})
+klbutil.sh:809:        local t2=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT get ${rediskey})
+klbutil.sh:810:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT del ${rediskey} > /dev/null 2>&1
+klbutil.sh:954:    export KEYLIME_IMG_EXISTS=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists whitelist_${KEYLIME_IMG_ID})
+klbutil.sh:957:        KEYLIME_IMG_WRITE_LOCK=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw SETNX ${KEYLIME_IMG_ID}_write_lock 1)
+klbutil.sh:967:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw SETNX ${KEYLIME_CLUSTER}_${KEYLIME_ROLE}_certs_write_lock $KEYLIME_NODE_NAME
+klbutil.sh:969:        KEYLIME_WRITE_LOCK_CONTENTS=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw GET ${KEYLIME_CLUSTER}_${KEYLIME_ROLE}_certs_write_lock)
+klbutil.sh:980:        KEYLIME_WRITE_LOCK_CONTENTS=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw GET ${KEYLIME_CLUSTER}_${KEYLIME_CERTS_ROLE}_certs_write_lock)
+klbutil.sh:1033:                redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists ${KEYLIME_CLUSTER}_${_role}_${_fn} | grep -q ^1
+klbutil.sh:1094:                redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw GET ${KEYLIME_CLUSTER}_${_role}_${_fnr} > ${_cert_dir}/${_fnl}.${_fe}
+klbutil.sh:1131:                cat ${_cert_dir}/${_fnl}.${_fe} | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_${_role}_${_fnr}
+klbutil.sh:1193:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw DEL ${KEYLIME_CLUSTER}_${_record}_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1200:    cat ${img_wl_file} | tr -cd '\11\12\15\40-\176' | env LANG=C grep -v "["$'\x80'-$'\xff'"]" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET whitelist_${KEYLIME_IMG_ID} >/dev/null 2>&1
+klbutil.sh:1201:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw DEL ${KEYLIME_IMG_ID}_write_lock >/dev/null 2>&1
+klbutil.sh:1208:    echo "${ba}  boot_aggregate" | tr -cd '\11\12\15\40-\176' | env LANG=C grep -v "["$'\x80'-$'\xff'"]" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_boot_aggregate_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1214:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT RPUSH ${KEYLIME_CLUSTER}_imagelist_${KEYLIME_CLOUD_AGENT_AGENT_UUID} whitelist_${KEYLIME_IMG_ID} >/dev/null 2>&1
+klbutil.sh:1235:    if [[ $(redis-cli  -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists  ${KEYLIME_CLUSTER}_boot_aggregate_${hostuuid}) -eq 1 ]]
+klbutil.sh:1238:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_boot_aggregate_${hostuuid} >> /tmp/whitelist_${hostuuid}.txt
+klbutil.sh:1242:    if [[ $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists ${KEYLIME_CLUSTER}_imagelist_${hostuuid}) -eq 1 ]]
+klbutil.sh:1244:        for _item in $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw LRANGE ${KEYLIME_CLUSTER}_imagelist_${hostuuid} 0 -1)
+klbutil.sh:1247:            redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${_item} >> /tmp/whitelist_${hostuuid}.txt
+klbutil.sh:1252:    if [[ $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists ${KEYLIME_CLUSTER}_allowed_bundles_${hostuuid}) -eq 1 ]]
+klbutil.sh:1254:        for _item in $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_allowed_bundles_${hostuuid} | jq -r .[])
+klbutil.sh:1260:            redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get bundle_files_${_item} \
+klbutil.sh:1276:    if [[ $(redis-cli  -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists  ${KEYLIME_CLUSTER}_excludelist_${hostuuid}) -eq 1 ]]
+klbutil.sh:1279:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_excludelist_${hostuuid} > /tmp/excludelist_${hostuuid}.txt
+klbutil.sh:1295:        echo "${mb}" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_mbref_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1297:        echo "${mb}" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_hostos_boot_releases_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1311:    local mbref=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_mbref_${uuid} | jq '.')
+klbutil.sh:1319:        local scrtm=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_scrtm_${uuid} | jq '.')
+klbutil.sh:1326:        local secboot=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_secure_boot_on_${uuid})
+klbutil.sh:1333:        local bios=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_bios_${uuid} | jq '.')
+klbutil.sh:1340:        local scrtm_and_bios=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_scrtm_and_bios_${uuid} | jq '.')
+klbutil.sh:1349:            local value=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_nvram_${key}_${uuid} | jq '.')
+klbutil.sh:1357:        local bundle=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_hostos_boot_releases_${uuid} | jq '.')
+klbutil.sh:1371:    cat /usr/local/bin/autorun | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_autorun_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1379:    if [[ $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists ${KEYLIME_CLUSTER}_autorun_${hostuuid}) -eq 1 ]]
+klbutil.sh:1383:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_autorun_${hostuuid} > /tmp/autorun_${hostuuid}/autorun.sh
+klbutil.sh:1406:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_${_type}_${KEYLIME_CLOUD_AGENT_AGENT_UUID} $(cat ${_ek_contents} | base64 | tr -d '\n') >/dev/null 2>&1
+klbutil.sh:1418:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT GET ${KEYLIME_CLUSTER}_${_type}_${_uuid}
+klbutil.sh:1441:    local _ts=$(redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT time | head -n 1)
+klbutil.sh:1443:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZADD ${KEYLIME_CLUSTER}_nodes_${_zname} ${_ts} "${_zelement}" >/dev/null 2>&1
+klbutil.sh:1463:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZINCRBY ${KEYLIME_CLUSTER}_nodes_${_zname} 1 "${_zelement}" >/dev/null 2>&1
+klbutil.sh:1484:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZREM ${KEYLIME_CLUSTER}_nodes_${_zname} "${_zelement}" >/dev/null 2>&1
+klbutil.sh:1498:    redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZCARD ${KEYLIME_CLUSTER}_nodes_${_zname}
+klbutil.sh:1512:    redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZRANGE ${KEYLIME_CLUSTER}_nodes_${_zname} 0 -1
+klbutil.sh:1525:    _rank=$(redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZRANK ${KEYLIME_CLUSTER}_nodes_${_zname} ${_zelement})
+klbutil.sh:1535:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw ZRANGE ${KEYLIME_CLUSTER}_nodes_${KEYLIME_MASTER_NODE_LIST} 0 -1
+klbutil.sh:1550:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT PUBLISH ${KEYLIME_CLUSTER}_agents AGENT-$(get_element_name)
+klbutil.sh:1678:                  -n $KEYLIME_ASSET_DB_ID \
+klbutil.sh:1691:           -n $KEYLIME_ASSET_DB_ID \
+ngkl_deployer.sh:58:                             -n $KEYLIME_ASSET_DB_ID \
+ngkl_deployer.sh:76:                             -n $KEYLIME_ASSET_DB_ID \
+ngkl_status_pollster.sh:75:    redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT zrange ${KEYLIME_CLUSTER}_nodes_agent_should_deploy 0 -1 > /tmp/desired_state > /tmp/activelist
+ngkl_status_pollster.sh:115:    local dqueue_len=$(redis-cli --raw -h ${KEYLIME_ASSET_DB_IP} -n ${KEYLIME_ASSET_DB_ID} -p ${KEYLIME_ASSET_DB_PORT} zcount ${KEYLIME_CLUSTER}_nodes_agent_deactivate_queue 0 ${currenttime})
+ngkl_status_pollster.sh:116:    local aqueue_len=$(redis-cli --raw -h ${KEYLIME_ASSET_DB_IP} -n ${KEYLIME_ASSET_DB_ID} -p ${KEYLIME_ASSET_DB_PORT} zcount ${KEYLIME_CLUSTER}_nodes_agent_activate_queue 0 ${currenttime})
+ngkl_status_pollster.sh:194:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT < /tmp/ngkl_status_poll.txt > /dev/null 2>&1
+==============================KEYLIME_ASSET_DB_IP============================
+ek_check.sh:31:    redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT GET ${KEYLIME_CLUSTER}_${_type}_${_uuid} > ${_file}
+ek_check.sh:37:    local x=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT exists ${KEYLIME_CLUSTER}_${_type}_${_uuid})
+ek_check.sh:45:    cat ${_file} | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_${_type}_${_uuid} > /dev/null 2>&1
+klbutil.sh:129:    if [[ -z $KEYLIME_ASSET_DB_IP || -z $KEYLIME_ASSET_DB_ID || -z $KEYLIME_ASSET_DB_PORT ]]
+klbutil.sh:184:    _TS=$(redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT time)
+klbutil.sh:190:            redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT zadd ${KEYLIME_CLUSTER}_${KEYLIME_NODE_NAME}_events ${_TS} "${MESSAGE} : ${_TS}" >/dev/null 2>&1       
+klbutil.sh:192:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT publish keylime "${_PREFIX}${MESSAGE}" >/dev/null 2>&1
+klbutil.sh:444:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT zrange ${KEYLIME_CLUSTER}_${_nodename}_events
+klbutil.sh:804:        redis-cli -h ${KEYLIME_ASSET_DB_IP} -n ${KEYLIME_ASSET_DB_ID} -p ${KEYLIME_ASSET_DB_PORT} set ${rediskey} ${timestamp} > /dev/null 2>&1
+klbutil.sh:807:        local t1=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT get ${rediskey})
+klbutil.sh:809:        local t2=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT get ${rediskey})
+klbutil.sh:810:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT del ${rediskey} > /dev/null 2>&1
+klbutil.sh:954:    export KEYLIME_IMG_EXISTS=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists whitelist_${KEYLIME_IMG_ID})
+klbutil.sh:957:        KEYLIME_IMG_WRITE_LOCK=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw SETNX ${KEYLIME_IMG_ID}_write_lock 1)
+klbutil.sh:967:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw SETNX ${KEYLIME_CLUSTER}_${KEYLIME_ROLE}_certs_write_lock $KEYLIME_NODE_NAME
+klbutil.sh:969:        KEYLIME_WRITE_LOCK_CONTENTS=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw GET ${KEYLIME_CLUSTER}_${KEYLIME_ROLE}_certs_write_lock)
+klbutil.sh:980:        KEYLIME_WRITE_LOCK_CONTENTS=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw GET ${KEYLIME_CLUSTER}_${KEYLIME_CERTS_ROLE}_certs_write_lock)
+klbutil.sh:1028:            announce "====> (wait_for_certs) : Waiting for ${_role} certificates (using cluster_key ${KEYLIME_CLUSTER}) on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1033:                redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists ${KEYLIME_CLUSTER}_${_role}_${_fn} | grep -q ^1
+klbutil.sh:1042:                announce "====> (wait_for_certs) : ${_role} certificates (using cluster_key ${KEYLIME_CLUSTER}) are ready on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1052:    announce "====> (wait_for_certs) : ${_role} certificates (using cluster_key ${KEYLIME_CLUSTER}) are NOT ready on Asset Database ${KEYLIME_ASSET_DB_IP}!"
+klbutil.sh:1086:            announce "====> (download_certs) : Downloading ${_role} certificates from Asset Database ${KEYLIME_ASSET_DB_IP} to directory ${_cert_dir} for role ${KEYLIME_ROLE}"
+klbutil.sh:1094:                redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw GET ${KEYLIME_CLUSTER}_${_role}_${_fnr} > ${_cert_dir}/${_fnl}.${_fe}
+klbutil.sh:1107:            announce "====> (download_certs) : ${_role} certificates from Asset Database ${KEYLIME_ASSET_DB_IP} to directory ${_cert_dir} for role ${KEYLIME_ROLE}"
+klbutil.sh:1123:            announce "====> (upload_certs) : Uploading ${_role} certificates from Asset Database ${KEYLIME_ASSET_DB_IP} to directory ${_cert_dir} for role ${KEYLIME_ROLE}"
+klbutil.sh:1131:                cat ${_cert_dir}/${_fnl}.${_fe} | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_${_role}_${_fnr}
+klbutil.sh:1133:            announce "====> (upload_certs) : ${_role} certificates from Asset Database ${KEYLIME_ASSET_DB_IP} to directory ${_cert_dir} for role ${KEYLIME_ROLE}"
+klbutil.sh:1156:            announce "====> (read_certs) : Certificates absent from both disk (${_cert_dir} and Asset Database (${KEYLIME_ASSET_DB_IP}): generating certificates using keylime_ca utility on directory ${_cert_dir}"
+klbutil.sh:1163:            announce "====> (read_certs) : Certificates absent from disk (${_cert_dir} but present on Asset Database (${KEYLIME_ASSET_DB_IP}): downloading"
+klbutil.sh:1182:        announce "====> (write_certs) : writing certificates from disk (${_cert_dir} to Asset Database (${KEYLIME_ASSET_DB_IP})"
+klbutil.sh:1185:        announce "====> (write_certs) : bypassing the writing of certifcates to Asset Database (${KEYLIME_ASSET_DB_IP})"
+klbutil.sh:1192:    announce "====> (whitelist manager) : deleting record ${KEYLIME_CLUSTER}_${_record}_${KEYLIME_CLOUD_AGENT_AGENT_UUID} from Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1193:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw DEL ${KEYLIME_CLUSTER}_${_record}_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1194:    announce "====> (whitelist manager) : record ${KEYLIME_CLUSTER}_${_record}_${KEYLIME_CLOUD_AGENT_AGENT_UUID} deleted from Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1199:    announce "====> (whitelist manager) : storing whitelist ($img_wl_file) for image ID $KEYLIME_IMG_ID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1200:    cat ${img_wl_file} | tr -cd '\11\12\15\40-\176' | env LANG=C grep -v "["$'\x80'-$'\xff'"]" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET whitelist_${KEYLIME_IMG_ID} >/dev/null 2>&1
+klbutil.sh:1201:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw DEL ${KEYLIME_IMG_ID}_write_lock >/dev/null 2>&1
+klbutil.sh:1202:    announce "====> (whitelist manager) :  whitelist ($img_wl_file) for image ID $KEYLIME_IMG_ID stored on Asset Database ${KEYLIME_ASSET_DB_IP}"    
+klbutil.sh:1207:    announce "====> (whitelist manager) : storing boot aggregate ($ba) for node $KEYLIME_CLOUD_AGENT_AGENT_UUID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1208:    echo "${ba}  boot_aggregate" | tr -cd '\11\12\15\40-\176' | env LANG=C grep -v "["$'\x80'-$'\xff'"]" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_boot_aggregate_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1209:    announce "====> (whitelist manager) : boot aggregate ($ba) for node $KEYLIME_CLOUD_AGENT_AGENT_UUID stored on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1213:    announce "====> (whitelist manager) : adding image ID ($KEYLIME_IMG_ID) to the list of images for node $KEYLIME_CLOUD_AGENT_AGENT_UUID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1214:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT RPUSH ${KEYLIME_CLUSTER}_imagelist_${KEYLIME_CLOUD_AGENT_AGENT_UUID} whitelist_${KEYLIME_IMG_ID} >/dev/null 2>&1
+klbutil.sh:1215:    announce "====> (whitelist manager) : image ID ($KEYLIME_IMG_ID) added to the list of images for node $KEYLIME_CLOUD_AGENT_AGENT_UUID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1235:    if [[ $(redis-cli  -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists  ${KEYLIME_CLUSTER}_boot_aggregate_${hostuuid}) -eq 1 ]]
+klbutil.sh:1238:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_boot_aggregate_${hostuuid} >> /tmp/whitelist_${hostuuid}.txt
+klbutil.sh:1242:    if [[ $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists ${KEYLIME_CLUSTER}_imagelist_${hostuuid}) -eq 1 ]]
+klbutil.sh:1244:        for _item in $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw LRANGE ${KEYLIME_CLUSTER}_imagelist_${hostuuid} 0 -1)
+klbutil.sh:1247:            redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${_item} >> /tmp/whitelist_${hostuuid}.txt
+klbutil.sh:1252:    if [[ $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists ${KEYLIME_CLUSTER}_allowed_bundles_${hostuuid}) -eq 1 ]]
+klbutil.sh:1254:        for _item in $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_allowed_bundles_${hostuuid} | jq -r .[])
+klbutil.sh:1260:            redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get bundle_files_${_item} \
+klbutil.sh:1276:    if [[ $(redis-cli  -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists  ${KEYLIME_CLUSTER}_excludelist_${hostuuid}) -eq 1 ]]
+klbutil.sh:1279:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_excludelist_${hostuuid} > /tmp/excludelist_${hostuuid}.txt
+klbutil.sh:1292:    announce "====> (measuredboot manager) : writing measured boot reference state for node $KEYLIME_CLOUD_AGENT_AGENT_UUID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1295:        echo "${mb}" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_mbref_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1297:        echo "${mb}" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_hostos_boot_releases_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1299:    announce "====> (measuredboot manager) : wrote measured boot reference state for $KEYLIME_CLOUD_AGENT_AGENT_UUID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1309:    if [[ ${verbose} == 1 ]] ; then announce "====> (measuredboot manager) : collecting measured boot reference state for node ${uuid} on Asset Database ${KEYLIME_ASSET_DB_IP}" ; fi
+klbutil.sh:1311:    local mbref=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_mbref_${uuid} | jq '.')
+klbutil.sh:1314:        if [[ ${verbose} == 1 ]] ; then announce "====> (measuredboot manager) : found a complete measured boot reference state for node ${uuid} on Asset Database ${KEYLIME_ASSET_DB_IP}" ; fi
+klbutil.sh:1316:        if [[ ${verbose} == 1 ]] ; then announce "====> (measuredboot manager) : no complete measured boot reference state for node ${uuid} found on Asset Database ${KEYLIME_ASSET_DB_IP}. Will assemble one from multiple keys" ; fi
+klbutil.sh:1319:        local scrtm=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_scrtm_${uuid} | jq '.')
+klbutil.sh:1326:        local secboot=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_secure_boot_on_${uuid})
+klbutil.sh:1333:        local bios=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_bios_${uuid} | jq '.')
+klbutil.sh:1340:        local scrtm_and_bios=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_scrtm_and_bios_${uuid} | jq '.')
+klbutil.sh:1349:            local value=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_nvram_${key}_${uuid} | jq '.')
+klbutil.sh:1357:        local bundle=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_hostos_boot_releases_${uuid} | jq '.')
+klbutil.sh:1366:    if [[ ${verbose} == 1 ]] ; then announce "====> (measuredboot manager) : measured boot reference state for node ${uuid} collected from Asset Database ${KEYLIME_ASSET_DB_IP}" ; fi
+klbutil.sh:1370:    announce "====> (autorun manager) : storing autorun script for node $KEYLIME_CLOUD_AGENT_AGENT_UUID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1371:    cat /usr/local/bin/autorun | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_autorun_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1372:    announce "====> (autorun manager) : autorun script for node $KEYLIME_CLOUD_AGENT_AGENT_UUID stored on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1378:    if [[ ${verbose} == 1 ]] ; then announce "====> (autorun manager) : getting autorun script for node ${hostuuid} on Asset Database ${KEYLIME_ASSET_DB_IP}" ; fi
+klbutil.sh:1379:    if [[ $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists ${KEYLIME_CLUSTER}_autorun_${hostuuid}) -eq 1 ]]
+klbutil.sh:1381:        if [[ ${verbose} == 1 ]] ; then announce "======> (autorun manager) : adding contents of the autorun script for node ${hostuuid} on Asset Database ${KEYLIME_ASSET_DB_IP}" ; fi
+klbutil.sh:1383:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_autorun_${hostuuid} > /tmp/autorun_${hostuuid}/autorun.sh
+klbutil.sh:1386:    if [[ ${verbose} == 1 ]] ; then announce "====> (autorun manager) : contents of the autorun script for node ${hostuuid} extracted from Asset Database ${KEYLIME_ASSET_DB_IP}" ; fi
+klbutil.sh:1403:        announce "====> (ek manager) : storing ${_type} for node $KEYLIME_CLOUD_AGENT_AGENT_UUID to Asset Database ${KEYLIME_ASSET_DB_IP}." 
+klbutil.sh:1406:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_${_type}_${KEYLIME_CLOUD_AGENT_AGENT_UUID} $(cat ${_ek_contents} | base64 | tr -d '\n') >/dev/null 2>&1
+klbutil.sh:1410:        announce "====> (ek manager) : stored ${_type} for node $KEYLIME_CLOUD_AGENT_AGENT_UUID to Asset Database ${KEYLIME_ASSET_DB_IP}."
+klbutil.sh:1418:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT GET ${KEYLIME_CLUSTER}_${_type}_${_uuid}
+klbutil.sh:1441:    local _ts=$(redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT time | head -n 1)
+klbutil.sh:1443:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZADD ${KEYLIME_CLUSTER}_nodes_${_zname} ${_ts} "${_zelement}" >/dev/null 2>&1
+klbutil.sh:1463:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZINCRBY ${KEYLIME_CLUSTER}_nodes_${_zname} 1 "${_zelement}" >/dev/null 2>&1
+klbutil.sh:1484:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZREM ${KEYLIME_CLUSTER}_nodes_${_zname} "${_zelement}" >/dev/null 2>&1
+klbutil.sh:1498:    redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZCARD ${KEYLIME_CLUSTER}_nodes_${_zname}
+klbutil.sh:1512:    redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZRANGE ${KEYLIME_CLUSTER}_nodes_${_zname} 0 -1
+klbutil.sh:1525:    _rank=$(redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZRANK ${KEYLIME_CLUSTER}_nodes_${_zname} ${_zelement})
+klbutil.sh:1535:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw ZRANGE ${KEYLIME_CLUSTER}_nodes_${KEYLIME_MASTER_NODE_LIST} 0 -1
+klbutil.sh:1550:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT PUBLISH ${KEYLIME_CLUSTER}_agents AGENT-$(get_element_name)
+klbutil.sh:1677:        redis-cli -h $KEYLIME_ASSET_DB_IP \
+klbutil.sh:1690:           -h $KEYLIME_ASSET_DB_IP \
+ngkl_assetdb.sh:10:if ! ip a list | grep -q "${KEYLIME_ASSET_DB_IP}/"
+ngkl_assetdb.sh:18:tmux send-keys -t pman "wait_until_port_open ${KEYLIME_ASSET_DB_IP} ${KEYLIME_ASSET_DB_PORT} ${KEYLIME_CHECK_PORT_OPEN_ATTEMPTS} ${KEYLIME_CHECK_PORT_OPEN_INTERVAL}" Enter
+ngkl_deployer.sh:57:                             -h $KEYLIME_ASSET_DB_IP \
+ngkl_deployer.sh:75:                             -h $KEYLIME_ASSET_DB_IP \
+ngkl_start.sh:29:    announce "=> waiting for Asset Database ${KEYLIME_ASSET_DB_IP}"
+ngkl_status_pollster.sh:75:    redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT zrange ${KEYLIME_CLUSTER}_nodes_agent_should_deploy 0 -1 > /tmp/desired_state > /tmp/activelist
+ngkl_status_pollster.sh:115:    local dqueue_len=$(redis-cli --raw -h ${KEYLIME_ASSET_DB_IP} -n ${KEYLIME_ASSET_DB_ID} -p ${KEYLIME_ASSET_DB_PORT} zcount ${KEYLIME_CLUSTER}_nodes_agent_deactivate_queue 0 ${currenttime})
+ngkl_status_pollster.sh:116:    local aqueue_len=$(redis-cli --raw -h ${KEYLIME_ASSET_DB_IP} -n ${KEYLIME_ASSET_DB_ID} -p ${KEYLIME_ASSET_DB_PORT} zcount ${KEYLIME_CLUSTER}_nodes_agent_activate_queue 0 ${currenttime})
+ngkl_status_pollster.sh:194:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT < /tmp/ngkl_status_poll.txt > /dev/null 2>&1
+==============================KEYLIME_ASSET_DB_PORT============================
+ek_check.sh:31:    redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT GET ${KEYLIME_CLUSTER}_${_type}_${_uuid} > ${_file}
+ek_check.sh:37:    local x=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT exists ${KEYLIME_CLUSTER}_${_type}_${_uuid})
+ek_check.sh:45:    cat ${_file} | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_${_type}_${_uuid} > /dev/null 2>&1
+klbutil.sh:129:    if [[ -z $KEYLIME_ASSET_DB_IP || -z $KEYLIME_ASSET_DB_ID || -z $KEYLIME_ASSET_DB_PORT ]]
+klbutil.sh:184:    _TS=$(redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT time)
+klbutil.sh:190:            redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT zadd ${KEYLIME_CLUSTER}_${KEYLIME_NODE_NAME}_events ${_TS} "${MESSAGE} : ${_TS}" >/dev/null 2>&1       
+klbutil.sh:192:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT publish keylime "${_PREFIX}${MESSAGE}" >/dev/null 2>&1
+klbutil.sh:444:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT zrange ${KEYLIME_CLUSTER}_${_nodename}_events
+klbutil.sh:804:        redis-cli -h ${KEYLIME_ASSET_DB_IP} -n ${KEYLIME_ASSET_DB_ID} -p ${KEYLIME_ASSET_DB_PORT} set ${rediskey} ${timestamp} > /dev/null 2>&1
+klbutil.sh:807:        local t1=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT get ${rediskey})
+klbutil.sh:809:        local t2=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT get ${rediskey})
+klbutil.sh:810:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT del ${rediskey} > /dev/null 2>&1
+klbutil.sh:954:    export KEYLIME_IMG_EXISTS=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists whitelist_${KEYLIME_IMG_ID})
+klbutil.sh:957:        KEYLIME_IMG_WRITE_LOCK=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw SETNX ${KEYLIME_IMG_ID}_write_lock 1)
+klbutil.sh:967:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw SETNX ${KEYLIME_CLUSTER}_${KEYLIME_ROLE}_certs_write_lock $KEYLIME_NODE_NAME
+klbutil.sh:969:        KEYLIME_WRITE_LOCK_CONTENTS=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw GET ${KEYLIME_CLUSTER}_${KEYLIME_ROLE}_certs_write_lock)
+klbutil.sh:980:        KEYLIME_WRITE_LOCK_CONTENTS=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw GET ${KEYLIME_CLUSTER}_${KEYLIME_CERTS_ROLE}_certs_write_lock)
+klbutil.sh:1033:                redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists ${KEYLIME_CLUSTER}_${_role}_${_fn} | grep -q ^1
+klbutil.sh:1094:                redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw GET ${KEYLIME_CLUSTER}_${_role}_${_fnr} > ${_cert_dir}/${_fnl}.${_fe}
+klbutil.sh:1131:                cat ${_cert_dir}/${_fnl}.${_fe} | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_${_role}_${_fnr}
+klbutil.sh:1193:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw DEL ${KEYLIME_CLUSTER}_${_record}_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1200:    cat ${img_wl_file} | tr -cd '\11\12\15\40-\176' | env LANG=C grep -v "["$'\x80'-$'\xff'"]" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET whitelist_${KEYLIME_IMG_ID} >/dev/null 2>&1
+klbutil.sh:1201:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw DEL ${KEYLIME_IMG_ID}_write_lock >/dev/null 2>&1
+klbutil.sh:1208:    echo "${ba}  boot_aggregate" | tr -cd '\11\12\15\40-\176' | env LANG=C grep -v "["$'\x80'-$'\xff'"]" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_boot_aggregate_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1214:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT RPUSH ${KEYLIME_CLUSTER}_imagelist_${KEYLIME_CLOUD_AGENT_AGENT_UUID} whitelist_${KEYLIME_IMG_ID} >/dev/null 2>&1
+klbutil.sh:1235:    if [[ $(redis-cli  -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists  ${KEYLIME_CLUSTER}_boot_aggregate_${hostuuid}) -eq 1 ]]
+klbutil.sh:1238:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_boot_aggregate_${hostuuid} >> /tmp/whitelist_${hostuuid}.txt
+klbutil.sh:1242:    if [[ $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists ${KEYLIME_CLUSTER}_imagelist_${hostuuid}) -eq 1 ]]
+klbutil.sh:1244:        for _item in $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw LRANGE ${KEYLIME_CLUSTER}_imagelist_${hostuuid} 0 -1)
+klbutil.sh:1247:            redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${_item} >> /tmp/whitelist_${hostuuid}.txt
+klbutil.sh:1252:    if [[ $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists ${KEYLIME_CLUSTER}_allowed_bundles_${hostuuid}) -eq 1 ]]
+klbutil.sh:1254:        for _item in $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_allowed_bundles_${hostuuid} | jq -r .[])
+klbutil.sh:1260:            redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get bundle_files_${_item} \
+klbutil.sh:1276:    if [[ $(redis-cli  -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists  ${KEYLIME_CLUSTER}_excludelist_${hostuuid}) -eq 1 ]]
+klbutil.sh:1279:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_excludelist_${hostuuid} > /tmp/excludelist_${hostuuid}.txt
+klbutil.sh:1295:        echo "${mb}" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_mbref_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1297:        echo "${mb}" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_hostos_boot_releases_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1311:    local mbref=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_mbref_${uuid} | jq '.')
+klbutil.sh:1319:        local scrtm=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_scrtm_${uuid} | jq '.')
+klbutil.sh:1326:        local secboot=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_secure_boot_on_${uuid})
+klbutil.sh:1333:        local bios=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_bios_${uuid} | jq '.')
+klbutil.sh:1340:        local scrtm_and_bios=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_scrtm_and_bios_${uuid} | jq '.')
+klbutil.sh:1349:            local value=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_nvram_${key}_${uuid} | jq '.')
+klbutil.sh:1357:        local bundle=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_hostos_boot_releases_${uuid} | jq '.')
+klbutil.sh:1371:    cat /usr/local/bin/autorun | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_autorun_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1379:    if [[ $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists ${KEYLIME_CLUSTER}_autorun_${hostuuid}) -eq 1 ]]
+klbutil.sh:1383:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_autorun_${hostuuid} > /tmp/autorun_${hostuuid}/autorun.sh
+klbutil.sh:1406:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_${_type}_${KEYLIME_CLOUD_AGENT_AGENT_UUID} $(cat ${_ek_contents} | base64 | tr -d '\n') >/dev/null 2>&1
+klbutil.sh:1418:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT GET ${KEYLIME_CLUSTER}_${_type}_${_uuid}
+klbutil.sh:1441:    local _ts=$(redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT time | head -n 1)
+klbutil.sh:1443:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZADD ${KEYLIME_CLUSTER}_nodes_${_zname} ${_ts} "${_zelement}" >/dev/null 2>&1
+klbutil.sh:1463:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZINCRBY ${KEYLIME_CLUSTER}_nodes_${_zname} 1 "${_zelement}" >/dev/null 2>&1
+klbutil.sh:1484:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZREM ${KEYLIME_CLUSTER}_nodes_${_zname} "${_zelement}" >/dev/null 2>&1
+klbutil.sh:1498:    redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZCARD ${KEYLIME_CLUSTER}_nodes_${_zname}
+klbutil.sh:1512:    redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZRANGE ${KEYLIME_CLUSTER}_nodes_${_zname} 0 -1
+klbutil.sh:1525:    _rank=$(redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZRANK ${KEYLIME_CLUSTER}_nodes_${_zname} ${_zelement})
+klbutil.sh:1535:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw ZRANGE ${KEYLIME_CLUSTER}_nodes_${KEYLIME_MASTER_NODE_LIST} 0 -1
+klbutil.sh:1550:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT PUBLISH ${KEYLIME_CLUSTER}_agents AGENT-$(get_element_name)
+klbutil.sh:1679:                  -p $KEYLIME_ASSET_DB_PORT \
+klbutil.sh:1692:           -p $KEYLIME_ASSET_DB_PORT \
+ngkl_assetdb.sh:18:tmux send-keys -t pman "wait_until_port_open ${KEYLIME_ASSET_DB_IP} ${KEYLIME_ASSET_DB_PORT} ${KEYLIME_CHECK_PORT_OPEN_ATTEMPTS} ${KEYLIME_CHECK_PORT_OPEN_INTERVAL}" Enter
+ngkl_assetdb.sh:21:#docker run -d --name keylime_assetdb -p ${KEYLIME_ASSET_DB_PORT}:6379 redis
+ngkl_assetdb.sh:37:sed -i "s/^port 6379/port ${KEYLIME_ASSET_DB_PORT}/" ${redisconf}
+ngkl_deployer.sh:59:                             -p $KEYLIME_ASSET_DB_PORT \
+ngkl_deployer.sh:77:                             -p $KEYLIME_ASSET_DB_PORT \
+ngkl_status_pollster.sh:75:    redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT zrange ${KEYLIME_CLUSTER}_nodes_agent_should_deploy 0 -1 > /tmp/desired_state > /tmp/activelist
+ngkl_status_pollster.sh:115:    local dqueue_len=$(redis-cli --raw -h ${KEYLIME_ASSET_DB_IP} -n ${KEYLIME_ASSET_DB_ID} -p ${KEYLIME_ASSET_DB_PORT} zcount ${KEYLIME_CLUSTER}_nodes_agent_deactivate_queue 0 ${currenttime})
+ngkl_status_pollster.sh:116:    local aqueue_len=$(redis-cli --raw -h ${KEYLIME_ASSET_DB_IP} -n ${KEYLIME_ASSET_DB_ID} -p ${KEYLIME_ASSET_DB_PORT} zcount ${KEYLIME_CLUSTER}_nodes_agent_activate_queue 0 ${currenttime})
+ngkl_status_pollster.sh:194:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT < /tmp/ngkl_status_poll.txt > /dev/null 2>&1
+==============================KEYLIME_ASSET_DB_PW============================
+klbutil.sh:101:export REDISCLI_AUTH=${KEYLIME_ASSET_DB_PW}
+==============================KEYLIME_CLOUD_AGENT_AGENT_UUID============================
+klbutil.sh:803:        local rediskey=${KEYLIME_CLUSTER}_rediswait_${KEYLIME_CLOUD_AGENT_AGENT_UUID}_${RANDOM}
+klbutil.sh:1192:    announce "====> (whitelist manager) : deleting record ${KEYLIME_CLUSTER}_${_record}_${KEYLIME_CLOUD_AGENT_AGENT_UUID} from Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1193:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw DEL ${KEYLIME_CLUSTER}_${_record}_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1194:    announce "====> (whitelist manager) : record ${KEYLIME_CLUSTER}_${_record}_${KEYLIME_CLOUD_AGENT_AGENT_UUID} deleted from Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1207:    announce "====> (whitelist manager) : storing boot aggregate ($ba) for node $KEYLIME_CLOUD_AGENT_AGENT_UUID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1208:    echo "${ba}  boot_aggregate" | tr -cd '\11\12\15\40-\176' | env LANG=C grep -v "["$'\x80'-$'\xff'"]" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_boot_aggregate_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1209:    announce "====> (whitelist manager) : boot aggregate ($ba) for node $KEYLIME_CLOUD_AGENT_AGENT_UUID stored on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1213:    announce "====> (whitelist manager) : adding image ID ($KEYLIME_IMG_ID) to the list of images for node $KEYLIME_CLOUD_AGENT_AGENT_UUID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1214:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT RPUSH ${KEYLIME_CLUSTER}_imagelist_${KEYLIME_CLOUD_AGENT_AGENT_UUID} whitelist_${KEYLIME_IMG_ID} >/dev/null 2>&1
+klbutil.sh:1215:    announce "====> (whitelist manager) : image ID ($KEYLIME_IMG_ID) added to the list of images for node $KEYLIME_CLOUD_AGENT_AGENT_UUID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1292:    announce "====> (measuredboot manager) : writing measured boot reference state for node $KEYLIME_CLOUD_AGENT_AGENT_UUID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1295:        echo "${mb}" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_mbref_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1297:        echo "${mb}" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_hostos_boot_releases_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1299:    announce "====> (measuredboot manager) : wrote measured boot reference state for $KEYLIME_CLOUD_AGENT_AGENT_UUID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1370:    announce "====> (autorun manager) : storing autorun script for node $KEYLIME_CLOUD_AGENT_AGENT_UUID on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1371:    cat /usr/local/bin/autorun | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_autorun_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1372:    announce "====> (autorun manager) : autorun script for node $KEYLIME_CLOUD_AGENT_AGENT_UUID stored on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1403:        announce "====> (ek manager) : storing ${_type} for node $KEYLIME_CLOUD_AGENT_AGENT_UUID to Asset Database ${KEYLIME_ASSET_DB_IP}." 
+klbutil.sh:1406:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_${_type}_${KEYLIME_CLOUD_AGENT_AGENT_UUID} $(cat ${_ek_contents} | base64 | tr -d '\n') >/dev/null 2>&1
+klbutil.sh:1410:        announce "====> (ek manager) : stored ${_type} for node $KEYLIME_CLOUD_AGENT_AGENT_UUID to Asset Database ${KEYLIME_ASSET_DB_IP}."
+klbutil.sh:1422:#    echo "${KEYLIME_CLOUD_AGENT_CLOUDAGENT_IP}/${KEYLIME_NODE_NAME}/${KEYLIME_CLOUD_AGENT_AGENT_UUID}/${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP}/"
+klbutil.sh:1423:    echo "${KEYLIME_CLOUD_AGENT_CLOUDAGENT_IP}/${KEYLIME_NODE_NAME}/${KEYLIME_CLOUD_AGENT_AGENT_UUID}/AUTO/"
+ngkl_start.sh:99:        sed -i "s/=.*${KEYLIME_CLOUD_AGENT_AGENT_UUID}$/= \"${KEYLIME_CLOUD_AGENT_AGENT_UUID}\"/g" ${KEYLIME_CONFIG_DIR}/agent.conf
+==============================KEYLIME_CLOUD_AGENT_CLOUDAGENT_IP============================
+klbutil.sh:1422:#    echo "${KEYLIME_CLOUD_AGENT_CLOUDAGENT_IP}/${KEYLIME_NODE_NAME}/${KEYLIME_CLOUD_AGENT_AGENT_UUID}/${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP}/"
+klbutil.sh:1423:    echo "${KEYLIME_CLOUD_AGENT_CLOUDAGENT_IP}/${KEYLIME_NODE_NAME}/${KEYLIME_CLOUD_AGENT_AGENT_UUID}/AUTO/"
+ngkl_process_manager.sh:49:    wait_until_port_open ${KEYLIME_CLOUD_AGENT_CLOUDAGENT_IP} ${KEYLIME_CLOUD_AGENT_CLOUDAGENT_PORT} ${KEYLIME_CHECK_PORT_OPEN_ATTEMPTS} ${KEYLIME_CHECK_PORT_OPEN_INTERVAL}
+ngkl_start.sh:90:        sed -i "s/=.*${KEYLIME_CLOUD_AGENT_CLOUDAGENT_IP}$/= \"${KEYLIME_CLOUD_AGENT_CLOUDAGENT_IP}\"/g" ${KEYLIME_CONFIG_DIR}/agent.conf
+==============================KEYLIME_CLOUD_AGENT_CLOUDAGENT_PORT============================
+klbutil.sh:20:export KEYLIME_CLOUD_AGENT_CLOUDAGENT_PORT=${KEYLIME_CLOUD_AGENT_CLOUDAGENT_PORT:-9002}
+ngkl_process_manager.sh:49:    wait_until_port_open ${KEYLIME_CLOUD_AGENT_CLOUDAGENT_IP} ${KEYLIME_CLOUD_AGENT_CLOUDAGENT_PORT} ${KEYLIME_CHECK_PORT_OPEN_ATTEMPTS} ${KEYLIME_CHECK_PORT_OPEN_INTERVAL}
+==============================KEYLIME_CLOUD_AGENT_EK_HANDLE============================
+klbutil.sh:48:export KEYLIME_CLOUD_AGENT_EK_HANDLE=${KEYLIME_CLOUD_AGENT_EK_HANDLE:-"generate"}
+ngkl_start.sh:98:        sed -i "s/=.*${KEYLIME_CLOUD_AGENT_EK_HANDLE}$/= \"${KEYLIME_CLOUD_AGENT_EK_HANDLE}\"/g" ${KEYLIME_CONFIG_DIR}/agent.conf
+==============================KEYLIME_CLOUD_AGENT_TPM_OWNERPASSWORD============================
+ek_check.sh:6:export REDISCLI_AUTH=${KEYLIME_CLOUD_AGENT_TPM_OWNERPASSWORD}
+klbutil.sh:41:export KEYLIME_CLOUD_AGENT_TPM_OWNERPASSWORD=${KEYLIME_CLOUD_AGENT_TPM_OWNERPASSWORD:-"temp4now"}
+ngkl_start.sh:89:        sed -i "s/=.*${KEYLIME_CLOUD_AGENT_TPM_OWNERPASSWORD}$/= \"\"/g" ${KEYLIME_CONFIG_DIR}/agent.conf
+==============================KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP============================
+klbutil.sh:361:        export KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP_LIST=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP
+klbutil.sh:370:                export KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP=${_ip}
+klbutil.sh:373:        if [[ ${verbose} == 1 ]] ; then announce "====> (get_verifier) : this is a verifier, and found its own IP ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP}, port ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_PORT} on the list ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP_LIST}" ${_zap} ; fi
+klbutil.sh:384:            export KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_VIP
+klbutil.sh:392:                if [[ ${verbose} == 1 ]] ; then announce "====> (get_verifier) : load balancer detected in front of verifiers with shared database, determined the verifier IP to be ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP}, port ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_PORT}" ${_zap} ; fi
+klbutil.sh:394:                KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP=$(ssh -p 20000 ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_VIP} "ip address show dev $KEYLIME_NETWORK_DEVICE | grep inet[[:space:]] | cut -d ' ' -f 6 | cut -d '/' -f 1")
+klbutil.sh:395:                while [[ -z $KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP ]]
+klbutil.sh:398:                    KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP=$(ssh -p 20000 ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_VIP} "ip address show dev $KEYLIME_NETWORK_DEVICE | grep inet[[:space:]] | cut -d ' ' -f 6 | cut -d '/' -f 1")
+klbutil.sh:400:                if [[ ${verbose} == 1 ]] ; then announce "====> (get_verifier) : load balancer detected in front of verifiers with private databases, determined the verifier IP to be ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP}, port ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_PORT}" ${_zap} ; fi
+klbutil.sh:407:            export KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP=$(echo "${_verifier_list}" | grep ^${_my_verifier_index}: | cut -d ':' -f 2)
+klbutil.sh:408:            if [[ ${verbose} == 1 ]] ; then announce "====> (get_verifier) : no load balancer detected, determined the verifier IP to be ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP}, port $KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_PORT from the list ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP_LIST}" ${_zap} ; fi
+klbutil.sh:413:            export KEYLIME_CLOUD_AGENT_CLOUDVERIFIER_IP=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP
+klbutil.sh:423:            export KEYLIME_TENANT_CLOUDVERIFIER_IP=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP
+klbutil.sh:432:    export KEYLIME_GENERAL_RECEIVE_REVOCATION_IP=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP
+klbutil.sh:433:    export KEYLIME_CLOUD_VERIFIER_REVOCATION_NOTIFIER_IP=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP
+klbutil.sh:1422:#    echo "${KEYLIME_CLOUD_AGENT_CLOUDAGENT_IP}/${KEYLIME_NODE_NAME}/${KEYLIME_CLOUD_AGENT_AGENT_UUID}/${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP}/"
+klbutil.sh:1742:    verifierip=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP
+klbutil.sh:1900:    verifierip=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP
+klbutil.sh:1952:    _cv=$(echo $KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP | cut -d ',' -f 1) 
+ngkl_agent.sh:25:    export KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_VIP
+ngkl_agent.sh:35:wait_until_port_open ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP} ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_PORT} ${KEYLIME_CHECK_PORT_OPEN_ATTEMPTS} ${KEYLIME_CHECK_PORT_OPEN_INTERVAL}
+ngkl_check.sh:28:        verifierip=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP
+ngkl_process_manager.sh:32:    wait_until_port_open ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP} ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_PORT} ${KEYLIME_CHECK_PORT_OPEN_ATTEMPTS} ${KEYLIME_CHECK_PORT_OPEN_INTERVAL}
+ngkl_registrar.sh:33:    export KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_VIP
+ngkl_start.sh:93:        sed -i "s/=.*${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP}$/= \"${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP/}\"/g" ${KEYLIME_CONFIG_DIR}/agent.conf
+ngkl_verifier.sh:11:for _ip in $(echo "${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP}" | sed 's/,/ /g')
+==============================KEYLIME_CLOUD_VERIFIER_DATABASE_SHARED============================
+klbutil.sh:19:export KEYLIME_CLOUD_VERIFIER_DATABASE_SHARED=${KEYLIME_CLOUD_VERIFIER_DATABASE_SHARED:-0}
+klbutil.sh:390:            if [[ $KEYLIME_CLOUD_VERIFIER_DATABASE_SHARED -eq 1 ]]
+ngkl_agent.sh:23:if [[ ! -z $KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_VIP && $KEYLIME_CLOUD_VERIFIER_DATABASE_SHARED -eq 0 ]]
+ngkl_registrar.sh:31:if [[ ! -z $KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_VIP && $KEYLIME_CLOUD_VERIFIER_DATABASE_SHARED -eq 0 ]]
+==============================KEYLIME_CLOUD_VERIFIER_DATABASE_URL============================
+klbutil.sh:83:#echo ${KEYLIME_CLOUD_VERIFIER_DATABASE_URL} | grep -q @
+klbutil.sh:86:#    _KEYLIME_CLOUD_VERIFIER_DATABASE_URL=$(echo ${KEYLIME_CLOUD_VERIFIER_DATABASE_URL} | sed -E 's^@|:|/|\?^ ^g')
+==============================KEYLIME_CLOUD_VERIFIER_PORT============================
+ngkl_start.sh:32:    if [[ ! -z $KEYLIME_CLOUD_VERIFIER_HOST && ! -z $KEYLIME_CLOUD_VERIFIER_PORT ]]
+ngkl_start.sh:35:        wait_until_port_open $KEYLIME_CLOUD_VERIFIER_HOST $KEYLIME_CLOUD_VERIFIER_PORT 100 10
+==============================KEYLIME_CLOUD_VERIFIER_REVOCATION_NOTIFIER_IP============================
+klbutil.sh:433:    export KEYLIME_CLOUD_VERIFIER_REVOCATION_NOTIFIER_IP=$KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP
+==============================KEYLIME_CLOUD_VERIFIER_TLS_DIR============================
+klbutil.sh:963:    if [[ ( $KEYLIME_ROLE == "deployer" && $KEYLIME_REGISTRAR_TLS_DIR == "generate" ) || ( $KEYLIME_ROLE == "deployer" && $KEYLIME_CLOUD_VERIFIER_TLS_DIR == "generate" ) ]]
+klbutil.sh:964:#    if [[ ( $KEYLIME_ROLE == "registrar" && $KEYLIME_REGISTRAR_TLS_DIR == "generate" ) || ( $KEYLIME_ROLE == "verifier" && $KEYLIME_CLOUD_VERIFIER_TLS_DIR == "generate" ) ]]
+klbutil.sh:996:    if [[ ( $KEYLIME_ROLE == "deployer" && $KEYLIME_REGISTRAR_TLS_DIR == "generate" && $KEYLIME_CERTS_WRITE_LOCK -eq 1 ) || ( $KEYLIME_ROLE == "deployer" && $KEYLIME_CLOUD_VERIFIER_TLS_DIR == "generate" && $KEYLIME_CERTS_WRITE_LOCK -eq 1 ) ]]
+klbutil.sh:997:#    if [[ ( $KEYLIME_ROLE == "registrar" && $KEYLIME_REGISTRAR_TLS_DIR == "generate" && $KEYLIME_CERTS_WRITE_LOCK -eq 1 ) || ( $KEYLIME_ROLE == "verifier" && $KEYLIME_CLOUD_VERIFIER_TLS_DIR == "generate" && $KEYLIME_CERTS_WRITE_LOCK -eq 1 ) ]]
+klbutil.sh:1554:    if [[ -z $KEYLIME_CLOUD_VERIFIER_TLS_DIR ]]
+klbutil.sh:1556:        export KEYLIME_CLOUD_VERIFIER_TLS_DIR="generate"
+klbutil.sh:1559:    if [[ $KEYLIME_CLOUD_VERIFIER_TLS_DIR == "generate" ]]
+klbutil.sh:1564:        KEYLIME_CERTS_DIR["verifier","verifier"]=$KEYLIME_CLOUD_VERIFIER_TLS_DIR
+==============================KEYLIME_CLUSTER============================
+ek_check.sh:31:    redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT GET ${KEYLIME_CLUSTER}_${_type}_${_uuid} > ${_file}
+ek_check.sh:37:    local x=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT exists ${KEYLIME_CLUSTER}_${_type}_${_uuid})
+ek_check.sh:45:    cat ${_file} | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_${_type}_${_uuid} > /dev/null 2>&1
+klbutil.sh:172:    if [[ ! -z ${KEYLIME_CLUSTER} && ! -z ${KEYLIME_NODE_NAME} && ! -z ${KEYLIME_ROLE} ]]
+klbutil.sh:174:        local _PREFIX="- $(date) - ${KEYLIME_CLUSTER}/${KEYLIME_NODE_NAME} (${KEYLIME_ROLE}) - $SCRIPT_NAME - "
+klbutil.sh:188:        if [[ ! -z ${KEYLIME_CLUSTER} && ! -z ${KEYLIME_NODE_NAME} && ! -z ${KEYLIME_ROLE} ]]        
+klbutil.sh:190:            redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT zadd ${KEYLIME_CLUSTER}_${KEYLIME_NODE_NAME}_events ${_TS} "${MESSAGE} : ${_TS}" >/dev/null 2>&1       
+klbutil.sh:444:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT zrange ${KEYLIME_CLUSTER}_${_nodename}_events
+klbutil.sh:803:        local rediskey=${KEYLIME_CLUSTER}_rediswait_${KEYLIME_CLOUD_AGENT_AGENT_UUID}_${RANDOM}
+klbutil.sh:967:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw SETNX ${KEYLIME_CLUSTER}_${KEYLIME_ROLE}_certs_write_lock $KEYLIME_NODE_NAME
+klbutil.sh:969:        KEYLIME_WRITE_LOCK_CONTENTS=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw GET ${KEYLIME_CLUSTER}_${KEYLIME_ROLE}_certs_write_lock)
+klbutil.sh:970:        announce "====> (get_lock_for_certs) : contents of ${KEYLIME_CLUSTER}_${KEYLIME_ROLE}_certs_write_lock is $KEYLIME_WRITE_LOCK_CONTENTS"
+klbutil.sh:980:        KEYLIME_WRITE_LOCK_CONTENTS=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw GET ${KEYLIME_CLUSTER}_${KEYLIME_CERTS_ROLE}_certs_write_lock)
+klbutil.sh:981:        announce "====> (get_lock_for_certs) : contents of ${KEYLIME_CLUSTER}_${KEYLIME_ROLE}_certs_write_lock is $KEYLIME_WRITE_LOCK_CONTENTS"
+klbutil.sh:1028:            announce "====> (wait_for_certs) : Waiting for ${_role} certificates (using cluster_key ${KEYLIME_CLUSTER}) on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1033:                redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists ${KEYLIME_CLUSTER}_${_role}_${_fn} | grep -q ^1
+klbutil.sh:1042:                announce "====> (wait_for_certs) : ${_role} certificates (using cluster_key ${KEYLIME_CLUSTER}) are ready on Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1052:    announce "====> (wait_for_certs) : ${_role} certificates (using cluster_key ${KEYLIME_CLUSTER}) are NOT ready on Asset Database ${KEYLIME_ASSET_DB_IP}!"
+klbutil.sh:1094:                redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw GET ${KEYLIME_CLUSTER}_${_role}_${_fnr} > ${_cert_dir}/${_fnl}.${_fe}
+klbutil.sh:1131:                cat ${_cert_dir}/${_fnl}.${_fe} | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_${_role}_${_fnr}
+klbutil.sh:1192:    announce "====> (whitelist manager) : deleting record ${KEYLIME_CLUSTER}_${_record}_${KEYLIME_CLOUD_AGENT_AGENT_UUID} from Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1193:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw DEL ${KEYLIME_CLUSTER}_${_record}_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1194:    announce "====> (whitelist manager) : record ${KEYLIME_CLUSTER}_${_record}_${KEYLIME_CLOUD_AGENT_AGENT_UUID} deleted from Asset Database ${KEYLIME_ASSET_DB_IP}"
+klbutil.sh:1208:    echo "${ba}  boot_aggregate" | tr -cd '\11\12\15\40-\176' | env LANG=C grep -v "["$'\x80'-$'\xff'"]" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_boot_aggregate_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1214:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT RPUSH ${KEYLIME_CLUSTER}_imagelist_${KEYLIME_CLOUD_AGENT_AGENT_UUID} whitelist_${KEYLIME_IMG_ID} >/dev/null 2>&1
+klbutil.sh:1235:    if [[ $(redis-cli  -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists  ${KEYLIME_CLUSTER}_boot_aggregate_${hostuuid}) -eq 1 ]]
+klbutil.sh:1238:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_boot_aggregate_${hostuuid} >> /tmp/whitelist_${hostuuid}.txt
+klbutil.sh:1242:    if [[ $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists ${KEYLIME_CLUSTER}_imagelist_${hostuuid}) -eq 1 ]]
+klbutil.sh:1244:        for _item in $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw LRANGE ${KEYLIME_CLUSTER}_imagelist_${hostuuid} 0 -1)
+klbutil.sh:1252:    if [[ $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists ${KEYLIME_CLUSTER}_allowed_bundles_${hostuuid}) -eq 1 ]]
+klbutil.sh:1254:        for _item in $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_allowed_bundles_${hostuuid} | jq -r .[])
+klbutil.sh:1276:    if [[ $(redis-cli  -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists  ${KEYLIME_CLUSTER}_excludelist_${hostuuid}) -eq 1 ]]
+klbutil.sh:1279:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_excludelist_${hostuuid} > /tmp/excludelist_${hostuuid}.txt
+klbutil.sh:1295:        echo "${mb}" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_mbref_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1297:        echo "${mb}" | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_hostos_boot_releases_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1311:    local mbref=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_mbref_${uuid} | jq '.')
+klbutil.sh:1319:        local scrtm=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_scrtm_${uuid} | jq '.')
+klbutil.sh:1326:        local secboot=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_secure_boot_on_${uuid})
+klbutil.sh:1333:        local bios=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_bios_${uuid} | jq '.')
+klbutil.sh:1340:        local scrtm_and_bios=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_scrtm_and_bios_${uuid} | jq '.')
+klbutil.sh:1349:            local value=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_nvram_${key}_${uuid} | jq '.')
+klbutil.sh:1357:        local bundle=$(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_hostos_boot_releases_${uuid} | jq '.')
+klbutil.sh:1371:    cat /usr/local/bin/autorun | redis-cli -x -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_autorun_${KEYLIME_CLOUD_AGENT_AGENT_UUID} >/dev/null 2>&1
+klbutil.sh:1379:    if [[ $(redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw exists ${KEYLIME_CLUSTER}_autorun_${hostuuid}) -eq 1 ]]
+klbutil.sh:1383:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw get ${KEYLIME_CLUSTER}_autorun_${hostuuid} > /tmp/autorun_${hostuuid}/autorun.sh
+klbutil.sh:1406:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT SET ${KEYLIME_CLUSTER}_${_type}_${KEYLIME_CLOUD_AGENT_AGENT_UUID} $(cat ${_ek_contents} | base64 | tr -d '\n') >/dev/null 2>&1
+klbutil.sh:1418:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT GET ${KEYLIME_CLUSTER}_${_type}_${_uuid}
+klbutil.sh:1442:    announce "====> (nodeset manager) : adding node ${_zelement} to sorted set ${KEYLIME_CLUSTER}_nodes_${_zname}" ${_zap}
+klbutil.sh:1443:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZADD ${KEYLIME_CLUSTER}_nodes_${_zname} ${_ts} "${_zelement}" >/dev/null 2>&1
+klbutil.sh:1444:    announce "====> (nodeset manager) : node ${_zelement} added to sorted set ${KEYLIME_CLUSTER}_nodes_${_zname}" ${_zap}
+klbutil.sh:1462:    announce "====> (nodeset manager) : incrementing score on node ${_zelement} to sorted set ${KEYLIME_CLUSTER}_nodes_${_zname}" ${_zap}
+klbutil.sh:1463:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZINCRBY ${KEYLIME_CLUSTER}_nodes_${_zname} 1 "${_zelement}" >/dev/null 2>&1
+klbutil.sh:1464:    announce "====> (nodeset manager) : node ${_zelement} score on sorted set incremented ${KEYLIME_CLUSTER}_nodes_${_zname}" ${_zap}
+klbutil.sh:1483:    announce "====> (nodeset manager) : removing node ${_zelement} to sorted set ${KEYLIME_CLUSTER}_nodes_${_zname}" ${_zap}
+klbutil.sh:1484:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZREM ${KEYLIME_CLUSTER}_nodes_${_zname} "${_zelement}" >/dev/null 2>&1
+klbutil.sh:1485:    announce "====> (nodeset manager) : node ${_zelement} removed from sorted set ${KEYLIME_CLUSTER}_nodes_${_zname}" ${_zap}
+klbutil.sh:1497:    announce "====> (nodeset manager) : counting nodes on sorted set ${KEYLIME_CLUSTER}_nodes_${_zname}" ${_zap}
+klbutil.sh:1498:    redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZCARD ${KEYLIME_CLUSTER}_nodes_${_zname}
+klbutil.sh:1499:    announce "====> (nodeset manager) : counted nodes on sorted set ${KEYLIME_CLUSTER}_nodes_${_zname}" ${_zap}    
+klbutil.sh:1511:    announce "====> (nodeset manager) : list nodes on sorted set ${KEYLIME_CLUSTER}_nodes_${_zname}" ${_zap}
+klbutil.sh:1512:    redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZRANGE ${KEYLIME_CLUSTER}_nodes_${_zname} 0 -1
+klbutil.sh:1513:    announce "====> (nodeset manager) : list nodes on sorted set ${KEYLIME_CLUSTER}_nodes_${_zname}" ${_zap}    
+klbutil.sh:1525:    _rank=$(redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT ZRANK ${KEYLIME_CLUSTER}_nodes_${_zname} ${_zelement})
+klbutil.sh:1535:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw ZRANGE ${KEYLIME_CLUSTER}_nodes_${KEYLIME_MASTER_NODE_LIST} 0 -1
+klbutil.sh:1550:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT PUBLISH ${KEYLIME_CLUSTER}_agents AGENT-$(get_element_name)
+klbutil.sh:1680:                  PUBLISH ${KEYLIME_CLUSTER}_agents AGENT-${nodeinfo} > /dev/null 2>&1
+klbutil.sh:1687:    announce "==> (event_listen) : subscribing to channel ${KEYLIME_CLUSTER}_agents"
+klbutil.sh:1693:           subscribe ${KEYLIME_CLUSTER}_agents \
+ngkl_deployer.sh:61:                             ${KEYLIME_CLUSTER}_nodes_agent_activate_queue 0 | head -2 | tail -1)
+ngkl_deployer.sh:79:                             ${KEYLIME_CLUSTER}_nodes_agent_deactivate_queue 0 | head -2 | tail -1)
+ngkl_status_pollster.sh:75:    redis-cli --raw -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT zrange ${KEYLIME_CLUSTER}_nodes_agent_should_deploy 0 -1 > /tmp/desired_state > /tmp/activelist
+ngkl_status_pollster.sh:115:    local dqueue_len=$(redis-cli --raw -h ${KEYLIME_ASSET_DB_IP} -n ${KEYLIME_ASSET_DB_ID} -p ${KEYLIME_ASSET_DB_PORT} zcount ${KEYLIME_CLUSTER}_nodes_agent_deactivate_queue 0 ${currenttime})
+ngkl_status_pollster.sh:116:    local aqueue_len=$(redis-cli --raw -h ${KEYLIME_ASSET_DB_IP} -n ${KEYLIME_ASSET_DB_ID} -p ${KEYLIME_ASSET_DB_PORT} zcount ${KEYLIME_CLUSTER}_nodes_agent_activate_queue 0 ${currenttime})
+ngkl_status_pollster.sh:130:	        echo " zadd ${KEYLIME_CLUSTER}_nodes_agent_registered2 ${currenttime} ${nodeX}" >> /tmp/ngkl_status_poll.txt
+ngkl_status_pollster.sh:134:                    [[ ${aqueue_len} == 0 ]] && echo " zadd ${KEYLIME_CLUSTER}_nodes_agent_activate_queue NX ${currenttime} ${nodeX}" >> /tmp/ngkl_status_poll.txt
+ngkl_status_pollster.sh:136:		echo " hdel ${KEYLIME_CLUSTER}_nodes_agent_lastevent ${nodeX}" >> /tmp/ngkl_status_poll.txt
+ngkl_status_pollster.sh:140:	        echo " zadd ${KEYLIME_CLUSTER}_nodes_agent_failed2 ${currenttime} ${nodeX}" >> /tmp/ngkl_status_poll.txt
+ngkl_status_pollster.sh:144:                    [[ ${dqueue_len} == 0 ]] && echo " zadd ${KEYLIME_CLUSTER}_nodes_agent_deactivate_queue NX ${currenttime} ${nodeX}" >> /tmp/ngkl_status_poll.txt
+ngkl_status_pollster.sh:146:		echo " hset ${KEYLIME_CLUSTER}_nodes_agent_lastevent ${nodeX} \"${node_lastevent[${nodeid}]}\"" >> /tmp/ngkl_status_poll.txt
+ngkl_status_pollster.sh:150:	        echo " zadd ${KEYLIME_CLUSTER}_nodes_agent_transient2 ${currenttime} ${nodeX}" >> /tmp/ngkl_status_poll.txt
+ngkl_status_pollster.sh:154:                    [[ ${dqueue_len} == 0 ]] && echo " zadd ${KEYLIME_CLUSTER}_nodes_agent_deactivate_queue NX ${currenttime} ${nodeX}" >> /tmp/ngkl_status_poll.txt
+ngkl_status_pollster.sh:156:		echo " hdel ${KEYLIME_CLUSTER}_nodes_agent_lastevent ${nodeX}" >> /tmp/ngkl_status_poll.txt
+ngkl_status_pollster.sh:165:	        echo " zadd ${KEYLIME_CLUSTER}_nodes_agent_verified2 ${quotetime} ${nodeX}" >> /tmp/ngkl_status_poll.txt
+ngkl_status_pollster.sh:169:                    [[ ${dqueue_len} == 0 ]] && echo " zadd ${KEYLIME_CLUSTER}_nodes_agent_deactivate_queue NX ${currenttime} ${nodeX}" >> /tmp/ngkl_status_poll.txt
+ngkl_status_pollster.sh:171:		echo " hdel ${KEYLIME_CLUSTER}_nodes_agent_lastevent ${nodeX}" >> /tmp/ngkl_status_poll.txt
+ngkl_status_pollster.sh:183:            echo " zremrangebyrank ${KEYLIME_CLUSTER}_nodes_agent_${x} 0 ${currenttime}" >> /tmp/ngkl_status_poll.txt
+ngkl_status_pollster.sh:185:            echo " rename ${KEYLIME_CLUSTER}_nodes_agent_${x}2 ${KEYLIME_CLUSTER}_nodes_agent_${x}" >> /tmp/ngkl_status_poll.txt
+==============================KEYLIME_CONTAINER_TEST============================
+ngkl_start.sh:113:if [[ $KEYLIME_CONTAINER_TEST -eq 1 ]]
+ngkl_start.sh:115:    announce "Variable KEYLIME_CONTAINER_TEST set to 1, will just sleep for 5 days"
+==============================KEYLIME_DEPLOY_AGENT============================
+klbutil.sh:29:export KEYLIME_DEPLOY_AGENT=${KEYLIME_DEPLOY_AGENT:-1}
+ngkl_process_manager.sh:55:        if [[ ${KEYLIME_DEPLOY_AGENT} -eq 1 ]]
+==============================KEYLIME_DEPLOY_AUTORUN============================
+klbutil.sh:32:export KEYLIME_DEPLOY_AUTORUN=${KEYLIME_DEPLOY_AUTORUN:-0}
+ngkl_process_manager.sh:70:        if [[ ${KEYLIME_DEPLOY_AUTORUN} -eq 1 ]]
+==============================KEYLIME_DEPLOYER_IP============================
+ngkl_deployer.sh:7:if ! ip a list | grep -q "${KEYLIME_DEPLOYER_IP}/"
+==============================KEYLIME_DEPLOY_IMA============================
+klbutil.sh:31:export KEYLIME_DEPLOY_IMA=${KEYLIME_DEPLOY_IMA:-1}
+ngkl_process_manager.sh:65:        if [[ ${KEYLIME_DEPLOY_IMA} -eq 1 ]]
+==============================KEYLIME_DEPLOY_MB============================
+klbutil.sh:30:export KEYLIME_DEPLOY_MB=${KEYLIME_DEPLOY_MB:-1}
+ngkl_process_manager.sh:60:        if [[ ${KEYLIME_DEPLOY_MB} -eq 1 ]]
+==============================KEYLIME_DEPLOY_PARALLELISM============================
+klbutil.sh:36:export KEYLIME_DEPLOY_PARALLELISM=${KEYLIME_DEPLOY_PARALLELISM:-1}
+klbutil.sh:1694:        | xargs -n 1 --max-procs=${KEYLIME_DEPLOY_PARALLELISM} -i bash -c "$(declare -f) ; handle_agent_verification_request {}"
+ngkl_deployer.sh:14:export KEYLIME_DEPLOY_PARALLELISM=${KEYLIME_DEPLOY_PARALLELISM:-1}
+ngkl_deployer.sh:89:    announce "=> creating ${KEYLIME_DEPLOY_PARALLELISM} activation/deactivation handlers."
+ngkl_deployer.sh:91:    for x in `seq 1 ${KEYLIME_DEPLOY_PARALLELISM}`
+==============================KEYLIME_ENABLE_SEEDER============================
+klbutil.sh:34:export KEYLIME_ENABLE_SEEDER=${KEYLIME_ENABLE_SEEDER:-1}
+==============================KEYLIME_LOGGER_KEYLIME_LEVEL============================
+ngkl_agent.sh:61:    if [[ $KEYLIME_LOGGER_KEYLIME_LEVEL == "DEBUG" ]]
+==============================KEYLIME_MASTER_NODE_LIST============================
+klbutil.sh:28:export KEYLIME_MASTER_NODE_LIST=${KEYLIME_MASTER_NODE_LIST:-"agent_started_ok"}
+klbutil.sh:1535:    redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw ZRANGE ${KEYLIME_CLUSTER}_nodes_${KEYLIME_MASTER_NODE_LIST} 0 -1
+==============================KEYLIME_NETWORK_DEVICE============================
+klbutil.sh:281:                KEYLIME_REGISTRAR_REGISTRAR_IP=$(ssh -p 10000 ${KEYLIME_REGISTRAR_REGISTRAR_VIP} "ip address show dev $KEYLIME_NETWORK_DEVICE | grep inet[[:space:]] | cut -d ' ' -f 6 | cut -d '/' -f 1")
+klbutil.sh:285:                    KEYLIME_REGISTRAR_REGISTRAR_IP=$(ssh -p 10000 ${KEYLIME_REGISTRAR_REGISTRAR_VIP} "ip address show dev $KEYLIME_NETWORK_DEVICE | grep inet[[:space:]] | cut -d ' ' -f 6 | cut -d '/' -f 1")
+klbutil.sh:394:                KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP=$(ssh -p 20000 ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_VIP} "ip address show dev $KEYLIME_NETWORK_DEVICE | grep inet[[:space:]] | cut -d ' ' -f 6 | cut -d '/' -f 1")
+klbutil.sh:398:                    KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP=$(ssh -p 20000 ${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_VIP} "ip address show dev $KEYLIME_NETWORK_DEVICE | grep inet[[:space:]] | cut -d ' ' -f 6 | cut -d '/' -f 1")
+==============================KEYLIME_NODE_NAME============================
+klbutil.sh:7:export KEYLIME_NODE_NAME=${KEYLIME_NODE_NAME:-$(hostname -s)}
+klbutil.sh:172:    if [[ ! -z ${KEYLIME_CLUSTER} && ! -z ${KEYLIME_NODE_NAME} && ! -z ${KEYLIME_ROLE} ]]
+klbutil.sh:174:        local _PREFIX="- $(date) - ${KEYLIME_CLUSTER}/${KEYLIME_NODE_NAME} (${KEYLIME_ROLE}) - $SCRIPT_NAME - "
+klbutil.sh:188:        if [[ ! -z ${KEYLIME_CLUSTER} && ! -z ${KEYLIME_NODE_NAME} && ! -z ${KEYLIME_ROLE} ]]        
+klbutil.sh:190:            redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT zadd ${KEYLIME_CLUSTER}_${KEYLIME_NODE_NAME}_events ${_TS} "${MESSAGE} : ${_TS}" >/dev/null 2>&1       
+klbutil.sh:440:        local _nodename=${KEYLIME_NODE_NAME}
+klbutil.sh:967:        redis-cli -h $KEYLIME_ASSET_DB_IP -n $KEYLIME_ASSET_DB_ID -p $KEYLIME_ASSET_DB_PORT --raw SETNX ${KEYLIME_CLUSTER}_${KEYLIME_ROLE}_certs_write_lock $KEYLIME_NODE_NAME
+klbutil.sh:972:        if [[ $KEYLIME_NODE_NAME == $KEYLIME_WRITE_LOCK_CONTENTS ]]
+klbutil.sh:983:        if [[ $KEYLIME_NODE_NAME == $KEYLIME_WRITE_LOCK_CONTENTS ]]
+klbutil.sh:1061:    announce "====> (check_certs_on_disk) : checking for the presence of certificates on ${KEYLIME_NODE_NAME}'s directory (${_cert_dir})'"
+klbutil.sh:1065:        announce "====> (check_certs_on_disk) : certificates are NOT present on ${KEYLIME_NODE_NAME}'s directory (${_cert_dir})!"
+klbutil.sh:1068:        announce "====> (check_certs_on_disk) : certificates are present on ${KEYLIME_NODE_NAME}'s directory (${_cert_dir})"    
+klbutil.sh:1091:                _fnl=$(echo ${_file} | cut -d '.' -f 1 | sed "s/host/${KEYLIME_NODE_NAME}/g")
+klbutil.sh:1102:                ln -s ${_cert_dir}/${KEYLIME_NODE_NAME}-cert.crt server-cert.crt
+klbutil.sh:1103:                ln -s ${_cert_dir}/${KEYLIME_NODE_NAME}-private.pem server-private.pem
+klbutil.sh:1104:                ln -s ${_cert_dir}/${KEYLIME_NODE_NAME}-public.pem server-public.pem
+klbutil.sh:1128:                _fnl=$(echo ${_file} | cut -d '.' -f 1 | sed "s/host/${KEYLIME_NODE_NAME}/g")
+klbutil.sh:1422:#    echo "${KEYLIME_CLOUD_AGENT_CLOUDAGENT_IP}/${KEYLIME_NODE_NAME}/${KEYLIME_CLOUD_AGENT_AGENT_UUID}/${KEYLIME_CLOUD_VERIFIER_CLOUDVERIFIER_IP}/"
+klbutil.sh:1423:    echo "${KEYLIME_CLOUD_AGENT_CLOUDAGENT_IP}/${KEYLIME_NODE_NAME}/${KEYLIME_CLOUD_AGENT_AGENT_UUID}/AUTO/"
+ngkl_process_manager.sh:6:export KEYLIME_NODE_NAME=${KEYLIME_NODE_NAME:-$(hostname -s)}
+ngkl_start.sh:105:del_node_from_set container_starting "NA/NA/${KEYLIME_NODE_NAME}/NA/NA"
+==============================KEYLIME_NODE_ORDER============================
+klbutil.sh:33:export KEYLIME_NODE_ORDER=${KEYLIME_NODE_ORDER:-1}
+klbutil.sh:217:        export KEYLIME_NODE_ORDER=$(bc <<<ibase=16\;$(sha1sum <<<"${1}"|tr a-z A-Z)0)
+klbutil.sh:222:            export KEYLIME_NODE_ORDER=$(bc <<<ibase=16\;$(sha1sum <<<"${1}"|tr a-z A-Z)0)
+klbutil.sh:233:    if [[ ${verbose} == 1 ]] ; then announce "====> (get_registrar) : the node ordinal number is $KEYLIME_NODE_ORDER" ${_zap} ; fi
+klbutil.sh:292:            local _my_registrar_index=`echo "($KEYLIME_NODE_ORDER % ${_nr_registrars}) + 1" | bc`
+klbutil.sh:341:        export KEYLIME_NODE_ORDER=$(bc <<<ibase=16\;$(sha1sum <<<"${1}"|tr a-z A-Z)0)
+klbutil.sh:346:            export KEYLIME_NODE_ORDER=$(bc <<<ibase=16\;$(sha1sum <<<"${1}"|tr a-z A-Z)0)
+klbutil.sh:357:    if [[ ${verbose} == 1 ]] ; then announce "====> (get_verifier) : the node ordinal number is $KEYLIME_NODE_ORDER" ${_zap} ; fi
+klbutil.sh:406:            local _my_verifier_index=`echo "($KEYLIME_NODE_ORDER % ${_nr_verifiers}) + 1" | bc`
+==============================KEYLIME_REGISTRAR_DATABASE_SHARED============================
+klbutil.sh:17:export KEYLIME_REGISTRAR_DATABASE_SHARED=${KEYLIME_REGISTRAR_DATABASE_SHARED:-0}
+klbutil.sh:277:            if [[ $KEYLIME_REGISTRAR_DATABASE_SHARED -eq 1 ]]
+==============================KEYLIME_REGISTRAR_DATABASE_URL============================
+klbutil.sh:72:echo ${KEYLIME_REGISTRAR_DATABASE_URL} | grep -q @
+klbutil.sh:75:    _KEYLIME_REGISTRAR_DATABASE_URL=$(echo ${KEYLIME_REGISTRAR_DATABASE_URL} | sed -E 's^@|:|/|\?^ ^g')
+==============================KEYLIME_REGISTRAR_PORT============================
+ngkl_start.sh:41:        wait_until_port_open $KEYLIME_REGISTRAR_HOST $KEYLIME_REGISTRAR_PORT 100 10
+==============================KEYLIME_REGISTRAR_PROVIDER_REGISTRAR_IP============================
+ngkl_start.sh:94:        sed -i "s/=.*${KEYLIME_REGISTRAR_PROVIDER_REGISTRAR_IP}$/= \"${KEYLIME_REGISTRAR_PROVIDER_REGISTRAR_IP/}\"/g" ${KEYLIME_CONFIG_DIR}/agent.conf        
+==============================KEYLIME_REGISTRAR_REGISTRAR_IP============================
+klbutil.sh:237:        export KEYLIME_REGISTRAR_REGISTRAR_IP_LIST=$KEYLIME_REGISTRAR_REGISTRAR_IP 
+klbutil.sh:246:                export KEYLIME_REGISTRAR_REGISTRAR_IP=${_ip}
+klbutil.sh:249:        if [[ ${verbose} == 1 ]] ; then announce "====> (get_registrar) : this is a registrar, and found its own IP ${KEYLIME_REGISTRAR_REGISTRAR_IP}, port ${KEYLIME_REGISTRAR_REGISTRAR_PORT}/${KEYLIME_REGISTRAR_REGISTRAR_TLS_PORT} on the list ${KEYLIME_REGISTRAR_REGISTRAR_IP_LIST}" ${_zap} ; fi
+klbutil.sh:266:            export KEYLIME_REGISTRAR_REGISTRAR_IP=$KEYLIME_REGISTRAR_REGISTRAR_VIP
+klbutil.sh:279:                if [[ ${verbose} == 1 ]] ; then announce "====> (get_registrar) : load balancer detected in front of registrar with shared database, determined the register IP to be ${KEYLIME_REGISTRAR_REGISTRAR_IP}, port ${KEYLIME_REGISTRAR_REGISTRAR_PORT}/${KEYLIME_REGISTRAR_REGISTRAR_TLS_PORT}" ${_zap} ; fi
+klbutil.sh:281:                KEYLIME_REGISTRAR_REGISTRAR_IP=$(ssh -p 10000 ${KEYLIME_REGISTRAR_REGISTRAR_VIP} "ip address show dev $KEYLIME_NETWORK_DEVICE | grep inet[[:space:]] | cut -d ' ' -f 6 | cut -d '/' -f 1")
+klbutil.sh:282:                while [[ -z $KEYLIME_REGISTRAR_REGISTRAR_IP ]]
+klbutil.sh:285:                    KEYLIME_REGISTRAR_REGISTRAR_IP=$(ssh -p 10000 ${KEYLIME_REGISTRAR_REGISTRAR_VIP} "ip address show dev $KEYLIME_NETWORK_DEVICE | grep inet[[:space:]] | cut -d ' ' -f 6 | cut -d '/' -f 1")
+klbutil.sh:287:                if [[ ${verbose} == 1 ]] ; then announce "====> (get_registrar) : load balancer detected in front of registrar with private databases, determined the verifier IP to be ${KEYLIME_REGISTRAR_REGISTRAR_IP}, port ${KEYLIME_REGISTRAR_REGISTRAR_PORT}/${KEYLIME_REGISTRAR_REGISTRAR_TLS_PORT}" ${_zap} ; fi
+klbutil.sh:293:            export KEYLIME_REGISTRAR_REGISTRAR_IP=$(echo "${_registrar_list}" | grep ^${_my_registrar_index}: | cut -d ':' -f 2)
+klbutil.sh:294:            if [[ ${verbose} == 1 ]] ; then announce "====> (get_registrar) : no load balancer detected, determined the registrar IP to be ${KEYLIME_REGISTRAR_REGISTRAR_IP}, port ${KEYLIME_REGISTRAR_REGISTRAR_PORT}/${KEYLIME_REGISTRAR_REGISTRAR_TLS_PORT} from the list ${KEYLIME_REGISTRAR_REGISTRAR_IP_LIST}" ${_zap} ; fi
+klbutil.sh:299:            export KEYLIME_CLOUD_AGENT_REGISTRAR_IP=$KEYLIME_REGISTRAR_REGISTRAR_IP
+klbutil.sh:314:            export KEYLIME_CLOUD_VERIFIER_REGISTRAR_IP=$KEYLIME_REGISTRAR_REGISTRAR_IP
+klbutil.sh:325:            export KEYLIME_TENANT_REGISTRAR_IP=$KEYLIME_REGISTRAR_REGISTRAR_IP
+ngkl_agent.sh:34:wait_until_port_open ${KEYLIME_REGISTRAR_REGISTRAR_IP} ${KEYLIME_REGISTRAR_REGISTRAR_PORT} ${KEYLIME_CHECK_PORT_OPEN_ATTEMPTS} ${KEYLIME_CHECK_PORT_OPEN_INTERVAL}
+ngkl_process_manager.sh:16:    wait_until_port_open ${KEYLIME_REGISTRAR_REGISTRAR_IP} ${KEYLIME_REGISTRAR_REGISTRAR_PORT} ${KEYLIME_CHECK_PORT_OPEN_ATTEMPTS} ${KEYLIME_CHECK_PORT_OPEN_INTERVAL}
+ngkl_registrar.sh:11:for _ip in $(echo "${KEYLIME_REGISTRAR_REGISTRAR_IP}" | sed 's/,/ /g')
+ngkl_start.sh:91:        sed -i "s/=.*${KEYLIME_REGISTRAR_REGISTRAR_IP}$/= \"${KEYLIME_REGISTRAR_REGISTRAR_IP/}\"/g" ${KEYLIME_CONFIG_DIR}/agent.conf
+==============================KEYLIME_TENANT_TPM_CERT_STORE============================
+ngkl_start.sh:51:export KEYLIME_TENANT_TPM_CERT_STORE=${KEYLIME_TENANT_TPM_CERT_STORE:-/var/lib/keylime/tpm_cert_store}
+ngkl_start.sh:52:mkdir -p ${KEYLIME_TENANT_TPM_CERT_STORE}
+ngkl_start.sh:53:rsync -a ${KEYLIME_CLONE_DIR}/tpm_cert_store/ ${KEYLIME_TENANT_TPM_CERT_STORE}/

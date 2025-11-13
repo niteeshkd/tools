@@ -1,0 +1,5 @@
+$ curl -X PUT http://localhost:8181/v1/data/keylime/tpm2evlog --data-binary @keylime-tpm2evlog.json
+
+$ curl -X PUT http://localhost:8181/v1/policies/keylime/mbpolicy --data-binary @keylime-mbpolicy.rego
+
+$ curl -X POST http://localhost:8181/v1/data/keylime/mbpolicy/allow  --header 'Content-Type: text/plain' --data-raw '{ "input": {"kernel_plain_sha256": "0x2ae3edb0730ea74d74ed76da2f297888abd9a990ce95dbb51e7e088b74680292"} }'

@@ -1,0 +1,10 @@
+[root@small12-svr1 niteesh]# sudo dnf -y install tpm2-tss
+Last metadata expiration check: 0:32:18 ago on Fri Oct 14 14:49:01 2022.
+Package tpm2-tss-3.2.0-1.fc36.x86_64 is already installed.
+Dependencies resolved.
+Nothing to do.
+Complete!
+
+[root@small12-svr1 niteesh]# dnf list installed | grep tpm2
+tpm2-tools.x86_64                         5.2-2.fc36                   @fedora  
+tpm2-tss.x86_64                           3.2.0-1.fc36                 @anaconda

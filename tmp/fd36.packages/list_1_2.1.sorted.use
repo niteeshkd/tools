@@ -1,0 +1,66 @@
+atlassian-python-api 	# atlassian is needed because of the JIRA scripts 
+bc                      #KLC 
+cargo			# Rust 
+clang 	
+czmq-devel 
+dnf-plugins-core        #Fedora 
+efivar-devel 		# efivar-devel is the only provider of /usr/lib64/libefivar.so (could get away with efivar-libs)
+expect                  #KLC
+git 
+glib2-devel 
+glib2-static 
+gnulib 
+hostname		#KLC 
+iproute                 #KLC 
+jinja2 			# needed for multi-configuiration setup
+jq                      #KLC 
+lark			# needed by keylime 6.4.0 (undeclared dependency, to fix l8r) 
+libarchive-devel 
+libselinux-python3 
+libtool 
+make 
+nmap			#KLC - ./keylimesetup/klbutil.sh:        which nmap 
+nmap-ncat 		#KLC installed with nmap 
+openssh-clients		#KLC 
+openssl			#With Fed-36
+openssl-devel		#OK 
+openstacksdk 
+packaging
+procps 
+psutil
+python3-alembic		#KL 
+python3-cryptography 	#KL
+python3-dbus 
+python3-devel 
+python3-gnupg 
+python3-m2crypto 
+python3-mysql 
+python3-packaging 	#KL
+python3-pip 
+python3-psutil		#KL 
+python3-PyMySQL 
+python3-redis		#KLC 
+python3-requests	#KL 
+python3-setuptools 	#KL
+python3-simplejson	#KLC - ./util/logs-analyzer/analyze.py:import json 
+python3-sqlalchemy	#KL 
+python3-tornado		#KL 
+python3-virtualenv 
+python3-yaml		#KLC 
+python3-zmq		#KL 
+redhat-rpm-config 
+redis			# KLC 
+rfc3161ng		# needed for durable attestation 
+rsync			#KLC - ./keylimesetup/data/ima_exclude.txt 
+rust 			# Rust agent
+signify==0.3.0		# needed because of the mbref seeder 
+sqlite			#KLC - ngkl_alembic_fixup.py 
+tmux                    #KLC 
+tpm2-tools              #KLC
+tpm2-tss		#KLC
+tss2			#KLC - ./keylimesetup/data/ima_exclude.txt:/usr/local/lib/libtss2-sys.so.1.0.0
+uthash-devel 
+uuid			#OK 
+uuid-devel 		#OK
+wget			#KLC 
+which                   #KLC 

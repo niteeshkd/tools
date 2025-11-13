@@ -1,0 +1,22 @@
+def add_to_class(Class) :
+   print("Inside add_to_class function, Class is : ", Class)
+   def wrapper(func) :
+      print("Inside wraper Function, func is :",  func)
+      print("Inside wraper Function, func.__name__  is : ", func.__name__)
+      setattr(Class, func.__name__, func)
+   return wrapper
+
+class A:
+   def __init__(self) :
+     print("Inside Class A Constructor, self is : ", self)
+     self.b = 6
+
+a = A()
+
+@add_to_class(A) 
+def do(self) :
+   print("Inside function do self is  : ", self)
+   print("Inside function do attribute b is : ", self.b)
+
+
+a.do()
